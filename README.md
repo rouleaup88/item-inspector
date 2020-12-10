@@ -13,9 +13,9 @@ The following files are lzma compressed versions of mwil Keisei Semantic-Phoneti
 kanji_esc.json.compressed<br>
 phonetic_esc.json.compressed<br>
 wk_kanji_esc.json.compressed<br>
-<br><br>
+<br>
 The original files are at https://github.com/mwil/wanikani-userscripts
-<br><br>
+<br><br><br>
 The following file is the lzma compressed version of Lars Yencken visually similar database
 <br><br>
 stroke_edit_dist_esc.json.compressed
