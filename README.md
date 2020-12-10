@@ -8,6 +8,13 @@ The Item Inspector script is
 <br><br>
 WaniKani Item Inspector.user.js
 <br><br><br>
+The following files are filters and a collection of functions complement Item Inspector
+<br><br>
+Datetime Parsing and Validation Functions.js<br>
+WaniKani Open Framework Date Filters.user.js<br>
+WaniKani Open Framework Search Filters.user<br>
+WaniKani Open Framework Statistics Filters.user<br>
+<br><br>
 The following files are lzma compressed versions of mwil Keisei Semantic-Phonetic composition data bases.
 <br><br>
 kanji_esc.json.compressed<br>
@@ -55,6 +62,13 @@ These restrictions are required because we can’t legally change the license fo
 
 Not even if we modify their code.
 
+The following files are under the MIT License.
+
+Datetime Parsing and Validation Functions.js<br>
+WaniKani Open Framework Date Filters.user.js<br>
+WaniKani Open Framework Search Filters.user<br>
+WaniKani Open Framework Statistics Filters.user<br>
+<br><br>
 The jisho.org stroke order image are available under the Creative Commons Attribution-Share Alike 3.0 license. https://creativecommons.org/licenses/by-sa/3.0/legalcode
 
 Lars Yencken Visual Similarity data is freely available under the Creative Commons Attribution 3.0 Unported license.
