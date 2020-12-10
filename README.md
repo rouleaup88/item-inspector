@@ -5,9 +5,9 @@ Item Inspector is a userscript for www.wanikani.com
 This repository contain the Item Inspector code and associated data files.
 <br><br>
 The Item Inspector script is
-<br><br><br>
-WaniKani Item Inspector.user.js
 <br><br>
+WaniKani Item Inspector.user.js
+<br><br><br>
 The following files are lzma compressed versions of mwil Keisei Semantic-Phonetic composition data bases.
 <br><br>
 kanji_esc.json.compressed<br>
