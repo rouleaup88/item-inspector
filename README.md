@@ -27,7 +27,7 @@ For information about lzma compression in Item Inspector see https://github.com/
 The folowing files are utility scripts adapted to be used with the wkof.load_script() function. They issue a wkof.set_state(file_id,'Ready') when they
 are done executing. You may wait for them to be ready with the corresponding wkof.wait_state(file_id, 'Ready") call.
 <br><br>
-lodash.min.js -- the leadah utility https://lodash.com/<br>
+lodash.min.js -- the lodash utility https://lodash.com/<br>
 lzma.js -- The lzma decompression utility https://github.com/jcmellado/js-lzma<br>
 lzma.shim.js -- The lzma decompression utility https://github.com/jcmellado/js-lzma<br>
 <br><br>
