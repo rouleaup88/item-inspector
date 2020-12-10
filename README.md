@@ -21,7 +21,7 @@ The following file is the lzma compressed version of Lars Yencken visually simil
 stroke_edit_dist_esc.json.compressed
 <br><br>
 The original file is at https://github.com/mwil/wanikani-userscripts
-<br><br>
+<br><br><br>
 For information about lzma compression in Item Inspector see https://github.com/rouleaup88/Kanji-stroke-order
 <br><br>
 
