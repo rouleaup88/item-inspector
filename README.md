@@ -29,10 +29,10 @@ For information about lzma compression in Item Inspector see https://github.com/
 
 Item Inspector is released under either the GPLV3 or the MIT license with these restrictions and exceptions.
 
-The license is GPLV3 because this script includes @acm2010 code and database licenced under GPLV3 for Keisei Semantic-Phonetic Composition.
-<br>— https://www.gnu.org/licenses/gpl-3.0.en.html
+The license is GPLV3 because this script includes mwil code and database licenced under GPLV3 for Keisei Semantic-Phonetic Composition.<br>
+— https://www.gnu.org/licenses/gpl-3.0.en.html
 
-If you use @acm2010 code and/or database you work as a whole must be licensed under GPLV3 to comply with @acm2010 license.
+If you use @acm2010 code and/or database you work as a whole must be licensed under GPLV3 to comply with mwil license.
 
 Code borrowed from Self Study Quiz and WKOF is licensed under MIT — http://opensource.org/licenses/MIT
 
