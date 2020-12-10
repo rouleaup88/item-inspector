@@ -2,9 +2,30 @@
 
 Item Inspector is a userscript for www.wanikani.com
 
-This repository (will) contain the Item Inspector code and associated data files.
+This repository contain the Item Inspector code and associated data files.
 
-Licensing:
+The Item Inspector script is
+
+WaniKani Item Inspector.user.js
+
+The following files are lzma compressed versions of mwil Keisei Semantic-Phonetic composition data bases.
+
+kanji_esc.json.compressed
+phonetic_esc.json.compressed
+wk_kanji_esc.json.compressed
+
+The original files are at https://github.com/mwil/wanikani-userscripts
+
+The following file is the lzma compressed version of Lars Yencken visually similar database
+
+stroke_edit_dist_esc.json.compressed
+
+The original file is at https://github.com/mwil/wanikani-userscripts
+
+For information about lzma compression in Item Inspector see https://github.com/rouleaup88/Kanji-stroke-order
+
+
+<b>Licensing</b>:
 
 Item Inspector is released under either the GPLV3 or the MIT license with these restrictions and exceptions.
 
