@@ -23,9 +23,20 @@ stroke_edit_dist_esc.json.compressed
 The original file is at https://github.com/mwil/wanikani-userscripts
 <br><br><br>
 For information about lzma compression in Item Inspector see https://github.com/rouleaup88/Kanji-stroke-order
+<br><br><br>
+The folowing files are utility scripts adapted to be used with the wkof.load_script() function. They issue a wkof.set_state(file_id,'Ready') when they
+are done executing. You may wait for them to be ready with the corresponding wkof.wait_state(file_id, 'Ready") call.
 <br><br>
-
-<b>Licensing</b>:
+lodash.min.js -- the leadah utility https://lodash.com/<br>
+lzma.js -- The lzma decompression utility https://github.com/jcmellado/js-lzma<br>
+lzma.shim.js -- The lzma decompression utility https://github.com/jcmellado/js-lzma<br>
+<br><br>
+The required wkof.wait_state calls are:
+<br><br>
+lodash.min.js => wkof.wait_state('Wkit_lodash','Ready')<br>
+lzma.js => wkof.wait_state('Wkit_lzma','Ready')<br>
+lzma.shim.js => wkof.wait_state('Wkit_lzma_shim','Ready')<br>
+<br><br>
 
 Item Inspector is released under either the GPLV3 or the MIT license with these restrictions and exceptions.
 
@@ -47,3 +58,5 @@ Not even if we modify their code.
 The jisho.org stroke order image are available under the Creative Commons Attribution-Share Alike 3.0 license. https://creativecommons.org/licenses/by-sa/3.0/legalcode
 
 Lars Yencken Visual Similarity data is freely available under the Creative Commons Attribution 3.0 Unported license.
+
+lodash.min.js, lzma.js and lzma.shim.js are available under their respective licenses. See the original site for details.
