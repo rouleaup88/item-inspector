@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.12.2
+// @version       1.12.3
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @license       GPLV3; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -7706,7 +7706,7 @@ ${is_dark ? 'text-align: left;' : ''}
                                 cellEntry = '"'+cellEntry.replace(/["]/g, '""').replace(/<.*?>/g ,'')+'"';
                             } else {
                                 if (quotes === 'Always') cellEntry = '"'+cellEntry+'"';
-                                if (quotes === 'As_Needed' && metaCol.needQuotest) cellEntry = '"'+cellEntry+'"';
+                                if (quotes === 'As_Needed' && metaCol.needQuotes) cellEntry = '"'+cellEntry+'"';
                                 if (quotes === 'As_Needed' && URLclickable && currentColumn === 'Item_Page' && (separator === ';' || separator === ',')) cellEntry = '"'+cellEntry+'"';
                             };
                             // Empty Context Sentences generate 'Unavailable' results
