@@ -3,11 +3,9 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.12.0
+// @version       1.12.2
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
-// @include       http://127.0.0.1:8887/WaniKani.html?static=1
-// @include       http://127.0.0.1:8887/OffLine.html?static=1
 // @license       GPLV3; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
 // @run-at        document-end
 // @grant         none
@@ -1948,6 +1946,7 @@ ${is_dark ? 'text-align: left;' : ''}
         quiz.settings = settings;
         populate_presets($('#Item_Inspector_source'), settings.ipresets, settings.active_ipreset);
 
+        table_defaults.showStrokeOrder = settings.tablePresets.reduce(((acc, preset) => acc || preset.showStrokeOrder), false);
         initCurrentItem();
         setNumberOfLines();
         populateDropdown();
@@ -2231,14 +2230,14 @@ ${is_dark ? 'text-align: left;' : ''}
             {name:'All Wanikani Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
                                                  tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
                                                  tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
-                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+                                                 showStrokeOrder:true, showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
             ];
 
         table_defaults = {currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
                           tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"None",tooltip4:"None",tooltip5:"None",tooltip6:"None",tooltip7:"None",tooltip8:"None",
                           showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
                           displayMeaning:false, enlargingTooltip:false, showMarkers:true, showMarkersDate:false, showHours:false, leechStreakLimit:0,
-                          showStrokeOrder:true, showKeisei:true, showPitchInfo:true,
+                          showStrokeOrder:true, showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
                           randomSelection: 0, oncePerReviewPeriod: false, addSimilarItems: false, navigationDate:'Lesson_Date',
                           includeTitle:false, includeLabels:false,missingData:'Code_Word',separator:'\t',quotes:'Never',URLclickable:'Plain',
                           hoursInDate:{'Review_Date': true, 'Last_Review_Date': true,}, contextSentences: 'separateJP', visSimTreshold:0,};
@@ -2295,6 +2294,8 @@ ${is_dark ? 'text-align: left;' : ''}
         for (idx in settings.tablePresets) {
             settings.tablePresets[idx] = $.extend(true, {}, table_defaults, settings.tablePresets[idx]);
         };
+
+        table_defaults.showStrokeOrder = settings.tablePresets.reduce(((acc, preset) => acc || preset.showStrokeOrder), false);
 
         restoreMissingDefaults = restoreMissingDefaultsInternal;
         lackDefaults = lackDefaultsInternal;
@@ -2879,6 +2880,9 @@ ${is_dark ? 'text-align: left;' : ''}
 			if (filter_spec === undefined) throw new Error('Item Inspector Temporary Filters - Invalid filter "'+filter_name+'"');
 			if (typeof filter_spec.filter_value_map === 'function')
 				filter_value = filter_spec.filter_value_map(filter_cfg.value);
+			if (typeof filter_spec.prepare === 'function') {
+				var result = filter_spec.prepare(filter_value);
+            };
 			filters.push({
 				name: filter_name,
 				func: filter_spec.filter_func,
@@ -2887,7 +2891,7 @@ ${is_dark ? 'text-align: left;' : ''}
 			});
 		}
 
-        var result = [];
+        result = [];
         for (var item of items) {
             var keep = true;
             for (var filter of filters) {
