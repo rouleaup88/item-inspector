@@ -22,8 +22,17 @@ phonetic_esc.json.compressed<br>
 wk_kanji_esc.json.compressed<br>
 <br>
 The original files are at https://github.com/mwil/wanikani-userscripts
+<br><br><br>The following files are lzma compressed versions of mwil Niai Visually Similar Kanji data bases.
+<br><br>
+from_keisei_esc.json.compressed<br>
+manual_esc.json.compressed<br>
+old_script_esc.json.compressed<br>
+wk_niai_noto_esc.json.compressed<br>
+yl_radical_esc.json.compressed<br>
+<br>
+The original files are at https://github.com/mwil/wanikani-userscripts
 <br><br><br>
-The following file is the lzma compressed version of Lars Yencken visually similar database
+The following file is the lzma compressed version of Lars Yencken visually similar database - also used in Niai Visually Similar Kanji
 <br><br>
 stroke_edit_dist_esc.json.compressed
 <br><br>
