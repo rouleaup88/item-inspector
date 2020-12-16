@@ -49,9 +49,11 @@ lzma.shim.js -- The lzma decompression utility https://github.com/jcmellado/js-l
 <br><br>
 The required wkof.wait_state calls are:
 <br><br>
+<code>
 lodash.min.js => wkof.wait_state('Wkit_lodash','Ready')<br>
 lzma.js => wkof.wait_state('Wkit_lzma','Ready')<br>
 lzma.shim.js => wkof.wait_state('Wkit_lzma_shim','Ready')<br>
+</code>
 <br><br>
 
 Item Inspector is released under either the GPLV3 or the MIT license with these restrictions and exceptions.
