@@ -51,9 +51,7 @@ The required wkof.wait_state calls are:
 <br><br>
 <code>
 lodash.min.js => wkof.wait_state('Wkit_lodash','Ready');
-  
 lzma.js => wkof.wait_state('Wkit_lzma','Ready');
-
 lzma.shim.js => wkof.wait_state('Wkit_lzma_shim','Ready');
 </code>
 <br><br>
