@@ -3,10 +3,10 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.13.0
+// @version       1.14.0
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
-// @license       GPLV3; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
+// @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
 // @run-at        document-end
 // @grant         none
 // ==/UserScript==
@@ -14,13 +14,15 @@
 // ===============================================================
 // Software Licence
 //
-// The license is GPLV3 because this script includes @acm2010 code and database licenced under GPLV3 for Keisei Semantic-Phonetic Composition.
-// If you use @acm2010 code and/or database you work as a whole must be licensed under GPLV3 to comply with @acm2010 license.
+// The license is GPLV3 or later because this script includes @acm2010 code and databases licenced under GPLV3 or later
+// --- for Keisei Semantic-Phonetic Composition
+// --- for Niai Visual Similarity Data
 //
 // Code borrowed from Self Study Quiz and WKOF is licensed under MIT --- http://opensource.org/licenses/MIT
 //
 // You may use Item Inspector code under either the GPLV3 or MIT license with these restrictions.
-// --- The GPLV3 code and database borrowed from @acm2010 must remain licensed under GPLV3 in all cases.
+// --- The GPLV3 or later code and database borrowed from @acm2010 must remain licensed under GPLV3 or later in all cases.
+// --- If you use @acm2010 code and/or databases you work as a whole must be licensed under GPLV3 or later to comply with @acm2010 license.
 // --- The MIT code borrowed from Self Study Quiz and WKOF must remain licensed under MIT in all cases.
 // These restrictions are required because we can't legally change the license for someone else's code and database without their permission.
 // Not even if we modify their code.
@@ -53,7 +55,15 @@
     const phonetic_db = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/phonetic_esc.json.compressed';
     const wk_kanji_db = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/wk_kanji_esc.json.compressed';
 
-    // Lars Yencken visually similar kanji database
+    // Niai Visually similar databases
+    const from_keisei_db_filename ='https://raw.githubusercontent.com/rouleaup88/item-inspector/main/from_keisei_esc.json.compressed';
+    const lookup_db_filename ='https://raw.githubusercontent.com/rouleaup88/item-inspector/main/lookup_esc.json.compressed';
+    const manual_db_filename ='https://raw.githubusercontent.com/rouleaup88/item-inspector/main/manual_esc.json.compressed';
+    const old_script_db_filename ='https://raw.githubusercontent.com/rouleaup88/item-inspector/main/old_script_esc.json.compressed';
+    const wk_niai_noto_db_filename ='https://raw.githubusercontent.com/rouleaup88/item-inspector/main/wk_niai_noto_esc.json.compressed';
+    const yl_radical_db_filename ='https://raw.githubusercontent.com/rouleaup88/item-inspector/main/yl_radical_esc.json.compressed';
+
+    // Lars Yencken visually similar kanji database - also required for Niai visual similarity
     const visuallySimilarFilename = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/stroke_edit_dist_esc.json.compressed';
 
     // Jisho.og stroke order SVG images - prouleau lzma compressed version
@@ -106,13 +116,13 @@
 
     var userChoiceOfColors = 'Breeze_Dark';
     function setThemeWatcher(){
-        observing(null, null)
-        let themeWatcher = new MutationObserver(observing);
+        setThemeClasses(null, null)
+        let themeWatcher = new MutationObserver(setThemeClasses);
         themeWatcher.observe($('html')[0], {childList: true, subtree: false, attributes: false, characterData: false});
         themeWatcher.observe($('head')[0], {childList: true, subtree: false, attributes: false, characterData: false});
     };
 
-    function observing(mutations, caller){
+    function setThemeClasses(mutations, caller){
         const BreezeDarkBackground = 'rgb(49, 54, 59)';
         const BreezeDarkcolor = 'rgb(188, 188, 188)';
         const DarkAzureBackground = 'rgb(67, 72, 88)';
@@ -150,9 +160,6 @@
     var fontColor;
     var secondaryFontColor;
     function table_css(){
-        let is_dark = is_dark_theme();
-        fontColor = (is_dark ? '#000000' : '#ffffff');
-        secondaryFontColor = (is_dark ? '#212020' : 'gainsboro');
         var leechTableCss = `
 
             /* ------------------------------------------------ */
@@ -928,7 +935,7 @@
 
             #WkitTopBar .WkitTooltip .WkitTooltipContent {
                   background-color: black;
-                  max-width: 700px;
+                  max-width: 650px;
                   min-width: 350px;
                   z-index: 1;
             }
@@ -1871,18 +1878,21 @@
     };
 
 
-    //========================================================================
+    //============================================================================
     // setting up the settings dialog
-    //------------------------------------------------------------------------
+    //
+    // when adding or removing settings in the dialog the default in init_settings
+    // must be changed as well
+    //----------------------------------------------------------------------------
     var standardInfo = ['table_data', 'sort1', 'sort2', 'tooltip1', 'tooltip2', 'tooltip3', 'tooltip4', 'tooltip5', 'tooltip6', 'tooltip7', 'tooltip8',];
     var exportedInfo = ['export1','export2','export3','export4','export5','export6','export7','export8','export9','export10',
                         'export11','export12','export13','export14','export15','export16','export17','export18','export19','export20',
                         'export21','export22','export23','export24','export25','export26','export27','export28','export29','export30',
                         'export31','export32','export33','export34','export35','export36','export37','export38','export39','export40',
                         'export41','export42','export43','export44','export45','export46','export47','export48','export49','export50',
-                        'export51','export52','export53','export54','export55',];
+                        'export51','export52','export53','export54','export55','export56',];
     var wideElements = {'Last_Review_Date':true, 'Review_Date':true, 'Passed_Date':true, 'Burned_Date':true, 'Resurrected_Date':true, 'Lesson_Date':true,
-                        'Unlock_Date':true, };
+                        'Unlock_Date':true, 'Joyo': true, 'JLPT': true, 'Frequency': true,};
 
     function setup_quiz_settings() {
 
@@ -1922,6 +1932,7 @@
                                    'Lesson_Date':'Lesson Date', 'Unlock_Date': 'Unlock Date',
                                    'Allow_List': 'Allow List', 'Block_List': 'Block List',
                                    'Part_Of_Speech': 'Part of Speech', 'Vis_Sim_Kanji': 'WK Visually Similar Kanji', 'Lars_Yencken': 'LY Visually Similar Kanji',
+                                   'Niai': 'Niai Visually Similar Kanji',
                                    'Components': 'Components of Item', 'Used_In': 'Items Where Used',
                                    'Joyo': 'Joyo Grade', 'JLPT': 'JLPT Level', 'Frequency': 'Frequency',
                                    'Mnemonics': 'Mnemonics/Hints/Contxt Sent.', 'Notes': 'Notes and User Synonyms',
@@ -1977,6 +1988,7 @@
                                      'Lesson_Date':'Lesson Date', 'Unlock_Date': 'Unlock Date',
                                      'Allow_List': 'Allow List', 'Block_List': 'Block List',
                                      'Part_Of_Speech': 'Part of Speech', 'Vis_Sim_Kanji': 'WK Visually Similar Kanji', 'Lars_Yencken': 'LY Visually Similar Kanji',
+                                     'Niai': 'Niai Visually Similar Kanji',
                                      'Components': 'Components of Item', 'Used_In': 'Items Where Used', 'Item_Page': 'URL of Item Page',
                                      'Joyo': 'Joyo Grade', 'JLPT': 'JLPT Level', 'Frequency': 'Frequency',
                                      'mMnemonics' : 'Meaning Mnemonics', 'rMnemonics' : 'Reading Mnemonics', 'mHints' : 'Meaning Hints', 'rHints' : 'Reading Hints',
@@ -2179,6 +2191,9 @@
                                    export55: {type:'dropdown',label:'Exported Column no 55',hover_tip:'The 55th column of exported information', default:'None',
                                               path:'@tablePresets[@active_ipreset].export55', content:exportElementContents,
                                              },
+                                   export56: {type:'dropdown',label:'Exported Column no 56',hover_tip:'The 56th column of exported information', default:'None',
+                                              path:'@tablePresets[@active_ipreset].export56', content:exportElementContents,
+                                             },
                                },
                               };
 
@@ -2264,23 +2279,43 @@
                                      leechStreakLimit: {type:'number',label:'Leech Streak Limit',hover_tip:'Do not display an item when current streak for both meaning and reading is equal or greater to this limit.\nA value of 0 disable this feature',
                                                         path:'@tablePresets[@active_ipreset].leechStreakLimit', default:0
                                                        },
-                                     visSimTreshold: {type:'number',label:'Visual Similarity Threshold',hover_tip:'Threshold for visual similarity of kanji\naccording to Lars Yencken data.\nA real number between 0 and 1\n0 selects all similar kanji.\nHigher numbers selects fewer kanjis.',
-                                                        path:'@tablePresets[@active_ipreset].visSimTreshold', default:0
+                                     visSimTreshold: {type:'number',label:'LY Visual Similarity Threshold',hover_tip:'Threshold for visual similarity of kanji\naccording to Lars Yencken data.\nA real number between 0 and 1\n0 selects all similar kanji.\nHigher numbers selects fewer kanjis.',
+                                                        path:'@tablePresets[@active_ipreset].visSimTreshold', default:0, min: 0.0, max: 1.0,
                                                        },
+                                     visSimTresholdNiai: {type:'number',label:'Niai Visual Similarity Threshold',hover_tip:'Threshold for visual similarity of kanji\naccording to Niai data.\nA real number between 0 and 1\n0 selects all similar kanji.\nHigher numbers selects fewer kanjis.',
+                                                        path:'@tablePresets[@active_ipreset].visSimTresholdNiai', default:0.3, min: 0.0, max: 1.0,
+                                                       },
+                                     niaiAlternate: {type:'checkbox',label:'Use Niai Alternate Sources',hover_tip:'Add alternate sources to Niai visually similar\ndata to the main sources.\nThis will return more similar kanji.',
+                                                    path:'@tablePresets[@active_ipreset].niaiAlternate', default:false,
+                                                   },
                                      sect_tbl_selections:{type:'section',label:'Selection Options Settings'},
                                      randomSelection: {type:'number',label:'Random Selection',hover_tip:'The size of a random selection of items.\n0 means to fill the screen.',
                                                        path:'@tablePresets[@active_ipreset].randomSelection', default:0,},
-                                     oncePerReviewPeriod: {type: 'checkbox', label: 'Only Once Before Next Review', default: false,
-                                                           hover_tip: 'In a random selection, an item may be\nselected at most once before the next review.',
-                                                           path:'@tablePresets[@active_ipreset].oncePerReviewPeriod',},
-                                     addSimilarItems: {type: 'checkbox', label: 'Add Similar Items', default: false,
-                                                       hover_tip: 'In a random selection, a selected item is\naccompanied by at most three similar items.',
-                                                       path:'@tablePresets[@active_ipreset].addSimilarItems',},
                                      navigationDate: {type:'dropdown',label:'Date for Date Navigation',hover_tip:'The date used as a reference when the mode ordering by date is on.',
                                                       path:'@tablePresets[@active_ipreset].navigationDate', default:'Lesson_Date',
                                                       content:{'Review_Date':'Review Date', 'Last_Review_Date':'Last Review Date', 'Lesson_Date':'Lesson Date', 'Passed_Date':'Passed Guru Date',
                                                                'Burned_Date':'Burned Date', 'Resurrected_Date': 'Resurrected Date', 'Unlock_Date': 'Unlock Date',},
                                                },
+                                     sect_tbl_leechTraining:{type:'section',label:'Leech Training Emulation'},
+                                     trainingSelection: {type:'number',label:'Size of Training Selection',hover_tip:'The size of a leech training selection of items.\n0 means to fill the screen.',
+                                                       path:'@tablePresets[@active_ipreset].trainingSelection', default:0,},
+                                     oncePerReviewPeriod: {type: 'checkbox', label: 'Only Once Before Next Review', default: true,
+                                                           hover_tip: 'In a random selection, an item may be\nselected at most once before the next review.',
+                                                           path:'@tablePresets[@active_ipreset].oncePerReviewPeriod',},
+                                     addSimilarItems: {type: 'checkbox', label: 'Add Similar Items', default: true,
+                                                       hover_tip: 'In a random selection, a selected item is\naccompanied by at most three similar items.',
+                                                       path:'@tablePresets[@active_ipreset].addSimilarItems',},
+                                     similarity: {type: 'dropdown', label: 'Type of Similarity', default: 'Niai',
+                                                  content: {'Wanikani': 'Wanikani', 'Lars_Yencken': 'Lars Yencken and Wanikani', 'Niai': 'Niai and Wanikani'},
+                                                  hover_tip: 'The source for similar items added.\nNiai uses Lars Yencken as an alternate source.\n\nTip:\nWanikani generates fewest similar items but they are highly similar.\nNiai generates most similar items but similarity may be lousy.\nLars Yencken lies in the middle.',
+                                                  path:'@tablePresets[@active_ipreset].similarity',},
+                                     visSimTresholdLT: {type:'number',label:'Leech Training Visual Threshold',
+                                                        hover_tip:'Threshold for visual similarity of selected items\naccording to Lars Yencken or Niai data.\nA real number between 0 and 1\n0 selects all similar kanji.\nHigher numbers selects fewer kanjis.',
+                                                        path:'@tablePresets[@active_ipreset].visSimTresholdLT', default:0.45, min: 0.0, max: 1.0,
+                                                       },
+                                     niaiAlternateLT: {type:'checkbox',label:'Use Niai Alternate Sources',hover_tip:'Add alternate sources of visually similar\ndata to the main sources.\nThis will return more similar kanji.\nNiai must be the source for this to have effect.',
+                                                    path:'@tablePresets[@active_ipreset].niaiAlternateLT', default:true,
+                                                   },
                                  },
                                 };
 
@@ -2397,6 +2432,210 @@
         if ($('#Item_Inspector_active_fpreset').prop('selectedIndex') === 0) $('#Item_Inspector_fpre_ask').prop('checked', false);
     }
 
+    var noTemporaryFilterName = 'No Temporary Filter';
+    var restoreMissingDefaults, lackDefaults;
+    //========================================================================
+    // initializes settings in memory, setting up defaults at the same time
+    //------------------------------------------------------------------------
+    var table_defaults;
+    var fpreset_defaults, ipreset_defaults;
+    function init_settings() {
+
+        prepare_defaults_for_filters();
+
+        // Merge some defaults
+        var defaults = {hoursFormat: '24h', position: 2, numberOfLines: 11, listMode: false, audioSource: 'random', audioMode: false, themeColor: 'Breeze_Dark',
+                        optionalFilters: {dateFilters: false, searchFilters: false, statsFilters: false, itemList: false, partOfSpeech: false,},
+                        enableFeatures: {englishMode: true, audioMode: true, randomSelection: true, dateOrdering: true, temporaryFilters: true, exportCSV: true,
+                                          itemExport: true, selfStudy: true},
+                        noLatin: false, oneItemPerLine: false, exportLimit: 0, repeatWordCloud: 'No Repeat',
+                       };
+
+        var settings = $.extend(true, {}, defaults, wkof.settings.Item_Inspector);
+        settings.active_fpreset = 0; // must always be 0 on startup
+        wkof.settings.Item_Inspector = quiz.settings = settings;
+
+        let ipresets_defaults = [
+            {name:'Leeches', content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,mast:true}}
+                                                                      ,additionalFilters_leechTraining:{enabled:true,value:1}}}},
+            },
+            {name:'Failed Last Review', content:{wk_items:{enabled:true,filters:{additionalFilters_failedLastReview:{enabled:true,value:24}}}},
+            },
+            {name:'Current Level SRS', content:{wk_items:{enabled:true,filters:{level:{enabled:true,value:"+0"},
+                                                                                srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,
+                                                                                                         mast:true,enli:true,burn:true}}}}},
+            },
+            {name:'Previous Level SRS', content:{wk_items:{enabled:true,filters:{level:{enabled:true,value:"-1"},
+                                                                                 srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,
+                                                                                                          mast:true,enli:true,burn:true}}}}},
+            },
+            {name:'Burned Items', content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{burn:true}}}}},
+            },
+            {name:'All Learned Items', content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,
+                                                                                                         mast:true,enli:true,burn:true}}}}},
+            },
+            {name:'All Wanikani Items', content:{wk_items:{enabled:true,filters:{}}},
+            },
+        ];
+
+        let tablePresetsDefault = [
+            {name:'Leeches', tableContents:{currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                            tooltip1:"Meaning_Full",tooltip2:"Reading_Full",enlargingTooltip:true,
+                                            showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+            {name:'Failed Last Review', tableContents:{currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                                       tooltip1:"Meaning_Full",tooltip2:"Reading_Full",enlargingTooltip:true,
+                                                       showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+            {name:'Current Level SRS', tableContents:{currentItem:0,table_data:"Srs",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                                      tooltip1:"Review_Date",tooltip2:"Review_Wait",
+                                                      showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+            {name:'Previous Level SRS', tableContents:{currentItem:0,table_data:"Srs",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                                       tooltip1:"Review_Date",tooltip2:"Review_Wait",
+                                                       showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+            {name:'Burned Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                                 tooltip1:"Meaning_Full",tooltip2:"Reading_Full",enlargingTooltip:true,
+                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+            {name:'All Learned Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                                 tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
+                                                 tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
+                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+            {name:'All Wanikani Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                                 tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
+                                                 tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
+                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+            ];
+
+        table_defaults = {currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                          tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"None",tooltip4:"None",tooltip5:"None",tooltip6:"None",tooltip7:"None",tooltip8:"None",
+                          displayMeaning:false, enlargingTooltip:false, showMarkers:true, showMarkersDate:false, showHours:false, leechStreakLimit:0,
+                          showStrokeOrder:true, showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                          visSimTreshold:0, visSimTresholdNiai:0.3, niaiAlternate:false,
+                          randomSelection: 0, navigationDate:'Lesson_Date',
+                          trainingSelection:0, oncePerReviewPeriod: true, addSimilarItems: true, similarity:'Niai', visSimTresholdLT:0.45, niaiAlternateLT: true,
+                          includeTitle:false, includeLabels:false,missingData:'Code_Word',separator:'\t',quotes:'Never',URLclickable:'Plain',
+                          hoursInDate:{'Review_Date': true, 'Last_Review_Date': true,}, contextSentences: 'separateJP',};
+        for (var i = 0; i < exportedInfo.length; i++){
+            table_defaults[exportedInfo[i]] = 'None';
+        };
+
+        let fpresets_defaults = [
+            {name: noTemporaryFilterName, ask: false, content:{wk_items:{enabled:true,filters:{}}},
+            },
+            {name:'Leeches Value >= 2.0', ask: false, content:{wk_items:{enabled:true,filters:{additionalFilters_leechTraining:{enabled:true,value:2}}}},
+            },
+            {name:'Min. Current Streak >= 2', ask: false, content:{wk_items:{enabled:true,filters:{statsFilters_minCurStrGteq:{enabled:true,value:2}}}},
+            },
+            {name:'Min. Current Streak <= 1', ask: false, content:{wk_items:{enabled:true,filters:{statsFilters_minCurStrLteq:{enabled:true,value:1}}}},
+            },
+            {name:'Apprentice Items', ask: false, content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:false,guru2:false,mast:false,enli:false}}}}},
+            },
+            {name:'Has Passed Guru', ask: false, content:{wk_items:{enabled:true,filters:{dateFilters_hadPassedGuru:{enabled:true,value:true},}}},
+            },
+            {name:'Has Not Passed Guru', ask: false, content:{wk_items:{enabled:true,filters:{dateFilters_hadPassedGuru:{enabled:true,value:false},}}},
+            },
+            {name:'Global Search', ask: true, content:{wk_items:{enabled:true,filters:{searchFilters_globalSearch:{enabled:true,value:''},}}},
+            },
+        ];
+        fpreset_defaults = {ask: false, };
+        ipreset_defaults = {};
+
+        // define defaults if ipresets not yet defined or empty
+        if (settings.ipresets === undefined || !settings.ipresets.length) {
+            settings.active_ipreset = 0;
+            settings.ipresets = ipresets_defaults;
+            var x = [];
+            for (var y of tablePresetsDefault){x.push($.extend(true, {}, table_defaults, y.tableContents))};
+            settings.tablePresets = x;
+        };
+
+        // define defaults if fpresets not yet defined or empty
+        if (settings.fpresets === undefined || !settings.fpresets.length) {
+            settings.active_fpreset = 0;
+            settings.fpresets = fpresets_defaults;
+        };
+
+        for (var idx in settings.ipresets) {
+            settings.ipresets[idx] = $.extend(true, {}, ipreset_defaults, settings.ipresets[idx]);
+            settings.ipresets[idx].content = $.extend(true, {}, ipre_defaults, settings.ipresets[idx].content);
+        };
+
+        for (idx in settings.fpresets) {
+            settings.fpresets[idx] = $.extend(true, {}, fpreset_defaults, settings.fpresets[idx]);
+            settings.fpresets[idx].content = $.extend(true, {}, fpreset_defaults, ipre_defaults, settings.fpresets[idx].content);
+        };
+
+        for (idx in settings.tablePresets) {
+            settings.tablePresets[idx] = $.extend(true, {}, table_defaults, settings.tablePresets[idx]);
+        };
+
+        setTableDefault();
+        restoreMissingDefaults = restoreMissingDefaultsInternal;
+        lackDefaults = lackDefaultsInternal;
+
+        function restoreMissingDefaultsInternal(){
+            let somethingNotFound = false;
+            for (var idx in ipresets_defaults){
+                let tableData = ipresets_defaults[idx];
+                let name = tableData.name;
+                let found = false;
+                settings.ipresets.forEach((config) => {if (config.name === name) found = true;});
+                somethingNotFound = somethingNotFound || !found;
+                if (found !== true) {
+                    settings.ipresets.push($.extend(true, {}, {name: name, content: ipre_defaults}, tableData));
+                    settings.tablePresets.push($.extend(true, {}, table_defaults, tablePresetsDefault[idx].tableContents));
+                };
+            };
+            for (var tableData of fpresets_defaults){
+                let name = tableData.name;
+                let found = false;
+                settings.fpresets.forEach((config) => {if (config.name === name) found = true;});
+                somethingNotFound = somethingNotFound || !found;
+                if (found !== true) settings.fpresets.push($.extend(true, {}, {name: name, content: ipre_defaults}, tableData));
+            };
+            refresh_ipresets();
+            refresh_fpresets();
+            if (somethingNotFound){
+                alert('Your missing defaults have been restored.');
+            } else {
+                alert('You have no missing defaults.');
+            };
+        };
+
+        function lackDefaultsInternal(){
+            for (var idx in ipresets_defaults){
+                let found = false;
+                let tableData = ipresets_defaults[idx];
+                let name = tableData.name;
+                settings.ipresets.forEach((config) => {if (config.name === name) found = true;});
+                if (!found) return true;
+            };
+            for (var tableData of fpresets_defaults){
+                let found = false;
+                let name = tableData.name;
+                settings.fpresets.forEach((config) => {if (config.name === name) found = true;});
+                if (!found) return true;
+            };
+            return false;
+        };
+
+    };
+
+    // set defaults to values that won't cause data download when not already required
+    function setTableDefault(){
+        table_defaults.showStrokeOrder = quiz.settings.tablePresets.reduce(((acc, preset) => acc || preset.showStrokeOrder), false);
+        let strokeOrderSVG = quiz.settings.tablePresets.reduce(((acc, preset) => acc || (preset.showKanji === 'Stroke Order')), false);
+        let keisei = quiz.settings.tablePresets.reduce(((acc, preset) => acc || (preset.showKanji === 'Keisei') || (preset.showRadical === 'Keisei')), false);
+        if (keisei) {
+            table_defaults.showRadical = 'Keisei';
+            table_defaults.showKanji = 'Keisei';
+        } else if (strokeOrderSVG) {
+            table_defaults.showRadical = 'Item';
+            table_defaults.showKanji = 'Stroke Order';
+        } else {
+            table_defaults.showRadical = 'Item';
+            table_defaults.showKanji = 'Item';
+        };
+    };
+
     //========================================================================
     // pre_open callback for the dialog
     // adds buttons and event handlers for managing table and temporary filters
@@ -2475,8 +2714,8 @@
         quiz.settings = settings;
         populate_presets($('#Item_Inspector_source'), settings.ipresets, settings.active_ipreset);
 
-        table_defaults.showStrokeOrder = settings.tablePresets.reduce(((acc, preset) => acc || preset.showStrokeOrder), false);
-        observing(null, null)
+        setTableDefault();
+        setThemeClasses(null, null);
         initCurrentItem();
         setNumberOfLines();
         populateDropdown();
@@ -2679,204 +2918,6 @@
         };
     };
 
-    var noTemporaryFilterName = 'No Temporary Filter';
-    var restoreMissingDefaults, lackDefaults;
-    //========================================================================
-    // initializes settings in memory, setting up defaults at the same time
-    //------------------------------------------------------------------------
-    var table_defaults;
-    var fpreset_defaults, ipreset_defaults;
-    function init_settings() {
-
-        prepare_defaults_for_filters();
-
-        // Merge some defaults
-        var defaults = {hoursFormat: '24h', position: 2, numberOfLines: 11, listMode: false, audioSource: 'random', audioMode: false, themeColor: 'Breeze_Dark',
-                        optionalFilters: {dateFilters: false, searchFilters: false, statsFilters: false, itemList: false, partOfSpeech: false,},
-                        enableFeatures: {englishMode: true, audioMode: true, randomSelection: true, dateOrdering: true, temporaryFilters: true, exportCSV: true,
-                                          itemExport: true, selfStudy: true},
-                        noLatin: false, oneItemPerLine: false, exportLimit: 0, repeatWordCloud: 'No Repeat',
-/*                        defaults: {table_data: 'Level', sort1: 'Level', sortOrder1: 'Default', sort2: 'Default', sortOrder2: 'Default',
-                                   tooltip1: 'Meaning_Full', tooltip2: 'Reading_Full', tooltip3: 'Srs', tooltip4: 'Unlock_Date', tooltip5: 'Lesson_Date',
-                                   tooltip6: 'Passed_Date', tooltip7: 'Burned_Date', tooltip8: 'Leech',
-                                   showStrokeOrder:true, showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
-                                   displayMeaning: false, enlargingTooltip: false, showMarkers: true, showMarkersDate: false, showHours: false,
-                                   leechStreakLimit: 0, randomSelection: 0, oncePerReviewPeriod: false ,addSimilarItems: false, navigationDate: 'Lesson_Date',
-                                   separator: '\t', quotes: 'Never', includeTitle: false, includeLabels: false, URLclickable: 'Spreadsheet',
-                                   missingData: 'Code_Word', hoursInDate: {"Review_Date": true}, contextSentences: 'separateJP', visSimTreshold: 0,
-                                  },*/
-                       };
-//        for (var j = 0; j < exportedInfo.length; j++){
-//            defaults.defaults[exportedInfo[j]] = 'None';
-//        };
-
-        var settings = $.extend(true, {}, defaults, wkof.settings.Item_Inspector);
-        settings.active_fpreset = 0; // must always be 0 on startup
-        wkof.settings.Item_Inspector = quiz.settings = settings;
-
-        let ipresets_defaults = [
-            {name:'Leeches', content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,mast:true}}
-                                                                      ,additionalFilters_leechTraining:{enabled:true,value:1}}}},
-            },
-            {name:'Failed Last Review', content:{wk_items:{enabled:true,filters:{additionalFilters_failedLastReview:{enabled:true,value:24}}}},
-            },
-            {name:'Current Level SRS', content:{wk_items:{enabled:true,filters:{level:{enabled:true,value:"+0"},
-                                                                                srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,
-                                                                                                         mast:true,enli:true,burn:true}}}}},
-            },
-            {name:'Previous Level SRS', content:{wk_items:{enabled:true,filters:{level:{enabled:true,value:"-1"},
-                                                                                 srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,
-                                                                                                          mast:true,enli:true,burn:true}}}}},
-            },
-            {name:'Burned Items', content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{burn:true}}}}},
-            },
-            {name:'All Learned Items', content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,
-                                                                                                         mast:true,enli:true,burn:true}}}}},
-            },
-            {name:'All Wanikani Items', content:{wk_items:{enabled:true,filters:{}}},
-            },
-        ];
-
-        let tablePresetsDefault = [
-            {name:'Leeches', tableContents:{currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                            tooltip1:"Meaning_Full",tooltip2:"Reading_Full",enlargingTooltip:true,
-                                            showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
-            {name:'Failed Last Review', tableContents:{currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                       tooltip1:"Meaning_Full",tooltip2:"Reading_Full",enlargingTooltip:true,
-                                                       showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
-            {name:'Current Level SRS', tableContents:{currentItem:0,table_data:"Srs",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                      tooltip1:"Review_Date",tooltip2:"Review_Wait",
-                                                      showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
-            {name:'Previous Level SRS', tableContents:{currentItem:0,table_data:"Srs",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                       tooltip1:"Review_Date",tooltip2:"Review_Wait",
-                                                       showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
-            {name:'Burned Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                 tooltip1:"Meaning_Full",tooltip2:"Reading_Full",enlargingTooltip:true,
-                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
-            {name:'All Learned Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                 tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
-                                                 tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
-                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
-            {name:'All Wanikani Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                 tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
-                                                 tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
-                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
-            ];
-
-        table_defaults = {currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                          tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"None",tooltip4:"None",tooltip5:"None",tooltip6:"None",tooltip7:"None",tooltip8:"None",
-                          showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
-                          displayMeaning:false, enlargingTooltip:false, showMarkers:true, showMarkersDate:false, showHours:false, leechStreakLimit:0,
-                          showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
-                          randomSelection: 0, oncePerReviewPeriod: false, addSimilarItems: false, navigationDate:'Lesson_Date',
-                          includeTitle:false, includeLabels:false,missingData:'Code_Word',separator:'\t',quotes:'Never',URLclickable:'Plain',
-                          hoursInDate:{'Review_Date': true, 'Last_Review_Date': true,}, contextSentences: 'separateJP', visSimTreshold:0,};
-        for (var i = 0; i < exportedInfo.length; i++){
-            table_defaults[exportedInfo[i]] = 'None';
-        };
-
-        let fpresets_defaults = [
-            {name: noTemporaryFilterName, ask: false, content:{wk_items:{enabled:true,filters:{}}},
-            },
-            {name:'Leeches Value >= 2.0', ask: false, content:{wk_items:{enabled:true,filters:{additionalFilters_leechTraining:{enabled:true,value:2}}}},
-            },
-            {name:'Min. Current Streak >= 2', ask: false, content:{wk_items:{enabled:true,filters:{statsFilters_minCurStrGteq:{enabled:true,value:2}}}},
-            },
-            {name:'Min. Current Streak <= 1', ask: false, content:{wk_items:{enabled:true,filters:{statsFilters_minCurStrLteq:{enabled:true,value:1}}}},
-            },
-            {name:'Apprentice Items', ask: false, content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:false,guru2:false,mast:false,enli:false}}}}},
-            },
-            {name:'Has Passed Guru', ask: false, content:{wk_items:{enabled:true,filters:{dateFilters_hadPassedGuru:{enabled:true,value:true},}}},
-            },
-            {name:'Has Not Passed Guru', ask: false, content:{wk_items:{enabled:true,filters:{dateFilters_hadPassedGuru:{enabled:true,value:false},}}},
-            },
-            {name:'Global Search', ask: true, content:{wk_items:{enabled:true,filters:{searchFilters_globalSearch:{enabled:true,value:''},}}},
-            },
-        ];
-        fpreset_defaults = {ask: false, };
-        ipreset_defaults = {};
-
-        // define defaults if ipresets not yet defined or empty
-        if (settings.ipresets === undefined || !settings.ipresets.length) {
-            settings.active_ipreset = 0;
-            settings.ipresets = ipresets_defaults;
-            var x = [];
-            for (var y of tablePresetsDefault){x.push($.extend(true, {}, table_defaults, y.tableContents))};
-            settings.tablePresets = x;
-        };
-
-        // define defaults if fpresets not yet defined or empty
-        if (settings.fpresets === undefined || !settings.fpresets.length) {
-            settings.active_fpreset = 0;
-            settings.fpresets = fpresets_defaults;
-        };
-
-        for (var idx in settings.ipresets) {
-            settings.ipresets[idx] = $.extend(true, {}, ipreset_defaults, settings.ipresets[idx]);
-            settings.ipresets[idx].content = $.extend(true, {}, ipre_defaults, settings.ipresets[idx].content);
-        };
-
-        for (idx in settings.fpresets) {
-            settings.fpresets[idx] = $.extend(true, {}, fpreset_defaults, settings.fpresets[idx]);
-            settings.fpresets[idx].content = $.extend(true, {}, fpreset_defaults, ipre_defaults, settings.fpresets[idx].content);
-        };
-
-        for (idx in settings.tablePresets) {
-            settings.tablePresets[idx] = $.extend(true, {}, table_defaults, settings.tablePresets[idx]);
-        };
-
-        table_defaults.showStrokeOrder = settings.tablePresets.reduce(((acc, preset) => acc || preset.showStrokeOrder), false);
-
-        restoreMissingDefaults = restoreMissingDefaultsInternal;
-        lackDefaults = lackDefaultsInternal;
-
-        function restoreMissingDefaultsInternal(){
-            let somethingNotFound = false;
-            for (var idx in ipresets_defaults){
-                let tableData = ipresets_defaults[idx];
-                let name = tableData.name;
-                let found = false;
-                settings.ipresets.forEach((config) => {if (config.name === name) found = true;});
-                somethingNotFound = somethingNotFound || !found;
-                if (found !== true) {
-                    settings.ipresets.push($.extend(true, {}, {name: name, content: ipre_defaults}, tableData));
-                    settings.tablePresets.push($.extend(true, {}, table_defaults, tablePresetsDefault[idx].tableContents));
-                };
-            };
-            for (var tableData of fpresets_defaults){
-                let name = tableData.name;
-                let found = false;
-                settings.fpresets.forEach((config) => {if (config.name === name) found = true;});
-                somethingNotFound = somethingNotFound || !found;
-                if (found !== true) settings.fpresets.push($.extend(true, {}, {name: name, content: ipre_defaults}, tableData));
-            };
-            refresh_ipresets();
-            refresh_fpresets();
-            if (somethingNotFound){
-                alert('Your missing defaults have been restored.');
-            } else {
-                alert('You have no missing defaults.');
-            };
-        };
-
-        function lackDefaultsInternal(){
-            for (var idx in ipresets_defaults){
-                let found = false;
-                let tableData = ipresets_defaults[idx];
-                let name = tableData.name;
-                settings.ipresets.forEach((config) => {if (config.name === name) found = true;});
-                if (!found) return true;
-            };
-            for (var tableData of fpresets_defaults){
-                let found = false;
-                let name = tableData.name;
-                settings.fpresets.forEach((config) => {if (config.name === name) found = true;});
-                if (!found) return true;
-            };
-            return false;
-        };
-
-    };
 
     //========================================================================
     // Collects from the registry default values for the filters settings
@@ -3317,7 +3358,7 @@
         }
 
         var spec = wkof.ItemData.registry.sources[src_name];
-        apply_filters(quiz.allItems, filters, spec);
+        return apply_filters(quiz.allItems, filters, spec);
     };
 
     function applyTemporaryFilter(){
@@ -3338,13 +3379,14 @@
             if (fpre_flt.invert === true) filters[flt_name].invert = true;
         }
         var spec = wkof.ItemData.registry.sources[src_name];
-        apply_filters(quiz.items, filters, spec);
+        return apply_filters(quiz.items, filters, spec);
     }
 
 	//------------------------------
 	// Filter the items array according to the specified filters and options.
 	//------------------------------
 	function apply_filters(items, cfg, spec) {
+		var prep_promises = [];
 		var filters = [];
 		var is_wk_items = (spec === wkof.ItemData.registry.sources.wk_items);
 		for (var filter_name in cfg) {
@@ -3358,6 +3400,7 @@
 				filter_value = filter_spec.filter_value_map(filter_cfg.value);
 			if (typeof filter_spec.prepare === 'function') {
 				var result = filter_spec.prepare(filter_value);
+				if (result instanceof Promise) prep_promises.push(result);
 			}
 			filters.push({
 				name: filter_name,
@@ -3367,23 +3410,26 @@
 			});
 		}
 
-        result = [];
-        for (var item of items) {
-            var keep = true;
-            for (var filter of filters) {
-                try {
-                    keep = filter.func(filter.filter_value, item);
-                    if (filter.invert) keep = !keep;
-                    if (!keep) break;
-                } catch(e) {
-                    throw e;
-                    keep = false;
-                    break;
+ 		return Promise.all(prep_promises).then(function(){
+            result = [];
+            for (var idx in items) {
+                var item = items[idx];
+                var keep = true;
+                for (var filter of filters) {
+                    try {
+                        keep = filter.func(filter.filter_value, item);
+                        if (filter.invert) keep = !keep;
+                        if (!keep) break;
+                    } catch(e) {
+                        throw e;
+                        keep = false;
+                        break;
+                    }
                 }
+                if (keep) result.push(item);
             }
-            if (keep) result.push(item);
-        }
-        quiz.items = result;
+            quiz.items = result;
+        })
 	}
 
     //====================================
@@ -4033,6 +4079,16 @@
                                      'export': ((item) => {return makeListVisSimKan(visuallySimilarData[item.data.characters])}),
                                      'itemList': ((item)=>{return makeItemListVisSimKan(visuallySimilarData[item.data.characters])}),
                                      'idList': ((item)=>{return makeIdListVisSimKan(visuallySimilarData[item.data.characters])}),
+                                     'isDate': false, 'isList': true,
+                                    },
+                    'Niai':  {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Vis.&nbsp;Sim.&nbspNiai',
+                                     'title': 'Vis. Sim. Kanjis Niai',
+                                     'labelExport': 'Vis. Sim. Kanjis Niai: ',
+                                     'needQuotes': true,
+                                     'freeFormText': false,
+                                     'export': ((item) => {return makeKanjiListNiai(item.data.characters)}),
+                                     'itemList': ((item)=>{return makeItemListVisSimNiai(item.data.characters)}),
+                                     'idList': ((item)=>{return makeIdListVisSimNiai(item.data.characters)}),
                                      'isDate': false, 'isList': true,
                                     },
 
@@ -4904,24 +4960,23 @@
         wkof.file_cache.delete(visuallySimilarFilename);
     }
 
-    function makeListVisSimKan(visuallySimilarData){
+    function makeListVisSimKan(visuallySimilarData, thresholdProvided){
         if (visuallySimilarData === undefined) return [];
+        let threshold = thresholdProvided === undefined ? quiz.settings.tablePresets[quiz.settings.active_ipreset].visSimTreshold : thresholdProvided;
         let acc = [];
-        let threshold = quiz.settings.tablePresets[quiz.settings.active_ipreset].visSimTreshold;
         for (var data of visuallySimilarData){
             if (data.score >= threshold && kanjiIndex[data.kan] !== undefined) acc.push(nameItem(kanjiIndex[data.kan])); // test because some Lars Yencken kanji are not in WK
-        }
+        };
         return acc.join(', ');
-        //return acc;
     }
 
-    function makeItemListVisSimKan(visuallySimilarData){
+    function makeItemListVisSimKan(visuallySimilarData, thresholdProvided){
         if (visuallySimilarData === undefined) return [];
+        let threshold = thresholdProvided === undefined ? quiz.settings.tablePresets[quiz.settings.active_ipreset].visSimTreshold : thresholdProvided;
         let acc = [];
-        let threshold = quiz.settings.tablePresets[quiz.settings.active_ipreset].visSimTreshold;
         for (var data of visuallySimilarData){
             if (data.score >= threshold && kanjiIndex[data.kan] !== undefined) acc.push(kanjiIndex[data.kan]); // test because some Lars Yencken kanji are not in WK
-        }
+        };
         return acc;
     }
 
@@ -4931,11 +4986,191 @@
         let threshold = quiz.settings.tablePresets[quiz.settings.active_ipreset].visSimTreshold;
         for (var data of visuallySimilarData){
             if (data.score >= threshold && kanjiIndex[data.kan] !== undefined) acc.push(kanjiIndex[data.kan].id); // test because some Lars Yencken kanji are not in WK
-        }
+        };
         return acc;
     }
 
     // END Support of Lars Yencken visually similar kanji
+
+    // BEGIN Niai Visual Similarity Data
+    // Source @acm2010 at the Niai Visually Similar script
+    // https://community.wanikani.com/t/userscript-niai-%E4%BC%BC%E5%90%88%E3%81%84-visually-similar-kanji/23325
+    // https://github.com/mwil/wanikani-userscripts/tree/master/wanikani-similar-kanji
+
+    // Niai also uses Lars Yencken visually similar data
+
+    var from_keisei_db;
+    var lookup_db;
+    var manual_db;
+    var old_script_db;
+    var wk_niai_noto_db;
+    var yl_radical_db;
+
+    // function to be invoked in the startup sequence
+    function loadNiaiDatabase(){
+        let promiseList = [];
+        promiseList.push(load_file(from_keisei_db_filename, true, {responseType: "arraybuffer"}).then(data => {lzmaDecompressAndProcessNiai_manual_db(data);}));
+        promiseList.push(load_file(from_keisei_db_filename, true, {responseType: "arraybuffer"}).then(data => {lzmaDecompressAndProcessNiai_from_keisei_db(data);}));
+        promiseList.push(load_file(old_script_db_filename, true, {responseType: "arraybuffer"}).then(data => {lzmaDecompressAndProcessNiai_old_script_db(data);}));
+        promiseList.push(load_file(wk_niai_noto_db_filename, true, {responseType: "arraybuffer"}).then(data => {lzmaDecompressAndProcessNiai_wk_niai_noto_db(data);}));
+        promiseList.push(load_file(yl_radical_db_filename, true, {responseType: "arraybuffer"}).then(data => {lzmaDecompressAndProcessNiai_yl_radical_db(data);}));
+        return Promise.all(promiseList);
+    };
+
+    function lzmaDecompressAndProcessNiai_manual_db(data){
+        let inStream = new LZMA.iStream(data);
+        let outStream = LZMA.decompressFile(inStream);
+        let string = streamToString(outStream);
+        manual_db = JSON.parse(string);
+    };
+
+    function lzmaDecompressAndProcessNiai_from_keisei_db(data){
+        let inStream = new LZMA.iStream(data);
+        let outStream = LZMA.decompressFile(inStream);
+        let string = streamToString(outStream);
+        from_keisei_db = JSON.parse(string);
+    };
+
+    function lzmaDecompressAndProcessNiai_old_script_db(data){
+        let inStream = new LZMA.iStream(data);
+        let outStream = LZMA.decompressFile(inStream);
+        let string = streamToString(outStream);
+        old_script_db = JSON.parse(string);
+    };
+
+    function lzmaDecompressAndProcessNiai_wk_niai_noto_db(data){
+        let inStream = new LZMA.iStream(data);
+        let outStream = LZMA.decompressFile(inStream);
+        let string = streamToString(outStream);
+        wk_niai_noto_db = JSON.parse(string);
+    };
+
+    function lzmaDecompressAndProcessNiai_yl_radical_db(data){
+        let inStream = new LZMA.iStream(data);
+        let outStream = LZMA.decompressFile(inStream);
+        let string = streamToString(outStream);
+        yl_radical_db = JSON.parse(string);
+    };
+
+    function deleteNiaiCache(){
+        wkof.file_cache.delete(from_keisei_db_filename);
+        wkof.file_cache.delete(old_script_db_filename);
+        wkof.file_cache.delete(wk_niai_noto_db_filename);
+        wkof.file_cache.delete(yl_radical_db_filename);
+    };
+
+    function hasNiaiData(kanji, includesAlternate){
+        let preset = quiz.settings.tablePresets[quiz.settings.active_ipreset]
+        if (kanji in wk_niai_noto_db) return true;
+        if (kanji in from_keisei_db) return true;
+        if (kanji in manual_db) return true;
+        let alternate = includesAlternate === undefined ? preset.niaiAlternate : includesAlternate;
+        if (alternate) {
+            if (kanji in old_script_db) return true;
+            if (kanji in yl_radical_db) return true;
+            if (kanji in visuallySimilarData) return true;
+        };
+        return false;
+    }
+
+    // function makeKanjiListNiai includes bits of code borrowed from @acm2010 Niai Visually Similar Kanji script
+    // Must be licensed under GPL V3 or later
+    function makeKanjiListNiai(kanji, thresholdProvided, includesAlternate){
+        let preset = quiz.settings.tablePresets[quiz.settings.active_ipreset]
+        const sources = [
+            {"id": "noto_db",        "base_score": 0.1},
+            {"id": "keisei_db",      "base_score": 0.65},
+            {"id": "manual_db",      "base_score": 0.9},
+        ];
+        const alt_sources = [
+            {"id": "old_script_db",  "base_score": 0.4},
+            {"id": "yl_radical_db",  "base_score": -0.2},
+            {"id": "stroke_dist_db", "base_score": -0.2},
+        ];
+        let selectedSources, score, old_score, similarData;
+        let alternate = includesAlternate === undefined ? preset.niaiAlternate : includesAlternate;
+        if (alternate){
+            selectedSources = [...alt_sources, ...sources];
+        } else {
+            selectedSources = sources;
+        };
+        let similar_kanji = {};
+        for (let source of selectedSources ){
+            let threshold = thresholdProvided === undefined ? preset.visSimTresholdNiai : thresholdProvided;
+
+            switch (source.id){
+                case 'noto_db': // has scores
+                    if (!(kanji in wk_niai_noto_db)) continue;
+                    similarData = wk_niai_noto_db[kanji];
+                    break;
+                case 'keisei_db': // no scores
+                    if (!(kanji in from_keisei_db)) continue;
+                    similarData = from_keisei_db[kanji];
+                    break;
+                case 'old_script_db': // no scores
+                    if (!(kanji in old_script_db)) continue;
+                    similarData = old_script_db[kanji];
+                    break;
+                case 'yl_radical_db':; // has scores
+                    if (!(kanji in yl_radical_db)) continue;
+                    similarData = yl_radical_db[kanji];
+                    break;
+                case 'stroke_dist_db': // has scrores
+                    if (!(kanji in visuallySimilarData)) continue;
+                    similarData = visuallySimilarData[kanji];
+                    break;
+                case 'manual_db': // no scores
+                    if (!(kanji in manual_db)) continue;
+                    similarData = manual_db[kanji];
+                    break;
+            };
+
+            switch (source.id){
+                case 'noto_db': // has scores
+                case 'yl_radical_db': // has scores
+                case 'stroke_dist_db': // has scrores
+                    for (let similar of similarData){
+                        score = similar.score + source.base_score;
+                        old_score = (similar.kan in similar_kanji ? similar_kanji[similar.kan].score :  0.0);
+                        if ((score > threshold || (score > 0.0 && old_score > 0.0)) && kanjiIndex[similar.kan] !== undefined){
+                            similar_kanji[similar.kan] = {kan: similar.kan, score: score};
+                        } else if (score < 0) {
+                            delete similar_kanji[similar.kan];
+                        };
+                    };
+                    break;
+                case 'keisei_db': // no scores
+                case 'old_script_db': // no scores
+                case 'manual_db': // no scores
+                    score = source.base_score;
+                    for (let similar of similarData){
+                        old_score = (similar in similar_kanji ? similar_kanji[similar].score :  0.0);
+                        if (kanjiIndex[similar] !== undefined){
+                            similar_kanji[similar] = {kan: similar, score: score};
+                        } else if (score < 0) {
+                            delete similar_kanji[similar];
+                        };
+                    };
+                    break;
+            };
+        };
+        let acc = Object.values(similar_kanji);
+        acc.sort(function(a, b){return b.score - a.score});
+        let seen = {};
+        acc = acc.map((a) => a.kan)
+        return acc;
+    };
+
+    function makeItemListVisSimNiai(kanji){
+        return makeKanjiListNiai(kanji).map((kanji) => kanjiIndex[kanji]);
+    };
+
+    function makeIdListVisSimNiai(kanji){
+        return makeKanjiListNiai(kanji).map((kanji) => kanjiIndex[kanji].id);
+    }
+
+
+    // END Niai Visual Similarity Data
 
     // BEGIN Support of JLPT, Joyo and Frequency
 
@@ -5284,6 +5519,7 @@
 
     // Source @acm2010 at the Keisei Semantic Phonetic composition script
     // https://community.wanikani.com/t/userscript-keisei-%E5%BD%A2%E5%A3%B0-semantic-phonetic-composition/21479
+    // https://github.com/mwil/wanikani-userscripts/tree/master/wanikani-phonetic-compounds
 
     //================================================
     // BEGIN code by @acm2010 released under GPL V3 or later license
@@ -5956,6 +6192,8 @@
         wkof.file_cache.delete(wk_kanji_db);
     }
 
+    // Functions to display Keisei semantic-phonetic information in popups
+
     function makeKeiseiIconsRad(rad){
         let phon = keiseiDB.mapWKRadicalToPhon(rad);
         if (!keiseiDB.checkPhonetic(phon)) {
@@ -6353,9 +6591,7 @@
                     setSelectionButtonsColors()
                     wkof.set_state(Wkit_navigation, 'Pending')
                     wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
-                    filter_items_for_table();
-                    updatePage();
-                    dataReady = true;
+                    dataReload('table').then(function(){dataReady = true;})
         });
     };
 
@@ -6413,6 +6649,284 @@
         return
     };
 
+    // ------------------------------------------------------------
+    // BEGIN series of functions for doing Leech Training emulation
+    // ------------------------------------------------------------
+
+    // event handler for Random Selection button
+    function toggleLeechTrainingEmulation(event) {
+        document.getElementById("WkitLeechTraining").blur();
+        //test prevents multiple clicks
+        if (!event.detail || event.detail == 1) {
+            dataReady = false;
+            wkof.wait_state(Wkit_navigation, 'Ready')
+                .then(function(){
+                         let settings = quiz.settings;
+                         let presets = settings.tablePresets[settings.active_ipreset];
+                         if (presets.addSimilarItems){
+                             dataRequired.larsYencken = true;
+                             dataRequired.niai = true;
+                             return loadMissingData();
+                         } else {
+                             return Promise.resolve();
+                         };
+                     })
+                .then(function(){
+                        let settings = quiz.settings;
+                        let presets = settings.tablePresets[settings.active_ipreset];
+                        settings.audioMode = false;
+                        if (quiz.items === undefined) console.trace();
+                        formatControlBar();
+                        resetTemporaryFilters();
+                        if (quiz.items === undefined) console.trace();
+                        switch (presets.selection) {
+                            case 'None':
+                                presets.selection = 'LeechTraining';
+                                presets.savedCurrentItem = currentItem;
+                                presets.savedNextCurrentItem = nextCurrentItem;
+                                presets.currentItem = currentItem = 0;
+                                quiz.savedItems = quiz.items.slice(0, quiz.items.length);
+                                quasiEmulateLeechTraining();
+                                if (quiz.items === undefined) console.trace();
+                                break;
+                            case 'Random':
+                            case 'Date':
+                                presets.selection = 'LeechTraining';
+                                quiz.items = quiz.savedItems.slice(0, quiz.savedItems.length);
+                                presets.currentItem = currentItem = 0;
+                                quasiEmulateLeechTraining()
+                                if (quiz.items === undefined) console.trace();
+                                break;
+                            case 'LeechTraining':
+                            default:
+                                presets.selection = 'None';
+                                if (quiz.savedItems !== undefined) quiz.items = quiz.savedItems;
+                                if (quiz.items === undefined) console.trace();
+                                quiz.savedItems = [];
+                                presets.currentItem = currentItem = presets.savedCurrentItem;
+                                presets.nextCurrentItem = nextCurrentItem = presets.savedNextCurrentItem;
+                                break;
+                        };
+                        setSelectionButtonsColors()
+                        wkof.set_state(Wkit_navigation, 'Pending')
+                        wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
+                        if (quiz.items === undefined) console.trace();
+                        displayItems();
+                        dataReady = true;
+                    });
+        };
+        return
+    };
+
+    function quasiEmulateLeechTraining(){
+        let userLevel = userData.level;
+        let settings = quiz.settings;
+        let presets = settings.tablePresets[settings.active_ipreset];
+        let selected = {};
+        let tempItems = [];
+        let selectedCount = 0;
+        //let now = new Date().getTime();
+        let now = new Date('2020-09-13').getTime();
+        shuffle(quiz.items);
+        if (presets.trainingSelection !== 0){
+            nextCurrentItem = presets.trainingSelection;
+        } else if (settings.listMode){
+            createItemList(quiz.items, true); // find out how many items fit the screen
+        } else {
+            nextCurrentItem = currentItem + nbItems;
+        };
+
+        // It is better get more items than necessary - we will trim them to fit the screen or settings
+        for (let i = currentItem; (i < quiz.items.length) && (selectedCount < nextCurrentItem + 10); i++){
+            let item = quiz.items[i];
+            let reviewDate = (item.assignments ? computeLastReviewDate(item) : theFuture);
+            if (!presets.oncePerReviewPeriod || (notSelectedYet(item))) {
+                tempItems.push(item);
+                selected[item.id] = true;
+                selectedCount++
+                lastSelectionRecorded[item.id] = now;
+                if (presets.addSimilarItems) addSimilarItems(item);
+            };
+        };
+        quiz.items = tempItems;
+        if (settings.listMode && presets.trainingSelection === 0){
+            createItemList(quiz.items, true); // find out how many items fit the screen
+        };
+        quiz.items = quiz.items.slice(0, nextCurrentItem);
+        //shuffle(quiz.items);
+        saveSelectedItems();
+        saveLastSelectionRecorded();
+
+        function notSelectedYet(item){
+            let id = item.id;
+            if (selected[id]) return false;
+            let lastSelectionDate = lastSelectionRecorded[id] || 0;
+            let reviewDate = (item.assignments ? computeLastReviewDate(item) : theFuture);
+            return (reviewDate > lastSelectionDate);
+        };
+
+        function addSimilarItems(item){
+            let settings = quiz.settings;
+            let preset = settings.tablePresets[settings.active_ipreset];
+            let itemLimit = 2;
+            let visuallySimilar, itemLimitCount, components, usedIn, candidates, isSimilar, length, seen;
+            switch (item.object) {
+                case 'radical':
+                    return;
+                case 'kanji':
+                    switch (preset.similarity){
+                        case 'Wanikani':
+                             visuallySimilar = item.data.visually_similar_subject_ids.filter((id) => subjectIndexKan[id].assignments &&
+                                                                                                     // only if lessons are taken
+                                                                                                     subjectIndexKan[id].assignments.started_at !== null)
+                             break;
+                        case 'Lars_Yencken':
+                            // First get the visually similar kanji list filtered by the threshold
+                            visuallySimilar = ((item.data.characters in visuallySimilarData)
+                                               ? makeItemListVisSimKan(visuallySimilarData[item.data.characters], preset.visSimTresholdLT)
+                                               : [])
+                                                // filter to retain only kanji for which lessons have been taken
+                                                .filter((kanjiItem) => kanjiItem.assignments && kanjiItem.assignments.started_at !== null)
+                                                // map to retain only subject ids for the rest of the algorithm
+                                                .map((kanjiItem) =>kanjiItem.id);
+                            break;
+                        case 'Niai':
+                            // First get the visually similar kanji list filtered by the threshold
+                            visuallySimilar = (hasNiaiData(item.data.characters, preset.niaiAlternateLT)
+                                               ? makeKanjiListNiai(item.data.characters, preset.visSimTresholdLT, preset.niaiAlternateLT)
+                                               : [])
+                                                // filter to retain only kanji for which lessons have been taken
+                                                // some Niai kanji are not WK kanji and must be filtered out too
+                                                .filter((kanji) => (kanjiIndex[kanji] && kanjiIndex[kanji].assignments && kanjiIndex[kanji].assignments.started_at !== null))
+                                                // map to retain only subject ids for the rest of the algorithm
+                                                .map((kanji) => kanjiIndex[kanji].id);
+                            break;
+                    };
+                    // add Wanikani visually similar data - only if lessons have been taken
+                    visuallySimilar = visuallySimilar.concat(item.data.visually_similar_subject_ids.filter((id) => subjectIndexKan[id].assignments &&
+                                                                                                                   subjectIndexKan[id].assignments.started_at !== null));
+
+                    shuffle(visuallySimilar);
+                    itemLimitCount = 0;
+                    for (let id of visuallySimilar){
+                        if (notSelectedYet(subjectIndexKan[id])){
+                            tempItems.push(subjectIndexKan[id]);
+                            selected[id] = true;
+                            lastSelectionRecorded[id] = now;
+                            selectedCount++;
+                            if (itemLimitCount++ >= itemLimit) break;
+                        }
+                    };
+                    break;
+                case 'vocabulary':
+                    length = item.data.characters.length;
+                    components = [];
+                    for (let character of item.data.characters) if (character in kanjiIndex) components.push(kanjiIndex[character]);
+
+                    switch (preset.similarity){
+                        case 'Wanikani':
+                                                        // adds visually similar items to every component kanji - and kanji is visually similar to itself
+                            visuallySimilar = components.map((kanji) => kanji.data.visually_similar_subject_ids.concat([kanji.id]))
+                                                        // only if lessons have been taken
+                                                        .map((charList) => charList.filter((id) => subjectIndexKan[id].assignments &&
+                                                                                                   subjectIndexKan[id].assignments.started_at !== null));
+                            break;
+                        case 'Lars_Yencken':
+                            // First get the visually similar kanji lists filtered by the visually similar threshold
+                            // Adds the component kanji because it is visually similar to itself
+                            visuallySimilar = components.map((kanji) => ((kanji.data.characters in visuallySimilarData)
+                                                                         ? makeItemListVisSimKan(visuallySimilarData[kanji.data.characters], preset.visSimTresholdLT)
+                                                                           .map((item2) => item2.data.characters)
+                                                                           .concat([kanji.data.characters])
+                                                                         : [kanji.data.characters])
+                                                                         // concatenate the WK visually similar kanji character to the LY and base kanji
+                                                                         .concat(kanji.data.visually_similar_subject_ids.map((id) => subjectIndexKan[id].data.characters)))
+                                                         // filter to retain only kanji for which lessons have been taken
+                                                         //some LY kanji are not WK kanji and must be filtered out too
+                                                        .map((charList) => charList.filter((kanji) => (kanjiIndex[kanji] && kanjiIndex[kanji].assignments &&
+                                                                                                       kanjiIndex[kanji].assignments.started_at !== null)))
+                                                         // map the whole thing to subject id because the rest of the algorithm is not good with characters
+                                                        .map((charList) => (charList.map((kanji) => kanjiIndex[kanji].id)));
+                            break;
+                        case 'Niai':
+                            // First get the visually similar kanji lists filtered by the visually similar threshold
+                            // Adds the component kanji
+                            visuallySimilar = components.map((kanji) => (hasNiaiData(kanji.data.characters, preset.niaiAlternateLT)
+                                                                         ? makeKanjiListNiai(kanji.data.characters, preset.visSimTresholdLT, preset.niaiAlternateLT)
+                                                                           .concat([kanji.data.characters])
+                                                                         : [kanji.data.characters])
+                                                                         // concatenate the WK visually similar kanji character to the LY and base kanji
+                                                                         .concat(kanji.data.visually_similar_subject_ids.map((id) => subjectIndexKan[id].data.characters)))
+                                                         // filter to retain only kanji for which lessons have been taken
+                                                         //some LY kanji are not WK kanji and must be filtered out too
+                                                        .map((charList) => charList.filter((kanji) => (kanjiIndex[kanji] && kanjiIndex[kanji].assignments &&
+                                                                                                       kanjiIndex[kanji].assignments.started_at !== null)))
+                                                         // map the whole thing to subject id because the rest of the algorithm is not good with characters
+                                                        .map((charList) => (charList.map((kanji) => kanjiIndex[kanji].id)));
+                            break;
+                    };
+                    candidates = visuallySimilar[0].reduce(function(acc, id){return acc.concat(subjectIndexKan[id].data.amalgamation_subject_ids)}, []);
+                    candidates = candidates.filter((id) => (subjectIndexVoc[id].assignments && subjectIndexVoc[id].assignments.started_at !== null));
+                    shuffle(candidates);
+                    itemLimitCount = 0;
+                    for (let i in candidates){
+                        let candidate = candidates[i];
+                        if (!notSelectedYet(subjectIndexVoc[candidate])) continue;
+                        if (subjectIndexVoc[candidate].data.characters.length !== item.data.characters.length) continue;
+                        components = [];
+                        for (let character of subjectIndexVoc[candidate].data.characters) if (character in kanjiIndex) components.push(kanjiIndex[character].id);
+                        if (components.length !== visuallySimilar.length) continue; // must have same number of kanji
+                        seen = {};
+                        isSimilar = true;
+                        // every original kanji must be similar to one candidate kanji in any order, no two kanji match the same kanji
+                        for (let idx in visuallySimilar){
+                            let isSimilar2 = false;
+                            for (let idx2 in components){
+                                if (visuallySimilar[idx].indexOf(components[idx2]) >= 0 && !(idx2 in seen)){
+                                    isSimilar2 = true;
+                                    seen[idx2] = true;
+                                };
+                            };
+                            isSimilar =isSimilar && isSimilar2;
+                        };
+                        if (isSimilar){
+                            tempItems.push(subjectIndexVoc[candidate]);
+                            selected[candidate] = true;
+                            lastSelectionRecorded[candidate] = now;
+                            selectedCount++;
+                            if (itemLimitCount++ >= itemLimit) break;
+                        };
+                    };
+                    break;
+            };
+        };
+    };
+
+    const Wkit_lastSelectionRecorded = 'Wkit_LastSelectionRecorded';
+    var lastSelectionRecorded;
+
+    function initLastSelectionRecorded(){
+        return wkof.file_cache.load(Wkit_lastSelectionRecorded)
+                    .then(function(data){lastSelectionRecorded = data;})
+                    .catch(function(){lastSelectionRecorded = {}});
+    };
+
+    function saveLastSelectionRecorded(){
+        for (let id of Object.keys(lastSelectionRecorded)){
+            let reviewDate = (subjectIndex[id].assignments ? computeLastReviewDate(subjectIndex[id]) : theFuture);
+            if (lastSelectionRecorded[id] < reviewDate) {delete lastSelectionRecorded[id]};
+        };
+        return wkof.file_cache.save(Wkit_lastSelectionRecorded, lastSelectionRecorded);
+    };
+
+    // ------------------------------------------------------------
+    // END series of functions for doing Leech Training emulation
+    // ------------------------------------------------------------
+
+    // ----------------------------------------------------
+    // BEGIN series of functions for doing random selection
+    // ----------------------------------------------------
+
     // event handler for Random Selection button
     function toggleRandomSelection(event) {
         document.getElementById("WkitRandomSelection").blur();
@@ -6428,30 +6942,33 @@
                         formatControlBar();
                         resetTemporaryFilters();
                         if (quiz.items === undefined) console.trace();
-                        if (presets.selection === 'None'){
-                            presets.selection = 'Random';
-                            presets.savedCurrentItem = currentItem;
-                            presets.savedNextCurrentItem = nextCurrentItem;
-                            quiz.savedItems = quiz.items.slice(0, quiz.items.length);
-                            doRandomSelection();
-                            if (quiz.items === undefined) console.trace();
-                            $('#WkitRandomSelection').toggleClass("WkitActive");
-                        } else if (presets.selection === 'Date') {
-                            presets.selection = 'Random';
-                            quiz.items = quiz.savedItems.slice(0, quiz.savedItems.length);
-                            doRandomSelection();
-                            if (quiz.items === undefined) console.trace();
-                            $('#WkitRandomSelection').toggleClass("WkitActive");
-                            $('#WkitDateOrdering').toggleClass("WkitActive");
-                        } else {
-                            presets.selection = 'None';
-                            quiz.items = quiz.savedItems;
-                            if (quiz.items === undefined) console.trace();
-                            quiz.savedItems = [];
-                            presets.currentItem = currentItem = presets.savedCurrentItem;
-                            presets.nextCurrentItem = nextCurrentItem = presets.savedNextCurrentItem;
-                            $('#WkitRandomSelection').toggleClass("WkitActive");
+                        switch (presets.selection){
+                            case 'None':
+                                presets.selection = 'Random';
+                                presets.savedCurrentItem = currentItem;
+                                presets.savedNextCurrentItem = nextCurrentItem;
+                                quiz.savedItems = quiz.items.slice(0, quiz.items.length);
+                                doRandomSelection();
+                                if (quiz.items === undefined) console.trace();
+                                break;
+                            case 'Date':
+                            case 'LeechTraining':
+                                presets.selection = 'Random';
+                                quiz.items = quiz.savedItems.slice(0, quiz.savedItems.length);
+                                doRandomSelection();
+                                if (quiz.items === undefined) console.trace();
+                                break;
+                            case 'Random':
+                            default:
+                                presets.selection = 'None';
+                                if (quiz.savedItems !== undefined) quiz.items = quiz.savedItems;
+                                if (quiz.items === undefined) console.trace();
+                                quiz.savedItems = [];
+                                presets.currentItem = currentItem = presets.savedCurrentItem;
+                                presets.nextCurrentItem = nextCurrentItem = presets.savedNextCurrentItem;
+                                break;
                         };
+                        setSelectionButtonsColors()
                         wkof.set_state(Wkit_navigation, 'Pending')
                         wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
                         if (quiz.items === undefined) console.trace();
@@ -6462,16 +6979,11 @@
         return
     };
 
-    // ----------------------------------------------------
-    // BEGIN series of functions for doing random selection
-    // ----------------------------------------------------
 
     function doRandomSelection(){
         let settings = quiz.settings;
         let presets = settings.tablePresets[settings.active_ipreset];
         shuffle(quiz.items);
-        if (quiz.items === undefined) console.log('Found undefined quiz.items at random selection')
-        quiz.items.forEach(item => {if (item === undefined)console.log('found undefined item at random selection')})
         presets.currentItem = currentItem = 0;
         if (presets.randomSelection !== 0){
             nextCurrentItem = presets.randomSelection;
@@ -6480,16 +6992,7 @@
         } else {
             nextCurrentItem = currentItem + nbItems;
         };
-        console.log('tests', presets.oncePerReviewPeriod, presets.addSimilarItems);
-        if (presets.oncePerReviewPeriod || presets.addSimilarItems){
-            quasiEmulateLeechTrainer();
-            if (settings.listMode && presets.randomSelection === 0) createItemList(quiz.items, true); // find out how many items fit the screen
-            quiz.items = quiz.items.slice(0, nextCurrentItem);
-            shuffle(quiz.items);
-        } else {
-            quiz.items = quiz.items.slice(0, nextCurrentItem);
-        };
-        if (quiz.items === undefined) console.log('Found undefined quiz.items at random selection after slice')
+        quiz.items = quiz.items.slice(0, nextCurrentItem);
         presets.nextCurrentItem = nextCurrentItem;
         saveSelectedItems();
         if (quiz.items === undefined) console.trace();
@@ -6523,164 +7026,22 @@
             if (presets.currentItem >= quiz.items.length){
                 presets.currentItem = currentItem = 0;
                 presets.nextCurrentItem = nextCurrentItem = 0;
-            if ($('#WkitRandomSelection').hasClass("WkitActive")) $('#WkitRandomSelection').toggleClass("WkitActive");
-            if ($('#WkitDateOrdering').hasClass("WkitActive")) $('#WkitDateOrdering').toggleClass("WkitActive");
+                setSelectionButtonsColors()
             };
             wkof.set_state(Wkit_navigation, 'Pending')
-            wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready'); dataReload('table')});
+            wkof.Settings.save(scriptId)
+                .then(function(){wkof.set_state(Wkit_navigation, 'Ready');})
+                .then(function(){return dataReload('table')});
             return false;
         } else {
             quiz.savedItems = quiz.items.slice(0, quiz.items.length);
             quiz.items = ids.map(id => subjectIndex[id])
             presets.currentItem = currentItem = 0;
             presets.nextCurrentItem = nextCurrentItem = quiz.items.length;
-            if (!$('#WkitRandomSelection').hasClass("WkitActive")) $('#WkitRandomSelection').toggleClass("WkitActive");
-            if ($('#WkitDateOrdering').hasClass("WkitActive")) $('#WkitDateOrdering').toggleClass("WkitActive");
+            setSelectionButtonsColors()
             return true;
         }
     }
-
-    function quasiEmulateLeechTrainer(){
-        let userLevel = userData.level;
-        let settings = quiz.settings;
-        let presets = settings.tablePresets[settings.active_ipreset];
-        let selected = {};
-        let tempItems = [];
-        let selectedCount = 0;
-        let now = new Date().getTime();
-
-        // It is better get more items than necessary - caller will trim them to fit the screen or settings
-        for (let i = currentItem; (i < quiz.items.length) && (selectedCount < nextCurrentItem + 10); i++){
-            let item = quiz.items[i];
-            let reviewDate = (item.assignments ? computeLastReviewDate(item) : theFuture);
-            if (!presets.oncePerReviewPeriod || (notSelectedYet(item))) {
-                tempItems.push(item);
-                selected[item.id] = true;
-                selectedCount++
-                lastSelectionRecorded[item.id] = now;
-                if (presets.addSimilarItems) addSimilarItems(item);
-            };
-        };
-        saveLastSelectionRecorded();
-        quiz.items = tempItems;
-
-        function notSelectedYet(item){
-            let id = item.id;
-            if (selected[id]) return false;
-            let lastSelectionDate = lastSelectionRecorded[id] || 0;
-            let reviewDate = (item.assignments ? computeLastReviewDate(item) : theFuture);
-            return (reviewDate > lastSelectionDate);
-        };
-
-        function addSimilarItems(item){
-            let itemLimit = 2;
-            let visuallySimilar, itemLimitCount, components, usedIn, candidates, isSimilar, length, seen;
-            switch (item.object) {
-                case 'radical':
-                    return;
-                case 'kanji':
-                    // use WK and Lars Yencken data for kanji similarity - plain WK data does not yield enough similar items
-
-                    // Produce an arrays of characters that includes
-                    //    1- the LY visually similar kanji for the component provided they exist in the LY database and pass the configured similarity threshold
-                    //    2- The WK visually similar kanji
-
-                    // First get the visually similar item list if it exist - makeItemListVisSimKan honors the configured visually similar threshold
-                    visuallySimilar = (visuallySimilarData[item.data.characters] ? makeItemListVisSimKan(visuallySimilarData[item.data.characters]) : [])
-                                        // filter to retain only kanji for which lessons have been taken - some LY kanji are not WK kanji and must be filtered out too
-                                        .filter((kanji) => (kanjiIndex[kanji.data.characters] && kanjiIndex[kanji.data.characters].assignments
-                                                            && kanjiIndex[kanji.data.characters].assignments.started_at !== null))
-                                        // map to retain only subject ids for the rest of the algorithm
-                                        .map((kanji) => kanji.id)
-                                        // add visually similar data - only if lessons have been taken
-                                  //      item.data.visually_similar_subject_ids.filter((id) => subjectIndexKan[id].assignments &&
-                                  //                                                            subjectIndexKan[id].assignments.started_at !== null);
-                    shuffle(visuallySimilar);
-                    itemLimitCount = 0;
-                    for (let id of visuallySimilar){
-                        if (notSelectedYet(subjectIndexKan[id])){
-                            tempItems.push(subjectIndexKan[id]);
-                            selected[id] = true;
-                            lastSelectionRecorded[id] = now;
-                            selectedCount++;
-                            if (itemLimitCount++ >= itemLimit) break;
-                        }
-                    };
-                    break;
-                case 'vocabulary':
-                    length = item.data.characters.length;
-                    components = [];
-                    for (let character of item.data.characters) if (character in kanjiIndex) components.push(kanjiIndex[character]);
-
-                    // use WK and Lars Yencken data for vocab similarity - plain WK data does not yield enough similar items
-
-                    // Produce an arrays of characters for each component that includes
-                    //    1- the LY visually similar kanji for the component provided they exist in the LY database
-                    //    2- The WK visually similar kanji
-                    //    3- also include the component kanji because it is similar to itself
-
-                    // First get the visually similar item list - makeItemListVisSimKan honors the configured visually similar threshold
-                    // Adds the component kanji
-                    visuallySimilar = components.map((kanji) => (visuallySimilarData[kanji.data.characters]
-                                                                 ? makeItemListVisSimKan(visuallySimilarData[kanji.data.characters])
-                                                                 : [kanji.data.characters])
-                                                                 // concatenate the WK visually similar kanji character to the LY and base kanji
-                                                                 .concat(kanji.data.visually_similar_subject_ids.map((id) => subjectIndexKan[id].data.characters)))
-                                             // filter to retain only kanji for which lessons have been taken - some LY kanji are not WK kanji and must be filtered out too
-                                                .map((charList) => charList.filter((kanji) => (kanjiIndex[kanji] && kanjiIndex[kanji].assignments &&
-                                                                                               kanjiIndex[kanji].assignments.started_at !== null)))
-                                                 // map the whole thing to subject id because the rest of the algorithm is not good with characters
-                                                .map((charList) => (charList.map((kanji) => kanjiIndex[kanji].id)));
-                    candidates = visuallySimilar[0].reduce(function(acc, id){return acc.concat(subjectIndexKan[id].data.amalgamation_subject_ids)}, []);
-                    candidates = candidates.filter((id) => (subjectIndexVoc[id].assignments && subjectIndexVoc[id].assignments.started_at !== null));
-                    shuffle(candidates);
-                    itemLimitCount = 0;
-                    seen = {};
-                    for (let candidate of candidates){
-                        components = [];
-                        for (let character of subjectIndexVoc[candidate].data.characters) if (character in kanjiIndex) components.push(kanjiIndex[character].id);
-                        if (components.length !== visuallySimilar.length) continue;
-                        isSimilar = true;
-                        // every original kanji must be similar to one candidate kanji in any order, no two kanji match the same kanji
-                        for (let idx in visuallySimilar){
-                            let isSimilar2 = false;
-                            for (let idx2 in components){
-                                if (visuallySimilar[idx].indexOf(components[idx2]) >= 0 && !(idx2 in seen)){
-                                    isSimilar2 = true;
-                                    seen[idx2] = true;
-                                };
-                            };
-                            isSimilar =isSimilar && isSimilar2;
-                        };
-                        if (isSimilar && notSelectedYet(subjectIndexVoc[candidate])){
-                            tempItems.push(subjectIndexVoc[candidate]);
-                            selected[candidate] = true;
-                            lastSelectionRecorded[candidate] = now;
-                            selectedCount++;
-                            if (itemLimitCount++ >= itemLimit) break;
-                        };
-                    };
-                    break;
-            };
-        };
-    };
-
-    const Wkit_lastSelectionRecorded = 'Wkit_LastSelectionRecorded';
-    var lastSelectionRecorded;
-
-    function initLastSelectionRecorded(){
-        return wkof.file_cache.load(Wkit_lastSelectionRecorded)
-                    .then(function(data){lastSelectionRecorded = data;})
-                    .catch(function(){lastSelectionRecorded = {}});
-    };
-
-    function saveLastSelectionRecorded(){
-        for (let id of Object.keys(lastSelectionRecorded)){
-            let reviewDate = (subjectIndex[id].assignments ? computeLastReviewDate(subjectIndex[id]) : theFuture);
-            if (lastSelectionRecorded[id] < reviewDate) {delete lastSelectionRecorded[id]};
-        };
-        return wkof.file_cache.save(Wkit_lastSelectionRecorded, lastSelectionRecorded);
-    };
 
     // -------------------------------------------------
     // END series of function for doing random selection
@@ -6691,6 +7052,7 @@
         document.getElementById("WkitDateOrdering").blur();
         //test prevents multiple clicks
         if (!event.detail || event.detail == 1) {
+            if (quiz.items === undefined) return; // when button clicked before the items are ready
             dataReady = false;
             wkof.wait_state(Wkit_navigation, 'Ready')
                 .then(function(){
@@ -6699,27 +7061,30 @@
                         settings.audioMode = false;
                         formatControlBar();
                         resetTemporaryFilters();
-                        if (presets.selection === 'None'){
-                            presets.selection = 'Date';
-                            quiz.savedItems = quiz.items.slice(0, quiz.items.length);
-                            doDateOrdering();
-                            $('#WkitDateOrdering').toggleClass("WkitActive");
-                        } else if (presets.selection === 'Random') {
-                            presets.selection = 'Date';
-                            quiz.items = quiz.savedItems.slice(0, quiz.savedItems.length);
-                            orderByDate(quiz.items);
-                            presets.currentItem = currentItem; // should be determined by order by date
-                            presets.nextCurrentItem = nextCurrentItem = currentItem;
-                            $('#WkitRandomSelection').toggleClass("WkitActive");
-                            $('#WkitDateOrdering').toggleClass("WkitActive");
-                        } else {
-                            presets.selection = 'None';
-                            quiz.items = quiz.savedItems;
-                            quiz.savedItems = [];
-                            presets.currentItem = currentItem = presets.savedCurrentItem;
-                            presets.nextCurrentItem = nextCurrentItem = presets.savedNextCurrentItem;
-                            $('#WkitDateOrdering').toggleClass("WkitActive");
+                        switch (presets.selection) {
+                            case 'None':
+                                presets.selection = 'Date';
+                                quiz.savedItems = quiz.items.slice(0, quiz.items.length);
+                                doDateOrdering();
+                                break;
+                            case 'Random':
+                            case 'LeechTraining':
+                                presets.selection = 'Date';
+                                quiz.items = quiz.savedItems.slice(0, quiz.savedItems.length);
+                                orderByDate(quiz.items);
+                                presets.currentItem = currentItem; // should be determined by order by date
+                                presets.nextCurrentItem = nextCurrentItem = currentItem;
+                                break;
+                            case 'Date':
+                            default:
+                                presets.selection = 'None';
+                                quiz.items = quiz.savedItems;
+                                quiz.savedItems = [];
+                                presets.currentItem = currentItem = presets.savedCurrentItem;
+                                presets.nextCurrentItem = nextCurrentItem = presets.savedNextCurrentItem;
+                                break;
                         };
+                        setSelectionButtonsColors()
                         wkof.set_state(Wkit_navigation, 'Pending')
                         wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
                         displayItems();
@@ -6856,13 +7221,15 @@
     function applyFiltersAndDisplay(){
         let settings = quiz.settings;
         let presets = settings.tablePresets[settings.active_ipreset];
-        applyTemporaryFilter();
-        presets.currentItem = currentItem = 0;
-        presets.nextCurrentItem = nextCurrentItem = quiz.items.length;
-        wkof.set_state(Wkit_navigation, 'Pending');
-        wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')});
-        displayItems();
-        dataReady = true;
+        applyTemporaryFilter()
+            .then(function(){
+                    presets.currentItem = currentItem = 0;
+                    presets.nextCurrentItem = nextCurrentItem = quiz.items.length;
+                    wkof.set_state(Wkit_navigation, 'Pending');
+                    wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')});
+                    displayItems();
+                    dataReady = true;
+            })
     };
 
     function askQuestionsAndProceed (selected){
@@ -6914,14 +7281,32 @@
         let settings = quiz.settings;
         let presets = settings.tablePresets[settings.active_ipreset];
         let selection = presets.selection;
-        if (selection === 'None'){
-            if ($('#WkitRandomSelection').hasClass("WkitActive")) $('#WkitRandomSelection').toggleClass("WkitActive");
-            if ($('#WkitDateOrdering').hasClass("WkitActive")) $('#WkitDateOrdering').toggleClass("WkitActive");
-        } else if (selection === 'Random') {
-            if (!$('#WkitRandomSelection').hasClass("WkitActive")) $('#WkitRandomSelection').toggleClass("WkitActive");
-            if ($('#WkitDateOrdering').hasClass("WkitActive")) $('#WkitDateOrdering').toggleClass("WkitActive");
+        let $random = $('#WkitRandomSelection');
+        let $date = $('#WkitDateOrdering');
+        let $leech = $('#WkitLeechTraining');
+        switch (selection) {
+            case 'None':
+                $random.removeClass("WkitActive");
+                $date.removeClass("WkitActive");
+                $leech.removeClass("WkitActive");
+                break;
+            case 'Random':
+                $random.addClass("WkitActive");
+                $date.removeClass("WkitActive");
+                $leech.removeClass("WkitActive");
+                break;
+            case 'Date':
+                $random.removeClass("WkitActive");
+                $date.addClass("WkitActive");
+                $leech.removeClass("WkitActive");
+                break;
+            case 'LeechTraining':
+                $random.removeClass("WkitActive");
+                $date.removeClass("WkitActive");
+                $leech.addClass("WkitActive");
+                break;
         }
-    }
+    };
 
     // ==========================================================
     // End of Events Handlers and Navigation
@@ -6992,32 +7377,33 @@
             quiz.items = quiz.items.sort(function(a, b){return(a.sortKey == b.sortKey ? a.sortKey2 - b.sortKey2 : a.sortKey - b.sortKey)});
         };
 
-        if (settings.selection === 'Random') {
-            let result = retrieveSelecteditems(noCreateTable);
-            if (!result) return Promise.resolve();
-            wkof.set_state(Wkit_navigation, 'Pending');
-            wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')});
-            if (!noCreateTable){displayItems()};
-        } else if (settings.selection === 'Date') {
-            quiz.savedItems = quiz.items.slice(0, quiz.items.length);
-            orderByDate(quiz.items);
-            settings.currentItem = currentItem; // should be determined by order by date
-            settings.nextCurrentItem = nextCurrentItem = currentItem;
-            if ($('#WkitRandomSelection').hasClass("WkitActive")) $('#WkitRandomSelection').toggleClass("WkitActive");
-            if (!$('#WkitDateOrdering').hasClass("WkitActive")) $('#WkitDateOrdering').toggleClass("WkitActive");
-            wkof.set_state(Wkit_navigation, 'Pending')
-            wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
-            if (!noCreateTable){displayItems()};
-        } else {
-            if ($('#WkitRandomSelection').hasClass("WkitActive")) $('#WkitRandomSelection').toggleClass("WkitActive");
-            if ($('#WkitDateOrdering').hasClass("WkitActive")) $('#WkitDateOrdering').toggleClass("WkitActive");
-            currentItem = settings.currentItem || 0;
-            nextCurrentItem = settings.nextCurrentItem || 0;
-            if (settings.currentItem >= quiz.items.length){
-                settings.currentItem = currentItem = 0;
-                settings.nextCurrentItem = nextCurrentItem = 0;
-            };
-            if (!noCreateTable){displayItems()};
+        setSelectionButtonsColors()
+        switch (settings.selection) {
+            case 'Random':
+            case 'LeechTraining':
+                retrieveSelecteditems(noCreateTable);
+                wkof.set_state(Wkit_navigation, 'Pending');
+                wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')});
+                if (!noCreateTable){displayItems()};
+                break;
+            case 'Date':
+                quiz.savedItems = quiz.items.slice(0, quiz.items.length);
+                orderByDate(quiz.items);
+                settings.currentItem = currentItem; // should be determined by order by date
+                settings.nextCurrentItem = nextCurrentItem = currentItem;
+                wkof.set_state(Wkit_navigation, 'Pending')
+                wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
+                if (!noCreateTable){displayItems()};
+                break;
+            default:
+                currentItem = settings.currentItem || 0;
+                nextCurrentItem = settings.nextCurrentItem || 0;
+                if (settings.currentItem >= quiz.items.length){
+                    settings.currentItem = currentItem = 0;
+                    settings.nextCurrentItem = nextCurrentItem = 0;
+                };
+                if (!noCreateTable){displayItems()};
+                break;
         };
     };
 
@@ -7034,29 +7420,27 @@
         $('#leech_table').html = waitMessage;
         switch (fetchOption){
             case 'export':
-                filter_items_for_table();
-                updatePage(true);
-                temporaryFilter();
-                performExport();
+                determineDataRequiredExport();
+                return loadMissingData()
+                            .then(filter_items_for_table)
+                            .then(function(){updatePage(true);})
+                            .then(temporaryFilter)
+                            .then(performExport)
                 break;
-            case 'wordCloud':
-                filter_items_for_table();
-                updatePage(true);
-                temporaryFilter();
-                performWordCloud();
-                break;
-            case 'table':
+          case 'table':
             default:
-                filter_items_for_table();
-                updatePage(true);
-                temporaryFilter();
-                displayItems();
+                determineDataRequiredTable();
+                return loadMissingData()
+                            .then(filter_items_for_table)
+                            .then(function(){updatePage(true);})
+                            .then(temporaryFilter)
+                            .then(displayItems)
                 break;
         };
 
         function temporaryFilter(){
             quiz.unfilteredItems = quiz.items;
-            if (quiz.settings.active_fpreset !== 0) applyTemporaryFilter();
+            if (quiz.settings.active_fpreset !== 0) return applyTemporaryFilter();
         }
     }
 
@@ -7093,8 +7477,15 @@
     // is a big source of latency. To avoid this latency generation of this html and its insertion into the DOM
     // is delayed until mouseenter on the parent occurs. An event handler on the parent take care of this.
 
-    function makeMoreIconsPopup(id, stringList){
-        let itemList = subjectIndex[parseInt(id)].data.amalgamation_subject_ids; // more icons indicators never occur for components or visually similar
+    function makeMoreIconsPopup(id, type, stringList){
+        let item = subjectIndex[parseInt(id)];
+        let itemList = [];
+        // more icons indicators are always vocabulary or Niai
+        if (type === 'vocabulary'){
+            itemList = item.data.amalgamation_subject_ids;
+        } else if (type === 'Niai') {
+            itemList = metadata.Niai.idList(item);
+        };
         itemList.forEach(function(id){makeIconForTooltip(subjectIndex[id], stringList)});
     }
 
@@ -7103,8 +7494,9 @@
         let $e = $(e.currentTarget);
         if ($e.children().children().length !== 0) return; // html already there
         let id = $e.attr('subjectid');
+        let type = $e.attr('object');
         let stringList = [];
-        makeMoreIconsPopup(id, stringList);
+        makeMoreIconsPopup(id, type, stringList);
         let $popup = $e.children(".WkitAndMorePopup");
         $popup.empty().html(stringList.join(''));
         $popup.find(".WkitMiniIcon").mouseover(insertPopup);
@@ -7178,6 +7570,7 @@
             let itemListShort = [];
             let charCount = 0;
             let index = 0;
+            let object = tableName === 'Niai' ? 'Niai' : 'vocabulary';
             while (charCount < iconLimit && index < itemList.length){
                 let item2 = itemList[index];
                 itemListShort.push(item2);
@@ -7192,6 +7585,8 @@
             if (charCount >= iconLimit){
                 stringList.push('<div class="WkitAndMore" subjectid="');
                 stringList.push(id.toString());
+                stringList.push('" object="');
+                stringList.push(object);
                 stringList.push('">');
                 stringList.push('<div class="WkitAndMorePopup">');
                 stringList.push('</div>');
@@ -7610,7 +8005,7 @@
         needMnemonics = false;
         needNotes = false;
         let tableNames = ['tooltip1', 'tooltip2', 'tooltip3', 'tooltip4', 'tooltip5', 'tooltip6', 'tooltip7', 'tooltip8', ];
-        let entriesWithIcons = {'Vis_Sim_Kanji': true, 'Components': true, 'Used_In': true, 'Lars_Yencken': true, };
+        let entriesWithIcons = {'Vis_Sim_Kanji': true, 'Components': true, 'Used_In': true, 'Lars_Yencken': true, 'Niai': true};
         tableNames.forEach(processName);
 
         function processName(name){
@@ -7793,7 +8188,7 @@
         let meaningMode = presets.displayMeaning;
         let get_table_data = metadata[presets.table_data].tableEntryMarker;
         let showMarkers = presets.showMarkers;
-        if (presets.selection === 'Random') showMarkers = false;
+        if (presets.selection === 'Random' || presets.selection === 'LeechTraining' ) showMarkers = false;
         if (presets.selection === 'Date') showMarkers = presets.showMarkersDate;
         let dateSelection = (presets.selection === 'Date');
         let dateSelected = presets.navigationDate;
@@ -7977,13 +8372,14 @@
     function fillClipboard(){
         document.getElementById("WkitWordExport").blur();
         quiz.exportBackup = quiz.items;
-        if (quiz.settings.repeatWordCloud != 'No Repeat'){
+        /*if (quiz.settings.repeatWordCloud != 'No Repeat'){
             // make sure the repeat field endpoint is available in the items
             dataReload('wordCloud');
         } else {
             performWordCloud();
-        };
-    };
+        };*/
+         performWordCloud();
+     };
 
     function performWordCloud(){
         let items = quiz.items;
@@ -8032,7 +8428,7 @@
 
         // make sure all export data is available in the items
         quiz.exportBackup = quiz.items;
-        dataReload('export');
+        dataReload('export').then(function(){performExport();})
     };
 
     function performExport(){
@@ -8377,7 +8773,8 @@
             quiz.items = quiz.exportBackup;
             delete quiz.exportBackup;
             navigator.clipboard.writeText(text)
-                .then(function(){alert(exportCount+' items have been exported to the clipboard.');dataReload('table');})
+                .then(function(){alert(exportCount+' items have been exported to the clipboard.');})
+                .then(function(){return dataReload('table');})
         }
 
         function downloadlHandler(e){
@@ -8715,6 +9112,7 @@
             '<button id="WkitToogleLanguage" type="button" class="WkitButton WkitButtonleft" title="Toggles the current page between English and Japanese\nPages other than the current one are unaffected." style="font-size:18px; font-weight: 500;"　lang="JP"></button>' +
             '<button id="WkitToogleAudio" type="button" class="WkitButton WkitButtonleft" title="Turns on/off clicking on vocabulary items to play audio.\nAudio is automalically turned off when you click on a button that may change the screen." style="font-size:15px; font-weight: bold; padding-bottom: 1px"></button>' +
             '<div class="WkitSpacer"><span>x</span></div>'+
+            '<button id="WkitLeechTraining" type="button" class="WkitButton WkitButtonleft icon-code-fork" title="Leech Training Emulation.\nPermits quizzes similar to those provided by the Leech Trainer script.\n\nSelects items randomly.\nItems are selected at most once before next review.\nAt most three visually similar items are added with each random item."></button>' +
             '<button id="WkitRandomSelection" type="button" class="WkitButton WkitButtonleft icon-retweet" title="Fill the screen with randomly chosen items.\nPermits to be quized on randomly picked items.\nClick again to return to whole table."></button>' +
             '<button id="WkitDateOrdering" type="button" class="WkitButton WkitButtonleft icon-sort-by-attributes" title="Toggles the ordering of items by date and time.\nEnables navigation over time ranges.\nPermits to be quized on items selected by date.\nClick again to return to whole table,"></button>' +
             '<div class="WkitSpacer"><span>x</span></div>'+
@@ -8810,6 +9208,7 @@
         $('#WkitToogleDisplay').click(toggleDisplay);
         $('#WkitToogleLanguage').click(toggleLanguage);
         $('#WkitToogleAudio').click(toggleAudio);
+        $('#WkitLeechTraining').click(toggleLeechTrainingEmulation);
         $('#WkitRandomSelection').click(toggleRandomSelection);
         $('#WkitDateOrdering').click(toggleDateOrdering);
         $('#WkitQuizTable').click(quizOnWholeTable);
@@ -8846,6 +9245,57 @@
     // -------------------------------------------------------------------------------------
     // Functions for loading scripts and data files, managing the cache while we are at it
     // -------------------------------------------------------------------------------------
+
+    //------------------------------------------------------------------------------
+    // To reduce latency non Wanikani data is loaded on demand.
+    // Variables dataRequired and dataLoaded track which data is required and loaded
+    // Functions to determine requirements and loading data are here
+    // Function dataReload is the central point to call them
+    // Any function that may need incremental data should call dataReload
+
+    var dataRequired = {larsYencken: false, niai: false, keisei: false, strokeOrder: false};
+    var dataLoaded = {larsYencken: false, niai: false, keisei: false, strokeOrder: false};
+
+    function determineDataRequiredTable() {
+        let preset = wkof.settings[scriptId].tablePresets[wkof.settings[scriptId].active_ipreset];
+        if (preset.showKanji === 'Stroke Order') dataRequired.strokeOrder = true;
+        if (preset.showKanji === 'Keisei' || preset.showRadical === 'Keisei') dataRequired.keisei = true;
+        for (let info of standardInfo){
+            if (preset[info] === 'Lars_Yencken') dataRequired.larsYencken = true;
+            if (preset[info] === 'Niai') {
+                dataRequired.niai = true;
+                dataRequired.larsYencken = true;
+            };
+        };
+    };
+
+    function determineDataRequiredExport() {
+        let preset = wkof.settings[scriptId].tablePresets[wkof.settings[scriptId].active_ipreset];
+        for (let info of exportedInfo){
+            if (preset[info] === 'Lars_Yencken') dataRequired.larsYencken = true;
+            if (preset[info] === 'Niai') {
+                dataRequired.niai = true;
+                dataRequired.larsYencken = true;
+            };
+        };
+    };
+
+    function loadMissingData(){
+        let promiseList = [];
+        if (dataRequired.larsYencken && !dataLoaded.larsYencken) {
+            promiseList.push(get_visually_similar_data().then(function(){dataLoaded.larsYencken = true;}));
+        };
+        if (dataRequired.niai && !dataLoaded.niai) {
+            promiseList.push(loadNiaiDatabase().then(function(){dataLoaded.niai = true;}));
+        };
+        if (dataRequired.keisei && !dataLoaded.keisei) {
+            promiseList.push(loadKeiseiDatabase().then(function(){dataLoaded.keisei = true;}));
+        };
+        if (dataRequired.strokeOrder && !dataLoaded.strokeOrder) {
+            promiseList.push(get_stroke_order_file().then(function(){dataLoaded.strokeOrder = true;}));
+        };
+        return Promise.all(promiseList);
+    };
 
     function loadPrerequisiteScripts(){
         let promiseList = [];
@@ -8884,13 +9334,8 @@
             if (settings.optionalFilters === undefined || !settings.optionalFilters.joyoJpltFrequency) promiseList.push(registerJLPTFilters());
             promiseList.push(registerItemInspectorFilter());
 
-            // load externally supplied databases
-            promiseList.push(loadKeiseiDatabase());
-            promiseList.push(get_visually_similar_data());
-            promiseList.push(get_stroke_order_file());
-
             return Promise.all(promiseList);
-        }
+        };
 
     };
 
@@ -8904,18 +9349,19 @@
         if (wkof.settings[scriptId].lastTime === undefined){
             wkof.settings[scriptId].lastTime = now;
             promiseList.push(wkof.Settings.save(scriptId));
-        }
+        };
         if (now > wkof.settings[scriptId].lastTime + ageingTime){
             deleteFilesFromCache();
             wkof.settings[scriptId].lastTime = now;
             promiseList.push(wkof.Settings.save(scriptId));
-        }
+        };
         return Promise.all(promiseList);
     };
 
     function deleteFilesFromCache(){
         for (let filter in optionalFilters) wkof.file_cache.delete(optionalFilters[filter]);
         deleteKeiseiCache();
+        deleteNiaiCache();
         deleteVisuallySimilarCache();
         deleteStokeOrderCache();
         wkof.file_cache.delete(Wkit_SVGforRadicals);
@@ -8963,8 +9409,8 @@
             return false;
         } else {
             return true;
-        }
-    }
+        };
+    };
 
     var notSelfStudyQuiz = false;
     function check_Self_Study_Quiz(){
@@ -8972,7 +9418,7 @@
         if (settings.enableFeatures !== undefined && settings.enableFeatures.selfStudy === false) {
             notSelfStudyQuiz = true;
             return;
-        }
+        };
         if ($('#selfstudyquiz_script_link a').length === 0) {
             script_name = 'Wanikani Item Inspector';
             response = confirm(script_name + ' requires  Self Study Quiz.\nWithout this script the two quiz buttons will not work.\n\n Click "OK" to be forwarded to installation instructions.');
@@ -8981,7 +9427,7 @@
             };
         } else {
             notSelfStudyQuiz = true;
-        }
+        };
     };
 
     var hasAdditionalFilters = false;
@@ -9054,8 +9500,7 @@
             insertContainer();
             setThemeWatcher();
             eventHandlers();
-            dataReload('table');
-            dataReady = true;
+            dataReload('table').then(function(){dataReady = true;})
         };
     };
 
