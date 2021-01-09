@@ -38,6 +38,26 @@ stroke_edit_dist_esc.json.compressed
 <br><br>
 The original file is at https://github.com/mwil/wanikani-userscripts
 <br><br><br>
+The following file is a lzma compressed extract of Kanjidict2 data for radicals
+<br><br>
+kanjidic2.json.compressed
+<br><br>
+The original data is from http://www.edrdg.org/wiki/index.php/KANJIDIC_Project
+<br><br><br>
+The following file is aggregate data from various data sources for traditional radicals
+<br><br>
+trad_rad.json.compressed
+<br><br>
+The data sources are: 
+<br><br>
+kradfile-u from Monash University: http://ftp.monash.edu.au/pub/nihongo/
+<br>
+kanjialive project: https://github.com/kanjialive/kanji-data-media
+<br>
+wikipedia https://en.wikipedia.org/wiki/List_of_kanji_radicals_by_stroke_count
+<br>
+Some stroke count from stroke order font: https://www.nihilist.org.uk/Home
+<br><br><br>
 For information about lzma compression in Item Inspector see https://github.com/rouleaup88/Kanji-stroke-order
 <br><br><br>
 The folowing files are utility scripts adapted to be used with the wkof.load_script() function. They issue a wkof.set_state(file_id,'Ready') when they
