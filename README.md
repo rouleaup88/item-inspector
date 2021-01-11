@@ -14,6 +14,7 @@ Datetime Parsing and Validation Functions.js<br>
 WaniKani Open Framework Date Filters.user.js<br>
 WaniKani Open Framework Search Filters.user<br>
 WaniKani Open Framework Statistics Filters.user<br>
+WaniKani Open Framework Kanjidic2 and Traditional Radicals Filters.user<br>
 <br><br>
 The following files are lzma compressed versions of mwil Keisei Semantic-Phonetic composition data bases.
 <br><br>
