@@ -111,9 +111,10 @@ var advSearchFilters = {};
     var strokeCountGteqFilterName = filterNamePrefix + 'strokeCountGteq';
     var strokeCountLteqFilterName = filterNamePrefix + 'strokeCountLteq';
     var explicitListFilterName = filterNamePrefix + 'explicitList';
+    var explicitBlockFilterName = filterNamePrefix + 'explicitBlock';
 
     var supportedFilters = [advancedSearchFilterName, relatedSearchFilterName, extensiveSearchFilterName, strokeCountGteqFilterName, strokeCountLteqFilterName,
-                            explicitListFilterName, ];
+                            explicitListFilterName, explicitBlockFilterName, ];
 
     function startupSequence(){
         wkof.set_state(settingsScriptId, 'loading');
@@ -203,9 +204,10 @@ var advSearchFilters = {};
         registerStrokeCountGteqilter();
         registerStrokeCountLteqilter();
         registerExplicitListFilter();
+        registerExplicitBlockFilter();
 
         needToRegisterFilters = false;
-        wkof.set_state(settingsScriptId, 'Ready');
+        wkof.set_state(settingsScriptId, 'ready');
     };
 
     // Unicode for Japanese characters
@@ -1926,6 +1928,275 @@ var advSearchFilters = {};
 
     // END Explicit List
 
+    // BEGIN Explicit Block
+    let explicitBlockHover_tip = 'Enter explicit list of items to be barred from displaying.';
+
+    function registerExplicitBlockFilter() {
+        const registration = {
+            type: 'button',
+            label: 'Explicit Block',
+            default: explicitBlock_defaults,
+            callable_dialog: true,
+            on_click: explicitBlockDialog,
+            prepare: prepareKanjidic2,
+            filter_value_map: prepareValueExplicitBlock,
+            filter_func: explicitBlockFilter,
+            set_options: function(options) { options.subjects = true; },
+            hover_tip: explicitBlockHover_tip,
+        };
+
+        wkof.ItemData.registry.sources.wk_items.filters[explicitBlockFilterName] = $.extend(true, {}, registration);
+        wkof.ItemData.registry.sources.wk_items.filters[explicitBlockFilterName].alternate_sources = ['trad_rad'];
+        wkof.ItemData.registry.sources.trad_rad.filters[explicitBlockFilterName] = $.extend(true, {}, registration);
+        wkof.ItemData.registry.sources.trad_rad.filters[explicitBlockFilterName].main_source = 'wk_items';
+
+    };
+
+    let explicitBlock_defaults = {explicitBlock_radical: '',
+                                  explicitBlock_kanji: '',
+                                  explicitBlock_vocabulary: '',
+                                  explicitBlock_trad_rad: '',
+                                 };
+
+    function explicitBlockDialog(name, config, on_change){
+        let $originalDialog = $('#wkof_ds').find('[role="dialog"]');
+        let scriptId = config.script_id || $originalDialog.attr("aria-describedby").slice(6);
+        let path;
+        if (config.path){
+            path = config.path.replaceAll('@', 'wkof.settings["'+scriptId+'"].');
+        } else if (scriptId === 'ss_quiz') {
+
+            // Self Study Quiz doesn't define the path but we know what it is provided we find the source
+            let row = $(this.delegateTarget);
+            let panel = row.closest('[role="tabpanel"]');
+            let source = panel.attr('id').match(/^ss_quiz_pg_(.*)$/)[1];
+            path = 'wkof.settings.ss_quiz.ipresets[wkof.settings.ss_quiz.active_ipreset].content.'+source+'.filters.advSearchFilters_explicitBlock.value'
+
+            // initialize in case it is not already initialized
+            let v = $.extend(true, {}, get_value(path));
+            set_value(path, v)
+        } else {
+            throw 'config.path is not defined';
+        };
+
+        let value = $.extend(true, {}, explicitBlock_defaults, get_value(path));
+        set_value(path, value);
+        wkof.settings[settingsScriptId] = wkof.settings[settingsScriptId] || {};
+        wkof.settings[settingsScriptId].explicitBlock = $.extend(true, {}, explicitBlock_defaults, get_value(path));
+
+        let areaIdRadical = settingsScriptId+'_radicalBlock';
+        let html_radical = '<textarea id="'+areaIdRadical+'" rows="3"></textarea>';
+        let areaIdKanji = settingsScriptId+'_kanjiBlock';
+        let html_kanji = '<textarea id="'+areaIdKanji+'" rows="3"></textarea>';
+        let areaIdVocabulary = settingsScriptId+'_vocabularyBlock';
+        let html_vocabulary = '<textarea id="'+areaIdVocabulary+'" rows="3"></textarea>';
+        let areaIdTrad_rad = settingsScriptId+'_trad_radBlock';
+        let html_trad_rad = '<textarea id="'+areaIdTrad_rad+'" rows="3"></textarea>';
+        let downloadText = '<button><a download="Filter Item List.txt" id="'+settingsScriptId+'_itemList_linkBlock" style="text-decoration:none;color:#000000;">Download Configured Items</a></button>';
+        let inputFile = '<input id="'+settingsScriptId+'_inputFileBlock" type="file" title="Select a file for uploading items with the button above.">';
+
+        let dialogConfig = {
+            script_id: settingsScriptId,
+            title: 'Explicit List',
+            on_save: on_save,
+            on_close: on_close,
+            no_bkgd: true,
+            settings: {explicitBlock_radical:{type: "html", html: html_radical, label: 'Radicals',},
+                       explicitBlock_kanji:{type: "html", html: html_kanji, label: 'Kanji',},
+                       explicitBlock_vocabulary:{type: "html", html: html_vocabulary, label: 'Vocabulary',},
+                       explicitBlock_trad_rad:{type: "html", html: html_trad_rad, label: 'Traditional Radicals',},
+                       explicitBlock_divider:{type: 'divider'},
+                       explicitBlock_download:{type: "html", label: ' ', html: downloadText,},
+                       explicitBlock_divider2:{type: 'divider'},
+                       explicitBlock_upload:{type: "button", label: 'Set Items From Selected File', on_click: uploadFileBlock,
+                                                 hover_tip: 'Upload your items from a previously downloaded file.',},
+                       explicitBlock_input:{type: 'html', html: inputFile,},
+                      },
+        };
+
+        let dialog = new wkof.Settings(dialogConfig);
+        dialog.open();
+
+        // ui issue: do not let the calling dialog be visible
+        let originalDisplay = $originalDialog.css('display');
+        $originalDialog.css('display', 'none');
+
+        // work around some framework limitations regarding html types
+        let $explicitBlock_radical = $('#'+areaIdRadical);
+        $explicitBlock_radical.val(wkof.settings[settingsScriptId].explicitBlock.explicitBlock_radical);
+        $explicitBlock_radical.change(radicalChanged);
+        let $label = $explicitBlock_radical.prev();
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        let radicalHovertip = 'List your items separated by commas\nYour search terms must match the characters for the item exactly.\nEnglish name of radicals are accepted.';
+        $label.attr('title', radicalHovertip);
+
+        let $explicitBlock_kanji = $('#'+areaIdKanji);
+        $explicitBlock_kanji.val(wkof.settings[settingsScriptId].explicitBlock.explicitBlock_kanji);
+        $explicitBlock_kanji.change(kanjiChanged);
+        $label = $explicitBlock_kanji.prev();
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        let itemlHovertip = 'List your items separated by commas.\nYour search terms must match the characters for the item exactly.';
+        $label.attr('title', itemlHovertip);
+
+        let $explicitBlock_vocabulary = $('#'+areaIdVocabulary);
+        $explicitBlock_vocabulary.val(wkof.settings[settingsScriptId].explicitBlock.explicitBlock_vocabulary);
+        $explicitBlock_vocabulary.change(vocabularyChanged);
+        $label = $explicitBlock_vocabulary.prev();
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        $label.attr('title', itemlHovertip);
+
+        let $explicitBlock_trad_rad = $('#'+areaIdTrad_rad);
+        $explicitBlock_trad_rad.val(wkof.settings[settingsScriptId].explicitBlock.explicitBlock_trad_rad);
+        $explicitBlock_trad_rad.change(trad_radChanged);
+        $label = $explicitBlock_trad_rad.prev();
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        $label.attr('title', radicalHovertip);
+
+        let $download = $('#advSearchFilters_itemList_linkBlock');
+        $download.attr('title', 'Download Your Configured Items In a File');
+        setDownloadLinkBlock();
+
+        function on_close(){
+            $originalDialog.css('display', originalDisplay);
+            if (typeof config.on_close === 'function') config.on_close();
+        };
+
+        function on_save(){
+            set_value(path, get_value('wkof.settings.'+settingsScriptId+'.explicitBlock'));
+            if (typeof config.on_save === 'function') config.on_save();
+        };
+
+        function on_cancel(){
+            if (typeof config.on_cancel === 'function') config.on_cancel();
+        };
+
+        function radicalChanged(e){
+            wkof.settings[settingsScriptId].explicitBlock.explicitBlock_radical = $explicitBlock_radical.val();
+            setDownloadLinkBlock()
+        };
+
+        function kanjiChanged(e){
+            wkof.settings[settingsScriptId].explicitBlock.explicitBlock_kanji = $explicitBlock_kanji.val();
+            setDownloadLinkBlock()
+        };
+
+        function vocabularyChanged(e){
+            wkof.settings[settingsScriptId].explicitBlock.explicitBlock_vocabulary = $explicitBlock_vocabulary.val();
+            setDownloadLinkBlock()
+        };
+
+        function trad_radChanged(e){
+            wkof.settings[settingsScriptId].explicitBlock.explicitBlock_trad_rad = $explicitBlock_trad_rad.val();
+            setDownloadLinkBlock()
+        };
+    };
+
+    //function setDownloadLink(name, value, config){
+    function setDownloadLinkBlock(){
+        let radicalElem = $('#'+settingsScriptId+'_radicalBlock');
+        let kanjiElem = $('#'+settingsScriptId+'_kanjiBlock');
+        let vocabularyElem = $('#'+settingsScriptId+'_vocabularyBlock');
+        let trad_radElem = $('#'+settingsScriptId+'_trad_radBlock');
+        let radicals = radicalElem.val();
+        let kanji = kanjiElem.val();
+        let vocabulary = vocabularyElem.val();
+        let trad_rad = trad_radElem.val();
+        let encoded = makeEncode(radicals, kanji, vocabulary, trad_rad);
+        let downloadElem = $('#'+settingsScriptId+'_itemList_linkBlock');
+        downloadElem.attr("href", "data:text/plain; charset=utf-8,"+encoded);
+    };
+
+    function uploadFileBlock(name, config, on_change){
+        let buttons = $(this.target).closest('.right');
+        buttons.find('.note').remove();
+        let fileElem = $("#advSearchFilters_inputFileBlock");
+        let filenames = fileElem.prop('files');
+        if (filenames.length === 0){
+            buttons.append('<div class="note error">Plese select a file</div>');
+            return;
+        };
+        let filename = filenames[0];
+        let reader = new FileReader();
+        reader.onload = validateReception;
+        reader.readAsText(filename);
+
+        function validateReception(event){
+            let result = receiveText(event);
+            if (typeof result === 'string'){
+                buttons.find('.note').remove();
+                buttons.append('<div class="note error">'+result+'</div>');
+            };
+        };
+
+        function receiveText(event){
+            let text = event.target.result;
+            let radicals, kanji, vocabulary, trad_rad;
+            let errorMsg = 'Invalid file content';
+            text = text.replaceAll('\n','');
+
+            let start = text.indexOf('radicals');
+            if (start !== 0) return errorMsg;
+            start = start + 'radicals'.length;
+            let end = text.indexOf('kanji');
+            if (end <= start) return errorMsg+' radical';
+            radicals = text.slice(start, end);
+
+            start = end + 'kanji'.length;
+            end = text.indexOf('vocabulary');
+            if (end <= start) return errorMsg+' kanji';
+            kanji = text.slice(start, end);
+
+            start = end + 'vocabulary'.length;
+            end = text.indexOf('traditional radicals');
+            if (end <= start) return errorMsg+' vocabulary';
+            vocabulary = text.slice(start, end);
+
+            start = end + 'traditional radicals'.length;
+            trad_rad = text.slice(start);
+
+            let elem = $('#'+settingsScriptId+'_radicalBlock');
+            elem.val(radicals);
+            elem.change();
+            elem = $('#'+settingsScriptId+'_kanjiBlock');
+            elem.val(kanji);
+            elem.change();
+            elem = $('#'+settingsScriptId+'_vocabularyBlock');
+            elem.val(vocabulary);
+            elem.change();
+            elem = $('#'+settingsScriptId+'_trad_radBlock');
+            elem.val(trad_rad);
+            elem.change();
+            return true;
+        };
+    };
+
+    function prepareValueExplicitBlock(filterValue){
+        let renamed = {};
+        renamed.radical = split_list(filterValue.explicitBlock_radical).map((str) => str.replace(/ /g, '-'));
+        renamed.kanji = split_list(filterValue.explicitBlock_kanji);
+        renamed.vocabulary = split_list(filterValue.explicitBlock_vocabulary);
+        renamed.trad_rad = split_list(filterValue.explicitBlock_trad_rad);
+        return renamed;
+    };
+
+    function explicitBlockFilter(filterValue, item) {
+        let type = item.object;
+        if (type === 'radical') if (filterValue.radical.indexOf(item.data.slug.toLowerCase()) >= 0) return false;
+        if (type === 'radical') if (item.data.characters === null) return true;
+        if (type === 'trad_rad'){
+            for (let mm of item.data.meanings){
+                if (filterValue.trad_rad.indexOf(mm.meaning.toLowerCase()) >= 0) return false;
+            };
+        };
+        return filterValue[type].indexOf(item.data.characters) < 0;
+    };
+
+    // END Explicit Block
+
     // BEGIN Keisei Semantic-Phonetic Composition
 
     // Source @acm2010 at the Keisei Semantic Phonetic composition script
@@ -2687,8 +2958,10 @@ var advSearchFilters = {};
             return Promise.resolve();
         } else {
             return load_file(traditionaRadicalsFile, true, {responseType: "arraybuffer"})
-                .then(function(data){lzmaDecompressAndProcessTradRad(data); trad_rad_postLoadProcess();})
-        }
+                .then(function(data){lzmaDecompressAndProcessTradRad(data);
+                                     advSearchFilters.traditionalRadicals = traditionalRadicals;
+                                     trad_rad_postLoadProcess();})
+        };
     };
 
     function lzmaDecompressAndProcessTradRad(data){
@@ -2696,12 +2969,10 @@ var advSearchFilters = {};
         let outStream = LZMA.decompressFile(inStream);
         let string = streamToString(outStream);
         traditionalRadicals = JSON.parse(string);
-        // now make item list for wkof
-        traditionalRadicalsItems = Object.values(traditionalRadicals);
-        advSearchFilters.traditionalRadicals = traditionalRadicals;
     };
 
     function trad_rad_postLoadProcess(){
+        traditionalRadicalsItems = Object.values(traditionalRadicals);
         prepareTradRadIndex();
     };
 
