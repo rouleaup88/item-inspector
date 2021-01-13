@@ -53,8 +53,6 @@ The data sources are:
 <br><br>
 kradfile-u from Monash University: http://ftp.monash.edu.au/pub/nihongo/
 <br>
-kanjialive project: https://github.com/kanjialive/kanji-data-media
-<br>
 wikipedia https://en.wikipedia.org/wiki/List_of_kanji_radicals_by_stroke_count
 <br>
 Some stroke count from stroke order font: https://www.nihilist.org.uk/Home
@@ -108,17 +106,18 @@ Lars Yencken Visual Similarity data is freely available under the Creative Commo
 
 lodash.min.js, lzma.js and lzma.shim.js are available under their respective licenses. See the original site for details.
 
-The KANJIDIC project files are released under a Creative Commons Attribution-ShareAlike Licence (V3.0) License Information
+The KANJIDIC project files are released under a Creative Commons Attribution-ShareAlike Licence (V3.0) <a href="https://creativecommons.org/licenses/by-sa/3.0/">License Information</a> The Licence text can be viewed <a href="https://creativecommons.org/licenses/by-sa/3.0/legalcode">here</a>.
+<br><br>
 Traditional Radicals uses information from the following sources:
 
 Wikipedia Kangxi radical page
 
 Available under Creative Commons Attribution-ShareAlike License;
 
-Kradfile 2 uses this license:
+Kradfile-u
 
- Copyright 2007 James Rose and the KanjiCafe.com.
-Special GRANT OF LICENSE is hereby given to James Breen and the
-Electronic Dictionary Research & Development Group
-such that said licensees may maintain, modify, use,
-and redistribute this file. Derivatives should maintain this notice.# All other rights reserved
+This file is available under Creative Commons Attribution-ShareAlike Licence (V3.0). The Licence Deed can be viewed here, and the full Licence Code is here.
+
+The link to the original kradfile-u doesn’t work anymore. You can get this file here
+
+Complete licensing details about Kanjidic2 and kradfile-u are available here
