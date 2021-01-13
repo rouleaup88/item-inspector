@@ -110,7 +110,7 @@ The KANJIDIC project files are released under a Creative Commons Attribution-Sha
 <br><br>
 Traditional Radicals uses information from the following sources:
 
-Wikipedia Kangxi radical page
+Wikipedia <a href="https://en.wikipedia.org/wiki/Kangxi_radical">Kangxi radical page</a>.
 
 Available under Creative Commons Attribution-ShareAlike License;
 
