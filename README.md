@@ -122,4 +122,4 @@ Complete licensing information for Kanjidic2 and kradfile-u is <a href="http://w
 
 The link to the original kradfile-u doesn’t work anymore. You can get this file here
 
-Complete licensing details about Kanjidic2 and kradfile-u are available <a href="https://github.com/jmettraux/kensaku/blob/master/data/kradfile-u">here</a/
+Complete licensing details about Kanjidic2 and kradfile-u are available <a href="https://github.com/jmettraux/kensaku/blob/master/data/kradfile-u">here</a>.
