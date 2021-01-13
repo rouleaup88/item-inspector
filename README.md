@@ -77,7 +77,8 @@ lzma.shim.js => wkof.wait_state('Wkit_lzma_shim','Ready');
 </code>
 <br><br>
 
-Item Inspector is released under either the GPLV3 or the MIT license with these restrictions and exceptions.
+Item Inspector and WaniKani Open Framework Kanjidic2 and Traditional Radicals Filters.user are released under either the GPLV3 or the MIT license with 
+these restrictions and exceptions.
 
 The license is GPLV3 because this script includes mwil code and database licenced under GPLV3 for Keisei Semantic-Phonetic Composition.<br>
 — https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -86,7 +87,7 @@ If you use @acm2010 code and/or database you work as a whole must be licensed un
 
 Code borrowed from Self Study Quiz and WKOF is licensed under MIT — http://opensource.org/licenses/MIT
 
-You may use Item Inspector code under either the GPLV3 or MIT license with these restrictions.
+You may use Item Inspector code and WaniKani Open Framework Kanjidic2 and Traditional Radicals Filters.userunder either the GPLV3 or MIT license with these restrictions.
 <br>— The GPLV3 code and database borrowed from @acm2010 must remain licensed under GPLV3 in all cases.
 <br>— The MIT code borrowed from Self Study Quiz and WKOF must remain licensed under MIT in all cases.
 
@@ -106,3 +107,18 @@ The jisho.org stroke order image are available under the Creative Commons Attrib
 Lars Yencken Visual Similarity data is freely available under the Creative Commons Attribution 3.0 Unported license.
 
 lodash.min.js, lzma.js and lzma.shim.js are available under their respective licenses. See the original site for details.
+
+The KANJIDIC project files are released under a Creative Commons Attribution-ShareAlike Licence (V3.0) License Information
+Traditional Radicals uses information from the following sources:
+
+Wikipedia Kangxi radical page
+
+Available under Creative Commons Attribution-ShareAlike License;
+
+Kradfile 2 uses this license:
+
+ Copyright 2007 James Rose and the KanjiCafe.com.
+Special GRANT OF LICENSE is hereby given to James Breen and the
+Electronic Dictionary Research & Development Group
+such that said licensees may maintain, modify, use,
+and redistribute this file. Derivatives should maintain this notice.# All other rights reserved
