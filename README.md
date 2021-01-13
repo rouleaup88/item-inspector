@@ -117,7 +117,9 @@ Available under Creative Commons Attribution-ShareAlike License;
 Kradfile-u
 
 This file is available under Creative Commons Attribution-ShareAlike Licence (V3.0). The Licence Deed can be viewed here, and the full Licence Code is here.
+<br><br>
+Complete licensing information for Kanjidic2 and kradfile-u is <a href="http://www.edrdg.org/edrdg/newlic.html">avalable here</a>.
 
 The link to the original kradfile-u doesn’t work anymore. You can get this file here
 
-Complete licensing details about Kanjidic2 and kradfile-u are available here
+Complete licensing details about Kanjidic2 and kradfile-u are available <a href="https://github.com/jmettraux/kensaku/blob/master/data/kradfile-u">here</a/
