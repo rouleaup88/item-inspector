@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.14.0
+// @version       1.16.0
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -29,11 +29,12 @@
 //
 // ===============================================================
 
-    /* globals wkof, $, ss_quiz, _, LZMA */
+    /* globals wkof, $, ss_quiz, _, LZMA, advSearchFilters */
     /* eslint-disable no-multi-spaces */
     /* eslint-disable curly */
     /* eslint-disable no-return-assign */
     /* eslint-disable no-loop-func */
+    /* eslint-disable no-eval */
 
 
 (function() {
@@ -50,6 +51,12 @@
     // SVG images for the radicals without characters - just giving the key for storing an object in wkof cache
     const Wkit_SVGforRadicals = 'Wkit_SVGforRadicals';
 
+    // Traditional radicals items
+    const traditionaRadicalsFile = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/trad_rad.json.compressed';
+
+    // Kanjidic 2 data
+    const kanjidic2File = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/kanjidic2.json.compressed';
+
     // Keisei Semantic-Phonetic Composition databases
     const kanji_db = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/kanji_esc.json.compressed';
     const phonetic_db = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/phonetic_esc.json.compressed';
@@ -57,8 +64,6 @@
 
     // Niai Visually similar databases
     const from_keisei_db_filename ='https://raw.githubusercontent.com/rouleaup88/item-inspector/main/from_keisei_esc.json.compressed';
-    const lookup_db_filename ='https://raw.githubusercontent.com/rouleaup88/item-inspector/main/lookup_esc.json.compressed';
-    const manual_db_filename ='https://raw.githubusercontent.com/rouleaup88/item-inspector/main/manual_esc.json.compressed';
     const old_script_db_filename ='https://raw.githubusercontent.com/rouleaup88/item-inspector/main/old_script_esc.json.compressed';
     const wk_niai_noto_db_filename ='https://raw.githubusercontent.com/rouleaup88/item-inspector/main/wk_niai_noto_esc.json.compressed';
     const yl_radical_db_filename ='https://raw.githubusercontent.com/rouleaup88/item-inspector/main/yl_radical_esc.json.compressed';
@@ -72,11 +77,13 @@
     // Scripts for optional filters
     const optionalFilters = {dateFilters: 'https://greasyfork.org/scripts/412570-wanikani-open-framework-date-filters/code/WaniKani%20Open%20Framework%20Date%20Filters.user.js',
                              statsFilters: 'https://greasyfork.org/scripts/412768-wanikani-open-framework-statistics-filters/code/WaniKani%20Open%20Framework%20Statistics%20Filters.user.js',
-                             searchFilters:  'https://greasyfork.org/scripts/414665-wanikani-open-framework-search-filters/code/WaniKani%20Open%20Framework%20Search%20Filters.user.js',
+                             searchFilters: 'https://greasyfork.org/scripts/414665-wanikani-open-framework-search-filters/code/WaniKani%20Open%20Framework%20Search%20Filters.user.js',
+                             kanjidic2_trad_rad: 'https://greasyfork.org/scripts/420091-wanikani-open-framework-kanjidic2-and-traditional-radicals-filters/code/WaniKani%20Open%20Framework%20Kanjidic2%20and%20Traditional%20Radicals%20Filters.user.js',
                              itemList: 'https://greasyfork.org/scripts/409955-wanikani-item-list-filter-for-self-study-quiz/code/Wanikani%20Item%20List%20Filter%20(for%20Self-Study%20Quiz).user.js',
+                             blockList: 'https://greasyfork.org/scripts/420050-wanikani-blacklist-filter-for-self-study-quiz/code/Wanikani%20Blacklist%20Filter%20(for%20Self-Study%20Quiz).user.js',
                              partOfSpeech: 'https://greasyfork.org/scripts/376095-wanikani-part-of-speech-filter/code/Wanikani%20Part-of-Speech%20Filter.user.js',
-                             //visSim: 'https://greasyfork.org/scripts/377971-wanikani-open-framework-visually-similar-kanji-filter/code/Wanikani%20Open%20Framework:%20Visually%20similar%20kanji%20filter.user.js'
-                             //joyoJpltFrequency: 'https://greasyfork.org/scripts/377613-wanikani-open-framework-jlpt-joyo-and-frequency-filters/code/Wanikani%20Open%20Framework%20JLPT,%20Joyo,%20and%20Frequency%20filters.user.js'
+                             visSim: 'https://greasyfork.org/scripts/377971-wanikani-open-framework-visually-similar-kanji-filter/code/Wanikani%20Open%20Framework:%20Visually%20similar%20kanji%20filter.user.js',
+                             joyoJpltFrequency: 'https://greasyfork.org/scripts/377613-wanikani-open-framework-jlpt-joyo-and-frequency-filters/code/Wanikani%20Open%20Framework%20JLPT,%20Joyo,%20and%20Frequency%20filters.user.js'
                             };
 
 
@@ -96,11 +103,38 @@
     var scriptId = 'Item_Inspector';
     var scriptTitle = 'Item Inspector';
 
+    //======================================================
+    // Overview of modules
+    //
+    // There are no modules in the sense of separate files.
+    // But the code is grouped in similarly themed functions and data definitions.
+    // These groups serve the purposes of modules.
+    // The boundaries between modules are identified in comments.
+    //
+    // The modules are: (in order of appearance)
+    //
+    // -- Main CSS Styling
+    // -- Settings and their default values -- with css for filter settings
+    // -- Functions for fetching, indexing and filtering data (data: WK items, SVG images, Kanjidic2 and traditional radicals)
+    // -- The metadata object for handling the particularities of data elements in popups, export and reports
+    // -- Handler functions refered by metadata object, including some handlers for third party data sources
+    // -- Fetching and handling third party data sources not referred by metadata
+    // -- Event handlers for the toolbar widgets - with some functionality implemented directly in the handlers
+    // -- Functions for generating the HTML in three subgroups:
+    //    -- (a) Functions for sorting and dispatching the display of the data
+    //    -- (b) the helper functions generating HTML for the popups and
+    //    -- (c) the functions that produce HTML for display on the dashboard
+    // -- Export functions
+    // -- Built-in filters
+    // -- Self Study Quiz integration
+    // -- Initialization and startup
+    //======================================================
+
     //------------------------------
     // Styling
     //
     // This is the main Item Inspector styling
-    // Some styling for the settings borrowed from Self Study Quiz is in a separate function
+    // Some styling for the settings borrowed from Self Study Quiz is in a separate function located later in a different module
     // These two group of sytling should be separated for licensing reasons.
     // Self Study Quiz styling is MIT -- Main Item Inspector styling is dual licensed GPL V3 and MIT as instructed at the beginning of this file
     //------------------------------
@@ -185,6 +219,10 @@
                   --Wkit-base-voc-color: #a100f1;
                   --Wkit-grad-voc-color1: #a0f;
                   --Wkit-grad-voc-color2: #9300dd;
+                  --Wkit-baseBD-trad-color:  #bbda18;
+                  --Wkit-base-trad-color:  #00a800;
+                  --Wkit-grad-trad-color1: #0eaf0e;
+                  --Wkit-grad-trad-color2: #0d9c0d;
                   --wkit-text-color-light: white;
                   --wkit-text-color-dark: black;
                   --wkit-text-color-dark-theme: rgb(188, 188, 188);
@@ -222,6 +260,8 @@
                   vertical-align: middle;
                   height: 100%;
                   padding-left: 2px;
+                  max-width: max-content;
+                  flex: 6;
             }
 
             /* Right container for widgets */
@@ -230,6 +270,8 @@
                   vertical-align: middle;
                   height: 100%;
                   padding-right: 3px;
+                  max-width: 224px;
+                  flex: 6;
             }
 
             /* Spacer for formatting the top bar */
@@ -237,7 +279,7 @@
                   visibility: hidden;
                   display: inline;
                   float: left;
-                  width: 10px;
+                  width: 8px;
             }
 
             /* Dialog for export */
@@ -281,7 +323,7 @@
                    text-align: center;
                    margin-top: 3px;
                    margin-bottom: 3px;
-                   width: 28%;
+                   flex: 4;
             }
 
             #WkitTopBar.WkitDark .WkitTitle {color:  var(--wkit-text-color-dark-theme);}
@@ -330,8 +372,7 @@
                    margin-bottom: 5px;
                    border-width: 1px;
                    border-color: Black;
-                   color: Black;
-                   width: 200px;
+                   width: 181px;
                    background-color: #efefef;
             }
 
@@ -340,6 +381,42 @@
 
            /* ------------------------------ */
            /* End of Control Bar and widgets */
+
+
+           /* ------- */
+           /* Reports */
+
+           #WkitTopBar .WkitReportContainer {
+                 position: relative;
+                 margin-left: 29px;
+                 margin-right; 4px;
+                 width: 98%;
+                 height: 477px;
+                 overflow-y: scroll;
+                 background-color: #0000001a;
+           }
+
+           #WkitTopBar.WkitDark .WkitReportContainer {color: var(--wkit-text-color-dark-theme);}
+           #WkitTopBar.WkitDark.WkitBreeze .WkitReportContainer {background-color: #0000001a; color: var(--wkit-text-color-dark-theme);}
+
+           #WkitTopBar.WkitLight .WkitStickyHeader {background-color: #d5d3d3;}
+           #WkitTopBar.WkitDark .WkitStickyHeader {background-color: #242323; }
+           #WkitTopBar.WkitDark.WkitBreeze .WkitStickyHeader {background-color: #242323;}
+
+           #WkitTopBar .WkitStickyHeader {
+                 position: sticky;
+                 top: 0;
+                 z-index: 1;
+           }
+
+           #WkitTopBar .WkitReportCellFormat {
+                 padding-left: 8px;
+                 text-align: center;
+           }
+
+           /* -------------- */
+           /* End of Reports */
+
 
 
            /* ------------------------- */
@@ -546,6 +623,42 @@
                   border-style: solid;
             }
 
+            #WkitTopBar.WkitLight .WkitTableList table tr[class=trad_rad]{
+                  background-color: var(--Wkit-base-trad-color);
+                  background-image: -moz-linear-gradient(top,green, green);
+                  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(green), to(green));
+                  background-image: -webkit-linear-gradient(top, green, green);
+                  background-image: -o-linear-gradient(top, green, green);
+                  background-image: linear-gradient(to bottom, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+                  background-repeat: repeat-x;
+            }
+
+             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=trad_rad]{
+                  background-color: var(--Wkit-base-trad-color);
+                  background-image: -moz-linear-gradient(top,green, green);
+                  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(green), to(green));
+                  background-image: -webkit-linear-gradient(top, green, green);
+                  background-image: -o-linear-gradient(top, green, green);
+                  background-image: linear-gradient(to bottom, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+                  background-repeat: repeat-x;
+            }
+
+             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=trad_rad]{
+                  color: var(--inverted-text-color) !important;
+                  background-color: var(--Wkit-baseBD-trad-colorr) !important;
+                  border: var(--page-background);
+                  border-width: 1px;
+                  border-style: solid;
+            }
+
+             #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=trad_rad]{
+                  color: var(--wkit-text-color-dark) !important;
+                  background-color: var(--Wkit-baseBD-trad-color) !important;
+                  border: var(--page-background);
+                  border-width: 1px;
+                  border-style: solid;
+            }
+
            /* Popups in table mode */
 
             #WkitTopBar .WkitTableList .WkitTooltip:hover .WkitTooltipContent {
@@ -617,18 +730,22 @@
             #WkitTopBar.WkitLight .WkitTooltip2 .radical { padding: 5px; background: var(--Wkit-base-rad-color); }
             #WkitTopBar.WkitLight .WkitTooltip2 .kanji { padding: 5px; background: var(--Wkit-base-kan-color); }
             #WkitTopBar.WkitLight .WkitTooltip2 .vocabulary { padding: 5px; background: var(--Wkit-base-voc-color); }
+            #WkitTopBar.WkitLight .WkitTooltip2 .trad_rad { padding: 5px; background: var(--Wkit-base-trad-color); }
 
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .radical { padding: 5px; background: var(--Wkit-base-rad-color); }
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .kanji { padding: 5px; background: var(--Wkit-base-kan-color); }
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .vocabulary { padding: 5px; background: var(--Wkit-base-voc-color); }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .trad_rad { padding: 5px; background: var(--Wkit-base-trad-color); }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .radical { padding: 5px; background: var(--radical-color); }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .kanji { padding: 5px; background: var(--kanji-color); }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .vocabulary { padding: 5px; background:var(--vocabulary-color); }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .trad_rad { padding: 5px; background:var(--Wkit-baseBD-trad-color); }
 
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .radical { padding: 5px; background: var(--radical-color); }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .kanji { padding: 5px; background: var(--kanji-color); }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .vocabulary { padding: 5px; background:var(--vocabulary-color); }
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .trad_rad { padding: 5px; background:var(--Wkit-base-trad-color); }
 
            #WkitTopBar .WkitEnlargedTooltip span {
                   font-size: 60px;
@@ -839,7 +956,7 @@
             }
 
             #WkitTopBar.WkitLight .WkitItemListed span.vocabulary {
-                  background-image: var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
+                  background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
                   background-color: var(--Wkit-base-voc-color);
             }
 
@@ -851,6 +968,21 @@
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.vocabulary,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.vocabulary {
                   background-color: var(--vocabulary-color);
+            }
+
+            #WkitTopBar.WkitLight .WkitItemListed span.trad_rad {
+                  background-image: var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+                  background-color: var(--Wkit-base-trad-color);
+            }
+
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.trad_rad {
+                  background-image: linear-gradient(0deg, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+                  background-color: var(--Wkit-base-trad-color);
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.trad_rad,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.vocabulary {
+                  background-color: var(--Wkit-baseBD-trad-color);
             }
 
            /* Popups for icon list mode */
@@ -1081,37 +1213,48 @@
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left span.kanji { color: var(--wkit-text-color-dark) !important; }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left p.WkitKeiseiMsg { color: var(--wkit-text-color-dark-theme) !important; }
 
-            #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left  .radical,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left  .radical {
+            #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .radical,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .radical {
                   background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
                   background-color: var(--Wkit-base-rad-color);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left  .radical,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left  .radical {
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .radical,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .radical {
                   background-color: var(--radical-color);
             }
 
-             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left  .kanji,
-             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left  .kanji {
+             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .kanji,
+             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .kanji {
                   background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
                   background-color: var(--Wkit-base-kan-color);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left  .kanji,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left  .kanji {
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .kanji,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .kanji {
                   background-color: var(--kanji-color);
             }
 
-             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left  .vocabulary,
-             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left  .vocabulary {
+             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .vocabulary,
+             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .vocabulary {
                   background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
                   background-color: var(--Wkit-base-voc-color);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left  .vocabulary,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left  .vocabulary {
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .vocabulary,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .vocabulary {
                   background-color: var(--vocabulary-color);
+            }
+
+             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .trad_rad,
+             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .trad_rad {
+                  background-image: linear-gradient(0deg, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+                  background-color: var(--Wkit-base-trad-color);
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .trad_rad,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .trad_rad {
+                  background-color: var(--Wkit-baseBD-trad-color);
             }
 
            #WkitTopBar .WkitMessage,
@@ -1581,21 +1724,6 @@
            /* --------------------------- */
            /* Mini icons and their popups */
 
-          /* I don't know what these three rules are for. Commented out for now */
-          /* My guess is they are made obsolete by the refactoring */
-
-/*            #WkitTopBar .WkitTooltip .radical {
-                  background: #00a1f1;
-            }
-
-            #WkitTopBar .WkitTooltip .kanji {
-                  background: #ff00aa;
-            }
-
-            #WkitTopBar .WkitTooltip .vocabulary {
-                  background: #9800e8;
-            }*/
-
           #WkitTopBar .WkitMiniContainer {
                   display: block;
                   position: relative;
@@ -1646,28 +1774,46 @@
                   background: var(--vocabulary-color);
           }
 
+          #WkitTopBar.WkitLight .WkitMiniIcon.trad_rad,
+          #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.trad_rad {
+                  background: var(--Wkit-base-trad-color);
+          }
+
+          #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.trad_rad,
+          #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.trad_rad {
+                  background: var(--Wkit-baseBD-trad-color);
+          }
+
           #WkitTopBar.WkitLight .WkitMiniIcon.radical a,
           #WkitTopBar.WkitLight .WkitMiniIcon.kanji a,
-          #WkitTopBar.WkitLight .WkitMiniIcon.vocabulary a {
+          #WkitTopBar.WkitLight .WkitMiniIcon.vocabulary a,
+          #WkitTopBar.WkitLight .WkitMiniIcon.trad_rad a {
                 color: var(--wkit-text-color-light) !important;
+                text-decoration: none;
           }
 
           #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.radical a,
           #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.kanji a,
-          #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.vocabulary a {
+          #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.vocabulary a,
+          #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.trad_rad a {
                 color: var(--wkit-text-color-dark) !important;
+                text-decoration: none;
           }
 
           #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.radical a,
           #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.kanji a,
-          #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.vocabulary a {
+          #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.vocabulary a,
+          #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.trad_rad a {
                 color: var(--inverted-text-color) !important;
+                text-decoration: none;
           }
 
           #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.radical a,
           #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.kanji a,
-          #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.vocabulary a {
+          #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.vocabulary a,
+          #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.trad_rad a {
                 color: var(--wkit-text-color-dark) !important;
+                text-decoration: none;
           }
 
           #WkitTopBar .WkitIconTooltipContent {
@@ -1719,12 +1865,21 @@
                   position: absolute;
                   right: 20%;
                   transform: translateY(-50%);
+                  width: 456px;
+                  transition-delay: 0.1s;
+                  z-index: 150;
+          }
+
+          #WkitTopBar .WkitAndMoreInnerIcons {
+                  display: block;
+                  right: 0%;
                   background-color: #463838;
                   border-radius: 5px;
                   padding: 5px;
-                  width: 450px;
-                  transition-delay: 0.1s;
-                  z-index: 150;
+                  width: 100%;
+                  height: 100%;
+                  max-height: 189px;
+                  overflow-y: auto;
           }
 
           #WkitTopBar .WkitAndMore:hover .WkitAndMorePopup{
@@ -1833,21 +1988,6 @@
         $('head').append(leechStyling);
     };
 
-    //------------------------------
-    // Menu
-    //------------------------------
-    var settings_dialog;
-
-    function install_menu() {
-        wkof.Menu.insert_script_link({
-            script_id: scriptId,
-            name: scriptId,
-            submenu:   'Settings',
-            title:     'Item Inspector',
-            on_click:  open_quiz_settings
-        });
-    }
-
 
     //########################################################################
     // SETTINGS DIALOG
@@ -1865,7 +2005,7 @@
     // QUIZ DATA
     //
     // this is a legacy from code borrowed from Self Study Quiz
-    // this is too central to Item Inspector to change
+    // this is too central to Item Inspector to be changed
     // quiz.items is the list of items in the current table
     // quiz.settings_dialog is the settings dialog
     // quiz.settings is a shortcut to the settings (not initialized here)
@@ -1884,20 +2024,28 @@
     // when adding or removing settings in the dialog the default in init_settings
     // must be changed as well
     //----------------------------------------------------------------------------
+    var settings_dialog;
+
     var standardInfo = ['table_data', 'sort1', 'sort2', 'tooltip1', 'tooltip2', 'tooltip3', 'tooltip4', 'tooltip5', 'tooltip6', 'tooltip7', 'tooltip8',];
+    var viewInfo =  ['vtable_data', 'vsort1', 'vsort2', 'vtooltip1', 'vtooltip2', 'vtooltip3', 'vtooltip4', 'vtooltip5', 'vtooltip6', 'vtooltip7', 'vtooltip8',];
+    var reportInfo =  ['report_key', 'column1', 'column2', 'column3', 'column4', 'column5', 'column6', 'column7', 'column8', 'column9',];
     var exportedInfo = ['export1','export2','export3','export4','export5','export6','export7','export8','export9','export10',
                         'export11','export12','export13','export14','export15','export16','export17','export18','export19','export20',
                         'export21','export22','export23','export24','export25','export26','export27','export28','export29','export30',
                         'export31','export32','export33','export34','export35','export36','export37','export38','export39','export40',
                         'export41','export42','export43','export44','export45','export46','export47','export48','export49','export50',
-                        'export51','export52','export53','export54','export55','export56',];
+                        'export51','export52','export53','export54','export55','export56','export57','export58','export59','export60',
+                        'export61','export62',];
     var wideElements = {'Last_Review_Date':true, 'Review_Date':true, 'Passed_Date':true, 'Burned_Date':true, 'Resurrected_Date':true, 'Lesson_Date':true,
                         'Unlock_Date':true, 'Joyo': true, 'JLPT': true, 'Frequency': true,};
 
     function setup_quiz_settings() {
 
         let tableElementContents = {'Meaning_Brief':'Meaning Brief',
-                                    'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full', 'Leech':'Leech Value',
+                                    'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
+                                    'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full',
+                                    'Kanjidic2_Onyomi': 'Kanjidict2 Onyomi', 'Kanjidic2_Kunyomi': 'Kanjidict2 Kunyomi', 'Kanjidic2_Nanori': 'Kanjidict2 Nanori',
+                                    'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
                                     'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Meaning_Incorrect_Answers': 'Meaning Incorrect Answers',
                                     'Reading_Correct_Answers': 'Reading Correct Answers', 'Reading_Incorrect_Answers': 'Reading Incorrect Answers',
                                     'Total_Correct_Answers': 'Total Correct Answers','Total_Incorrect_Answers': 'Total Incorrect Answers',
@@ -1907,15 +2055,39 @@
                                     'Reading_Incorrect': 'Percentage Incorrect Reading',
                                     'Meaning_Current_Streak' : 'Meaning Current Streak', 'Reading_Current_Streak': 'Reading Current Streak',
                                     'Minimum_Current_Streak': 'Minimum Current Streak' ,
-                                    'Meaning_Max_Streak' : 'Meaning Maximum Streak', 'Reading_Max_Streak': 'Reading Maximum Streak', 'Review_Count': 'Number of Reviews',
-                                    'Level':'Level',
-                                    'Srs':'SRS Stage', 'Last_Review_Date':'Last Review Date', 'Review_Date':'Next Review Date', 'Review_Wait':'Next Review Wait Time',
+                                    'Meaning_Max_Streak' : 'Meaning Maximum Streak', 'Reading_Max_Streak': 'Reading Maximum Streak',
+                                    'Review_Count': 'Number of Reviews', 'Level':'Level', 'Srs':'SRS Stage',
+                                    'Last_Review_Date':'Last Review Date', 'Review_Date':'Next Review Date', 'Review_Wait':'Next Review Wait Time',
                                     'Passed_Date':'Passed Guru Date', 'Burned_Date':'Burned Date', 'Resurrected_Date': 'Resurrected Date',
                                     'Lesson_Date':'Lesson Date', 'Unlock_Date': 'Unlock Date',
                                     'Joyo': 'Joyo Grade', 'JLPT': 'JLPT Level', 'Frequency': 'Frequency', };
 
-        let dataElementContents = {'None':'None', 'Meaning_Brief':'Meaning Brief', 'Meaning_Full':'Meaning Full',
-                                   'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full', 'Reading_by_Type': 'Reading by Type (on kun)', 'Leech':'Leech Value',
+        let viewTableElementContents = {'Same': 'Same as Without View' ,'Meaning_Brief':'Meaning Brief',
+                                        'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
+                                        'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full',
+                                        'Kanjidic2_Onyomi': 'Kanjidict2 Onyomi', 'Kanjidic2_Kunyomi': 'Kanjidict2 Kunyomi', 'Kanjidic2_Nanori': 'Kanjidict2 Nanori',
+                                        'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
+                                        'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Meaning_Incorrect_Answers': 'Meaning Incorrect Answers',
+                                        'Reading_Correct_Answers': 'Reading Correct Answers', 'Reading_Incorrect_Answers': 'Reading Incorrect Answers',
+                                        'Total_Correct_Answers': 'Total Correct Answers','Total_Incorrect_Answers': 'Total Incorrect Answers',
+                                        'Percentage_Correct': 'Percentage Correct Total','Meaning_Correct': 'Percentage Correct Meaning',
+                                        'Reading_Correct': 'Percentage Correct Reading',
+                                        'Percentage_Incorrect': 'Percentage Incorrect Total','Meaning_Incorrect': 'Percentage Incorrect Meaning',
+                                        'Reading_Incorrect': 'Percentage Incorrect Reading',
+                                        'Meaning_Current_Streak' : 'Meaning Current Streak', 'Reading_Current_Streak': 'Reading Current Streak',
+                                        'Minimum_Current_Streak': 'Minimum Current Streak' ,
+                                        'Meaning_Max_Streak' : 'Meaning Maximum Streak', 'Reading_Max_Streak': 'Reading Maximum Streak',
+                                        'Review_Count': 'Number of Reviews', 'Level':'Level', 'Srs':'SRS Stage',
+                                        'Last_Review_Date':'Last Review Date', 'Review_Date':'Next Review Date',
+                                        'Passed_Date':'Passed Guru Date', 'Burned_Date':'Burned Date', 'Resurrected_Date': 'Resurrected Date',
+                                        'Lesson_Date':'Lesson Date', 'Unlock_Date': 'Unlock Date',
+                                        'Joyo': 'Joyo Grade', 'JLPT': 'JLPT Level', 'Frequency': 'Frequency', };
+
+        let dataElementContents = {'None':'None', 'Item': 'Item Characters', 'Meaning_Brief':'Meaning Brief', 'Meaning_Full':'Meaning Full',
+                                   'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
+                                   'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full', 'Reading_by_Type': 'Reading by Type (on kun)',
+                                   'Kanjidic2_Onyomi': 'Kanjidict2 Onyomi', 'Kanjidic2_Kunyomi': 'Kanjidict2 Kunyomi', 'Kanjidic2_Nanori': 'Kanjidict2 Nanori',
+                                   'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
                                    'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Reading_Correct_Answers': 'Reading Correct Answers',
                                    'Meaning_Incorrect_Answers': 'Meaning Incorrect Answers', 'Reading_Incorrect_Answers': 'Reading Incorrect Answers',
                                    'Total_Correct_Answers': 'Total Correct Answers','Total_Incorrect_Answers': 'Total Incorrect Answers',
@@ -1925,21 +2097,24 @@
                                    'Reading_Incorrect': 'Percentage Incorrect Reading',
                                    'Meaning_Current_Streak' : 'Meaning Current Streak', 'Reading_Current_Streak': 'Reading Current Streak',
                                    'Minimum_Current_Streak': 'Minimum Current Streak' ,
-                                   'Meaning_Max_Streak' : 'Meaning Maximum Streak', 'Reading_Max_Streak': 'Reading Maximum Streak', 'Review_Count': 'Number of Reviews',
-                                   'Level':'Level',
-                                   'Srs':'SRS Stage', 'Last_Review_Date':'Last Review Date', 'Review_Date':'Review Date', 'Review_Wait':'Review Wait Time',
+                                   'Meaning_Max_Streak' : 'Meaning Maximum Streak', 'Reading_Max_Streak': 'Reading Maximum Streak',
+                                   'Review_Count': 'Number of Reviews','Level':'Level', 'Srs':'SRS Stage',
+                                   'Last_Review_Date':'Last Review Date', 'Review_Date':'Review Date', 'Review_Wait':'Review Wait Time',
                                    'Passed_Date':'Passed Guru Date', 'Burned_Date':'Burned Date', 'Resurrected_Date': 'Resurrected Date',
                                    'Lesson_Date':'Lesson Date', 'Unlock_Date': 'Unlock Date',
                                    'Allow_List': 'Allow List', 'Block_List': 'Block List',
                                    'Part_Of_Speech': 'Part of Speech', 'Vis_Sim_Kanji': 'WK Visually Similar Kanji', 'Lars_Yencken': 'LY Visually Similar Kanji',
-                                   'Niai': 'Niai Visually Similar Kanji',
+                                   'Niai': 'Niai Visually Similar Kanji', 'trad_rad': 'Traditional Radicals',
                                    'Components': 'Components of Item', 'Used_In': 'Items Where Used',
                                    'Joyo': 'Joyo Grade', 'JLPT': 'JLPT Level', 'Frequency': 'Frequency',
                                    'Mnemonics': 'Mnemonics/Hints/Contxt Sent.', 'Notes': 'Notes and User Synonyms',
                                   };
 
         let sortElementContents = {'Default':'Default', 'Type':'Item Type (Rad, Kan, Voc)', 'Meaning_Brief':'Meaning Brief', 'Meaning_Full':'Meaning Full',
-                                   'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full', 'Leech':'Leech Value',
+                                   'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
+                                   'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full',
+                                   'Kanjidic2_Onyomi': 'Kanjidict2 Onyomi', 'Kanjidic2_Kunyomi': 'Kanjidict2 Kunyomi', 'Kanjidic2_Nanori': 'Kanjidict2 Nanori',
+                                   'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
                                    'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Reading_Correct_Answers': 'Reading Correct Answers',
                                    'Meaning_Incorrect_Answers': 'Meaning Incorrect Answers', 'Reading_Incorrect_Answers': 'Reading Incorrect Answers',
                                    'Total_Correct_Answers': 'Total Correct Answers','Total_Incorrect_Answers': 'Total Incorrect Answers',
@@ -1949,14 +2124,35 @@
                                    'Reading_Incorrect': 'Percentage Incorrect Reading',
                                    'Meaning_Current_Streak' : 'Meaning Current Streak', 'Reading_Current_Streak': 'Reading Current Streak',
                                    'Minimum_Current_Streak': 'Minimum Current Streak' ,
-                                   'Meaning_Max_Streak' : 'Meaning Maximum Streak', 'Reading_Max_Streak': 'Reading Maximum Streak', 'Review_Count': 'Number of Reviews',
-                                   'Level':'Level',
-                                   'Srs':'SRS Stage', 'Last_Review_Date':'Last Review Date', 'Review_Date':'Review Date', 'Review_Wait':'Review Wait Time',
+                                   'Meaning_Max_Streak' : 'Meaning Maximum Streak', 'Reading_Max_Streak': 'Reading Maximum Streak',
+                                   'Review_Count': 'Number of Reviews', 'Level':'Level', 'Srs':'SRS Stage',
+                                   'Last_Review_Date':'Last Review Date', 'Review_Date':'Review Date', 'Review_Wait':'Review Wait Time',
                                    'Passed_Date':'Passed Guru Date', 'Burned_Date':'Burned Date', 'Resurrected_Date': 'Resurrected Date',
                                    'Lesson_Date':'Lesson Date', 'Unlock_Date': 'Unlock Date',
                                    'Joyo': 'Joyo Grade', 'JLPT': 'JLPT Level', 'Frequency': 'Frequency', };
 
-        let wordCloudContents = {'No Repeat': 'Don\'t Repeat', 'Leech':'Leech Value',
+        let viewSortElementContents = {'Same': 'Same as Without View' ,'Default':'Default', 'Type':'Item Type (Rad, Kan, Voc)',
+                                       'Meaning_Brief':'Meaning Brief', 'Meaning_Full':'Meaning Full', 'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
+                                       'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full',
+                                       'Kanjidic2_Onyomi': 'Kanjidict2 Onyomi', 'Kanjidic2_Kunyomi': 'Kanjidict2 Kunyomi', 'Kanjidic2_Nanori': 'Kanjidict2 Nanori',
+                                       'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
+                                       'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Reading_Correct_Answers': 'Reading Correct Answers',
+                                       'Meaning_Incorrect_Answers': 'Meaning Incorrect Answers', 'Reading_Incorrect_Answers': 'Reading Incorrect Answers',
+                                       'Total_Correct_Answers': 'Total Correct Answers','Total_Incorrect_Answers': 'Total Incorrect Answers',
+                                       'Percentage_Correct': 'Percentage Correct Total','Meaning_Correct': 'Percentage Correct Meaning',
+                                       'Reading_Correct': 'Percentage Correct Reading',
+                                       'Percentage_Incorrect': 'Percentage Incorrect Total','Meaning_Incorrect': 'Percentage Incorrect Meaning',
+                                       'Reading_Incorrect': 'Percentage Incorrect Reading',
+                                       'Meaning_Current_Streak' : 'Meaning Current Streak', 'Reading_Current_Streak': 'Reading Current Streak',
+                                       'Minimum_Current_Streak': 'Minimum Current Streak' ,
+                                       'Meaning_Max_Streak' : 'Meaning Maximum Streak', 'Reading_Max_Streak': 'Reading Maximum Streak',
+                                       'Review_Count': 'Number of Reviews', 'Level':'Level', 'Srs':'SRS Stage',
+                                       'Last_Review_Date':'Last Review Date', 'Review_Date':'Review Date',
+                                       'Passed_Date':'Passed Guru Date', 'Burned_Date':'Burned Date', 'Resurrected_Date': 'Resurrected Date',
+                                       'Lesson_Date':'Lesson Date', 'Unlock_Date': 'Unlock Date',
+                                       'Joyo': 'Joyo Grade', 'JLPT': 'JLPT Level', 'Frequency': 'Frequency', };
+
+        let wordCloudContents = {'No Repeat': 'Don\'t Repeat', 'Leech':'Leech Value', 'Stroke_Count': 'Stroke Count',
                                  'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Reading_Correct_Answers': 'Reading Correct Answers',
                                  'Meaning_Incorrect_Answers': 'Meaning Incorrect Answers', 'Reading_Incorrect_Answers': 'Reading Incorrect Answers',
                                  'Total_Correct_Answers': 'Total Correct Answers','Total_Incorrect_Answers': 'Total Incorrect Answers',
@@ -1970,8 +2166,10 @@
                                 };
 
         let exportElementContents = {'None': 'Not Exported', 'Item':'Item', 'Type':'Item Type (Rad, Kan, Voc)', 'Export_Date': 'Export Date',
-                                     'Meaning_Brief':'Meaning Brief', 'Meaning_Full':'Meaning Full',
-                                     'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full', 'Reading_by_Type': 'Reading by Type (on kun)', 'Leech':'Leech Value',
+                                     'Meaning_Brief':'Meaning Brief', 'Meaning_Full':'Meaning Full', 'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
+                                     'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full', 'Reading_by_Type': 'Reading by Type (on kun)',
+                                     'Kanjidic2_Onyomi': 'Kanjidict2 Onyomi', 'Kanjidic2_Kunyomi': 'Kanjidict2 Kunyomi', 'Kanjidic2_Nanori': 'Kanjidict2 Nanori',
+                                     'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
                                      'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Meaning_Incorrect_Answers': 'Meaning Incorrect Answers',
                                      'Reading_Correct_Answers': 'Reading Correct Answers', 'Reading_Incorrect_Answers': 'Reading Incorrect Answers',
                                      'Total_Correct_Answers': 'Total Correct Answers','Total_Incorrect_Answers': 'Total Incorrect Answers',
@@ -1981,19 +2179,59 @@
                                      'Reading_Incorrect': 'Percentage Incorrect Reading',
                                      'Meaning_Current_Streak' : 'Meaning Current Streak', 'Reading_Current_Streak': 'Reading Current Streak',
                                      'Minimum_Current_Streak': 'Minimum Current Streak' ,
-                                     'Meaning_Max_Streak' : 'Meaning Maximum Streak', 'Reading_Max_Streak': 'Reading Maximum Streak', 'Review_Count': 'Number of Reviews',
-                                     'Level':'Level',
-                                     'Srs':'SRS Stage', 'Last_Review_Date':'Last Review Date', 'Review_Date':'Review Date',
+                                     'Meaning_Max_Streak' : 'Meaning Maximum Streak', 'Reading_Max_Streak': 'Reading Maximum Streak',
+                                     'Review_Count': 'Number of Reviews', 'Level':'Level', 'Srs':'SRS Stage',
+                                     'Last_Review_Date':'Last Review Date', 'Review_Date':'Review Date',
                                      'Passed_Date':'Passed Guru Date', 'Burned_Date':'Burned Date', 'Resurrected_Date': 'Resurrected Date',
                                      'Lesson_Date':'Lesson Date', 'Unlock_Date': 'Unlock Date',
                                      'Allow_List': 'Allow List', 'Block_List': 'Block List',
                                      'Part_Of_Speech': 'Part of Speech', 'Vis_Sim_Kanji': 'WK Visually Similar Kanji', 'Lars_Yencken': 'LY Visually Similar Kanji',
-                                     'Niai': 'Niai Visually Similar Kanji',
+                                     'Niai': 'Niai Visually Similar Kanji', 'trad_rad': 'Traditional Radicals',
                                      'Components': 'Components of Item', 'Used_In': 'Items Where Used', 'Item_Page': 'URL of Item Page',
                                      'Joyo': 'Joyo Grade', 'JLPT': 'JLPT Level', 'Frequency': 'Frequency',
                                      'mMnemonics' : 'Meaning Mnemonics', 'rMnemonics' : 'Reading Mnemonics', 'mHints' : 'Meaning Hints', 'rHints' : 'Reading Hints',
                                      'Context_Sentences': 'Context Sentences', 'mNotes' : 'Meaning Notes', 'rNotes' : 'Reading Notes', 'Synonyms': 'User Synonyms',
                                     };
+
+        let reportKeyContents = {'Type':'Item Type (Rad, Kan, Voc)', 'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
+                                    'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Meaning_Incorrect_Answers': 'Meaning Incorrect Answers',
+                                    'Reading_Correct_Answers': 'Reading Correct Answers', 'Reading_Incorrect_Answers': 'Reading Incorrect Answers',
+                                    'Total_Correct_Answers': 'Total Correct Answers','Total_Incorrect_Answers': 'Total Incorrect Answers',
+                                    'Percentage_Correct': 'Percentage Correct Total','Meaning_Correct': 'Percentage Correct Meaning',
+                                    'Reading_Correct': 'Percentage Correct Reading',
+                                    'Percentage_Incorrect': 'Percentage Incorrect Total','Meaning_Incorrect': 'Percentage Incorrect Meaning',
+                                    'Reading_Incorrect': 'Percentage Incorrect Reading',
+                                    'Meaning_Current_Streak' : 'Meaning Current Streak', 'Reading_Current_Streak': 'Reading Current Streak',
+                                    'Minimum_Current_Streak': 'Minimum Current Streak' ,
+                                    'Meaning_Max_Streak' : 'Meaning Maximum Streak', 'Reading_Max_Streak': 'Reading Maximum Streak',
+                                    'Review_Count': 'Number of Reviews', 'Level':'Level', 'Srs':'SRS Stage',
+                                    'Last_Review_Date':'Last Review Date', 'Last_Review_Monthly':'Last Review Date Monthly',
+                                    'Review_Date':'Next Review Date', 'Review_Monthly':'Next Review Date Monthly',
+                                    'Passed_Date':'Passed Guru Date', 'Passed_Monthly':'Passed Guru Date Monthly',
+                                    'Burned_Date':'Burned Date', 'Burned_Monthly':'Burned Date Monthly',
+                                    'Resurrected_Date': 'Resurrected Date', 'Resurrected_Monthly': 'Resurrected Date Monthly',
+                                    'Lesson_Date':'Lesson Date', 'Lesson_Monthly':'Lesson Date Monthly',
+                                    'Unlock_Date': 'Unlock Date', 'Unlock_Monthly': 'Unlock Date Monthly',
+                                    'Joyo': 'Joyo Grade', 'JLPT': 'JLPT Level', 'Frequency': 'Frequency',
+                                    };
+
+        let statsElementContents = {'None':'None', 'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
+                                    'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Meaning_Incorrect_Answers': 'Meaning Incorrect Answers',
+                                    'Reading_Correct_Answers': 'Reading Correct Answers', 'Reading_Incorrect_Answers': 'Reading Incorrect Answers',
+                                    'Total_Correct_Answers': 'Total Correct Answers','Total_Incorrect_Answers': 'Total Incorrect Answers',
+                                    'Percentage_Correct': 'Percentage Correct Total','Meaning_Correct': 'Percentage Correct Meaning',
+                                    'Reading_Correct': 'Percentage Correct Reading',
+                                    'Percentage_Incorrect': 'Percentage Incorrect Total','Meaning_Incorrect': 'Percentage Incorrect Meaning',
+                                    'Reading_Incorrect': 'Percentage Incorrect Reading',
+                                    'Meaning_Current_Streak' : 'Meaning Current Streak', 'Reading_Current_Streak': 'Reading Current Streak',
+                                    'Minimum_Current_Streak': 'Minimum Current Streak' ,
+                                    'Meaning_Max_Streak' : 'Meaning Maximum Streak', 'Reading_Max_Streak': 'Reading Maximum Streak',
+                                    'Review_Count': 'Number of Reviews', 'Level':'Level', 'Srs':'SRS Stage',
+                                    'Last_Review_Date':'Last Review Date', 'Review_Date':'Next Review Date',
+                                    'Passed_Date':'Passed Guru Date', 'Burned_Date':'Burned Date', 'Resurrected_Date': 'Resurrected Date',
+                                    'Lesson_Date':'Lesson Date', 'Unlock_Date': 'Unlock Date',
+                                    'Joyo': 'Joyo Grade', 'JLPT': 'JLPT Level', 'Frequency': 'Frequency',
+                                   };
 
         var exportTabConfig = {type:'page',label:'Export',hover_tip:'Define the exported items of your table',
                                content:{
@@ -2012,11 +2250,14 @@
                                                    hover_tip: 'Adds in each cell a label to describe the data.\nLabels are not added to Meanings, Readings, Item,\nItem Type, Context Sentences and URL columns',
                                                    path:'@tablePresets[@active_ipreset].includeLabels', },
                                    URLclickable: {type: 'dropdown', label:'URL Clickable', default: 'Plain', hover_tip: 'Makes URL automatically clickable in spreadsheet and Anki',
-                                                  path:'@tablePresets[@active_ipreset].URLclickable',content:{'Plain': 'Plain URL, Non Clickable', 'Spreadsheet': 'Spreadsheet Format', 'html': 'HTML for Anki'}, },
+                                                  path:'@tablePresets[@active_ipreset].URLclickable',content:{'Plain': 'Plain URL, Non Clickable',
+                                                                                                              'Spreadsheet': 'Spreadsheet Format',
+                                                                                                              'html': 'HTML for Anki (in same tab)',
+                                                                                                              'blank': 'HTML for Kitsun (in new tab)'}, },
                                    missingData: {type: 'dropdown', label:'Missing Data', default: 'Code_Word', hover_tip: 'How to export missing data',
                                                  path:'@tablePresets[@active_ipreset].missingData', content:{'Code_Word' : 'Mark as Unavailable', 'Empty_Cell': 'Leave the Cell Empty',}},
                                    hoursInDate: {type: 'list', multi: true, size: 4, label:'Adding Hours in Dates', default: {'Review_Date': true, 'Last_Review_Date': true,}, hover_tip: 'Adding hours and minutes to selected dates.\nUnselected means just the date will be exported.',
-                                                 path:'@tablePresets[@active_ipreset].hoursInDate', content:{'Review_Date':'Review Date', 'Last_Review_Date':'Last Review Date', 'Passed_Date':'Passed Guru Date', 'Burned_Date':'Burned Date',
+                                                 path:'@tablePresets[@active_ipreset].hoursInDate', content:{'Review_Date':'Next Review Date', 'Last_Review_Date':'Last Review Date', 'Passed_Date':'Passed Guru Date', 'Burned_Date':'Burned Date',
                                                                                                              'Resurrected_Date': 'Resurrected Date', 'Lesson_Date':'Lesson Date', 'Unlock_Date': 'Unlock Date',
                                                                                                              'Export_Date': 'Export Date',}},
                                    contextSentences: {type: 'dropdown', label:'Context Sentences Format', default: 'separateJP',
@@ -2194,6 +2435,24 @@
                                    export56: {type:'dropdown',label:'Exported Column no 56',hover_tip:'The 56th column of exported information', default:'None',
                                               path:'@tablePresets[@active_ipreset].export56', content:exportElementContents,
                                              },
+                                   export57: {type:'dropdown',label:'Exported Column no 57',hover_tip:'The 57th column of exported information', default:'None',
+                                              path:'@tablePresets[@active_ipreset].export57', content:exportElementContents,
+                                             },
+                                   export58: {type:'dropdown',label:'Exported Column no 58',hover_tip:'The 58th column of exported information', default:'None',
+                                              path:'@tablePresets[@active_ipreset].export58', content:exportElementContents,
+                                             },
+                                   export59: {type:'dropdown',label:'Exported Column no 59',hover_tip:'The 59th column of exported information', default:'None',
+                                              path:'@tablePresets[@active_ipreset].export59', content:exportElementContents,
+                                             },
+                                   export60: {type:'dropdown',label:'Exported Column no 60',hover_tip:'The 60th column of exported information', default:'None',
+                                              path:'@tablePresets[@active_ipreset].export60', content:exportElementContents,
+                                             },
+                                   export61: {type:'dropdown',label:'Exported Column no 61',hover_tip:'The 61st column of exported information', default:'None',
+                                              path:'@tablePresets[@active_ipreset].export61', content:exportElementContents,
+                                             },
+                                   export62: {type:'dropdown',label:'Exported Column no 62',hover_tip:'The 62nd column of exported information', default:'None',
+                                              path:'@tablePresets[@active_ipreset].export62', content:exportElementContents,
+                                             },
                                },
                               };
 
@@ -2293,7 +2552,7 @@
                                                        path:'@tablePresets[@active_ipreset].randomSelection', default:0,},
                                      navigationDate: {type:'dropdown',label:'Date for Date Navigation',hover_tip:'The date used as a reference when the mode ordering by date is on.',
                                                       path:'@tablePresets[@active_ipreset].navigationDate', default:'Lesson_Date',
-                                                      content:{'Review_Date':'Review Date', 'Last_Review_Date':'Last Review Date', 'Lesson_Date':'Lesson Date', 'Passed_Date':'Passed Guru Date',
+                                                      content:{'Review_Date':'Next Review Date', 'Last_Review_Date':'Last Review Date', 'Lesson_Date':'Lesson Date', 'Passed_Date':'Passed Guru Date',
                                                                'Burned_Date':'Burned Date', 'Resurrected_Date': 'Resurrected Date', 'Unlock_Date': 'Unlock Date',},
                                                },
                                      sect_tbl_leechTraining:{type:'section',label:'Leech Training Emulation'},
@@ -2318,6 +2577,155 @@
                                                    },
                                  },
                                 };
+
+        var viewsTabConfig = {type:'page',label:'Views Settings',hover_tip:'Define the contents of your view',
+                                 content:{
+                                     sect_tbl_cnts:{type:'section',label:'Table Entry'},
+                                     vtable_data: {type:'dropdown',label:'Table Data Element',hover_tip:'The data that will be displayed on the table.',
+                                                  path:'@vpresets[@active_vpreset].vtable_data', default: 'Same',
+                                                  content:viewTableElementContents,
+                                                 },
+                                     vsort1: {type:'dropdown',label:'Primary Sort Criterion',hover_tip:'Items will be sorted by this criterion.',
+                                             path:'@vpresets[@active_vpreset].vsort1', default: 'Same',
+                                             content:viewSortElementContents,
+                                            },
+                                     vsortOrder1: {type:'dropdown',label:'Primary Sort Order',hover_tip:'Items will be sorted in this order.',
+                                                  path:'@vpresets[@active_vpreset].vsortOrder1', default: 'Same',
+                                                  content:{'Same': 'Same as Without View', 'Default': 'Default', 'Ascending': 'Ascending', 'Descending': 'Descending',},
+                                                 },
+                                     vsort2: {type:'dropdown',label:'Secondary Sort Criterion',hover_tip:'Items will be sorted by this criterion when the primary criterion is of equal values.',
+                                             path:'@vpresets[@active_vpreset].vsort2', default: 'Same',
+                                             content:viewSortElementContents,
+                                            },
+                                     vsortOrder2: {type:'dropdown',label:'Secondary Sort Order',hover_tip:'Items will be sorted in this order when the primary criterion is of equal values.',
+                                                  path:'@vpresets[@active_vpreset].vsortOrder2', default: 'Same',
+                                                  content:{'Same': 'Same as Without View', 'Default': 'Default', 'Ascending': 'Ascending', 'Descending': 'Descending',},
+                                                 },
+                                     sect_view_tooltips:{type:'section',label:'Table Popups'},
+                                     vtooltip1: {type:'dropdown',label:'First Popup Element',hover_tip:'The first line of data that will be displayed on the popup.',
+                                                path:'@vpresets[@active_vpreset].vtooltip1', default:'None',
+                                                content:dataElementContents,
+                                               },
+                                     vtooltip2: {type:'dropdown',label:'Second Popup Element',hover_tip:'The second line of data that will be displayed on the popup.',
+                                                path:'@vpresets[@active_vpreset].vtooltip2', default:'None',
+                                                content:dataElementContents,
+                                               },
+                                     vtooltip3: {type:'dropdown',label:'Third Popup Element',hover_tip:'The third line of  data that will be displayed on the popup.',
+                                                path:'@vpresets[@active_vpreset].vtooltip3', default:'None',
+                                                content:dataElementContents,
+                                               },
+                                     vtooltip4: {type:'dropdown',label:'Fourth Popup Element',hover_tip:'The fourth line of  data that will be displayed on the popup.',
+                                                path:'@vpresets[@active_vpreset].vtooltip4', default:'None',
+                                                content:dataElementContents,
+                                               },
+                                     vtooltip5: {type:'dropdown',label:'Fifth Popup Element',hover_tip:'The fifth line of  data that will be displayed on the popup.',
+                                                path:'@vpresets[@active_vpreset].vtooltip5', default:'None',
+                                                content:dataElementContents,
+                                               },
+                                     vtooltip6: {type:'dropdown',label:'Sixth Popup Element',hover_tip:'The sixth line of  data that will be displayed on the popup.',
+                                                path:'@vpresets[@active_vpreset].vtooltip6', default:'None',
+                                                content:dataElementContents,
+                                               },
+                                     vtooltip7: {type:'dropdown',label:'Seventh Popup Element',hover_tip:'The seventh line of  data that will be displayed on the popup.',
+                                                path:'@vpresets[@active_vpreset].vtooltip7', default:'None',
+                                                content:dataElementContents,
+                                               },
+                                     vtooltip8: {type:'dropdown',label:'Eight Popup Element',hover_tip:'The eight line of  data that will be displayed on the popup.',
+                                                path:'@vpresets[@active_vpreset].vtooltip8', default:'None',
+                                                content:dataElementContents,
+                                               },
+                                     sect_view_Graphical:{type:'section',label:'Graphical Information'},
+                                     vshowStrokeOrder: {type: 'checkbox', label:'Show Stroke Order Popups', hover_tip:'Show stroke order in popups when\nmoving the mouse over kanji and vocabulary.',
+                                                   path:'@vpresets[@active_vpreset].vshowStrokeOrder', default: true, },
+                                     vshowRadical: {type: 'dropdown', label:'Radical Visual Information', hover_tip:'The visual information for radical popups.',
+                                                   path:'@vpresets[@active_vpreset].vshowRadical', default: 'Keisei',
+                                                   content: {'Item': 'Item Only', 'Keisei': 'Keisei Semantic-Phonetic Composition'}},
+                                     vshowKanji: {type: 'dropdown', label:'Kanji Visual Information', hover_tip:'The visual information for kanji popups.',
+                                                   path:'@vpresets[@active_vpreset].vshowKanji', default: 'Keisei',
+                                                   content: {'Item': 'Item Only', 'Keisei': 'Keisei Semantic-Phonetic Composition', 'Stroke Order': 'Stroke Order Image'}},
+                                     vshowVocabulary: {type: 'dropdown', label:'Vocabulary Visual Information', hover_tip:'The visual information for vocabulary popups.',
+                                                   path:'@vpresets[@active_vpreset].vshowVocabulary', default: 'Pitch Info',
+                                                   content: {'Item': 'Item Only', 'Pitch Info': 'Pitch Info'}},
+                                     sect_view_settings:{type:'section',label:'Other Settings'},
+                                     venlargingTooltip: {type: 'checkbox', label:'Popup for Enlarged Items', hover_tip:'Adds a popup in tables at the right of the item to show an enlarged version of the item',
+                                                        path:'@vpresets[@active_vpreset].venlargingTooltip', default: false, },
+                                     vshowMarkers: {type: 'checkbox', label:'Show Markers', hover_tip:'Show the markers for the table data in list of icons.',
+                                                   path:'@vpresets[@active_vpreset].vshowMarkers', default: true, },
+                                     vshowMarkersDate: {type: 'checkbox', label:'Show Markers in Date Selection', hover_tip:'Show the markers for the table data in list of icons when ordered by date.',
+                                                   path:'@vpresets[@active_vpreset].vshowMarkersDate', default: false, },
+                                     vshowHours: {type: 'checkbox', label:'Show Hours in Markers', hover_tip:'Show the hours and minutes for dates in list of icons markers',
+                                                 path:'@vpresets[@active_vpreset].vshowHours', default: false, },
+                                     vvisSimTreshold: {type:'number',label:'LY Visual Similarity Threshold',
+                                                       //hover_tip:'Threshold for visual similarity of kanji\naccording to Lars Yencken data.\nA real number between 0 and 1\n0 selects all similar kanji.\nHigher numbers selects fewer kanjis.',
+                                                        path:'@vpresets[@active_vpreset].vvisSimTreshold', //default:0, min: 0.0, max: 1.0,
+                                                       },
+                                     vvisSimTresholdNiai: {type:'number', label:'Niai Visual Similarity Threshold',
+                                                           //hover_tip:'Threshold for visual similarity of kanji\naccording to Niai data.\nA real number between 0 and 1\n0 selects all similar kanji.\nHigher numbers selects fewer kanjis.',
+                                                        path:'@vpresets[@active_vpreset].vvisSimTresholdNiai', //default:0.3, min: 0.0, max: 1.0,
+                                                       },
+                                     vniaiAlternate: {type:'checkbox', label:'Use Niai Alternate Sources',
+                                                      //hover_tip:'Add alternate sources to Niai visually similar\ndata to the main sources.\nThis will return more similar kanji.',
+                                                    path:'@vpresets[@active_vpreset].vniaiAlternate', //default:false,
+                                                   },
+                                 },
+                                };
+
+        var reportsTabConfig = {type:'page',label:'Reports Settings',hover_tip:'Define the contents of your report',
+                                 content:{
+                                     sect_view_rep:{type:'section',label:'Reporting Key'},
+                                     report_key: {type:'dropdown',label:'Report Key Element',hover_tip:'The data that will be displayed as the key of the report.',
+                                                  path:'@vpresets[@active_vpreset].report_key', default: 'Leech',
+                                                  content:reportKeyContents,
+                                                 },
+                                     rsortOrder1: {type:'dropdown',label:'Sort Order',hover_tip:'Reporting keys will be sorted in this order.',
+                                                  path:'@vpresetsvpresets[@active_vpreset].rsortOrder1', default: 'Default',
+                                                  content:{'Default': 'Default', 'Ascending': 'Ascending', 'Descending': 'Descending',},
+                                                 },
+                                     sect_rep_columnss:{type:'section',label:'Table Columns'},
+                                     column1: {type:'dropdown',label:'First Column Element',hover_tip:'The first column of data that will be displayed on the report.',
+                                                path:'@vpresets[@active_vpreset].column1', default:'None',
+                                                content:statsElementContents,
+                                               },
+                                     column2: {type:'dropdown',label:'Second Column Element',hover_tip:'The second column of data that will be displayed on the report.',
+                                                path:'@vpresets[@active_vpreset].column2', default:'None',
+                                                content:statsElementContents,
+                                               },
+                                     column3: {type:'dropdown',label:'Third Column Element',hover_tip:'The third column of data that will be displayed on the report.',
+                                                path:'@vpresets[@active_vpreset].column3', default:'None',
+                                                content:statsElementContents,
+                                               },
+                                     column4: {type:'dropdown',label:'Fourth Column Element',hover_tip:'The fourth column of data that will be displayed on the report.',
+                                                path:'@vpresets[@active_vpreset].column4', default:'None',
+                                                content:statsElementContents,
+                                               },
+                                     column5: {type:'dropdown',label:'Fifth Column Element',hover_tip:'The fifth column of data that will be displayed on the report.',
+                                                path:'@vpresets[@active_vpreset].column5', default:'None',
+                                                content:statsElementContents,
+                                               },
+                                     column6: {type:'dropdown',label:'Sixth Column Element',hover_tip:'The sixth column of data that will be displayed on the report.',
+                                                path:'@vpresets[@active_vpreset].column6', default:'None',
+                                                content:statsElementContents,
+                                               },
+                                     column7: {type:'dropdown',label:'Seventh Column Element',hover_tip:'The seventh column of data that will be displayed on the report.',
+                                                path:'@vpresets[@active_vpreset].column7', default:'None',
+                                                content:statsElementContents,
+                                               },
+                                     column8: {type:'dropdown',label:'Eigth Column Element',hover_tip:'The eight column of data that will be displayed on the report.',
+                                                path:'@vpresets[@active_vpreset].column8', default:'None',
+                                                content:statsElementContents,
+                                               },
+                                     column9: {type:'dropdown',label:'Nineth Column Element',hover_tip:'The nineth column of data that will be displayed on the report.',
+                                                path:'@vpresets[@active_vpreset].column9', default:'None',
+                                                content:statsElementContents,
+                                               },
+                                     sect_report_settings:{type:'section',label:'Other Settings'},
+                                     rhoursInDate: {type: 'list', multi: true, size: 4, label:'Adding Hours in Dates', default: {'Review_Date': true, 'Last_Review_Date': true,},
+                                                    hover_tip: 'Adding hours and minutes to selected dates.\nUnselected means just the date will be displayed.',
+                                                    path:'@vpresets[@active_vpreset].rhoursInDate',
+                                                    content:{'Review_Date':'Next Review Date', 'Last_Review_Date':'Last Review Date', 'Passed_Date':'Passed Guru Date',
+                                                             'Burned_Date':'Burned Date', 'Resurrected_Date': 'Resurrected Date', 'Lesson_Date':'Lesson Date',
+                                                             'Unlock_Date': 'Unlock Date',}},
+                                }};
 
         var optipnalFiltersHoverTip = 'Add more filters to your settings.\n\nWarning: These odditional filters will show up\nin disorder in Self Study Quiz settings.\nIt may be hard to locate filters in Self Study Quiz.';
         var settingsTabConfig ={type:'page',label:'Settings',
@@ -2347,19 +2755,27 @@
                                                                         'Doesn\'t change existing defaults that\nhave been user modified.'},
                                     dividerForDefaults: {type: 'divider'},
                                     enableFeatures: {type: 'list', multi: true, label: 'Enable Features', hover_tip: 'Enable the features you want.', size: 4,
-                                                      default: {englishMode: true, audioMode: true, randomSelection: true,
-                                                                dateOrdering: true, temporaryFilters: true, exportCSV: true,
+                                                      default: {englishMode: true, audioMode: true, leechTraining: true, randomSelection: true,
+                                                                dateOrdering: true, temporaryFilters: true, viewsReports: true, exportCSV: true,
                                                                 itemExport: true, selfStudy: true,},
-                                                      content: {englishMode: 'English to Japanese Mode', audioMode: 'Audio Mode', randomSelection: 'Random Selection',
-                                                                dateOrdering: 'Date ordering', temporaryFilters: 'Temporary Filters', exportCSV: 'Export to csv (Excel, Anki, Kitsun)',
+                                                      content: {englishMode: 'English to Japanese Mode', audioMode: 'Audio Mode',
+                                                                leechTraining: 'Leech Training', randomSelection: 'Random Selection',
+                                                                dateOrdering: 'Date ordering',
+                                                                temporaryFilters: 'Temporary Filters', viewsReports: 'Views and Reports',
+                                                                exportCSV: 'Export to csv (Excel, Anki, Kitsun)',
                                                                 itemExport: 'Item Export (Word Cloud)', selfStudy: 'Self Study Quiz',}},
                                     optionalFilters: {type: 'list', multi: true, label: 'Optional Filters', hover_tip: optipnalFiltersHoverTip, size: 4,
                                                       validate: warnAboutRefresh,
-                                                      default: {dateFilters: false, searchFilters: false, statsFilters: false, itemList: false, partOfSpeech: false,},
+                                                      default: {dateFilters: false, searchFilters: false, statsFilters: false, kanjidic2_trad_rad: false,
+                                                                itemList: false, blockList: false, partOfSpeech: false,
+                                                                visSim: false, joyoJpltFrequency: false,},
                                                       content: {dateFilters: 'Dates and Events', searchFilters: 'Searches', statsFilters: 'Statistics',
-                                                                itemList: 'Item List', partOfSpeech: 'Part Of Speech', }},
-                                    deleteFilesFromCache: {type: 'button', label: ' ', text: 'Empty the Filters Cache', on_click: deleteFilesFromCache,
-                                                           hover_tip: 'Deletes the versions of the filters stored in cache.\nThis will force loading new versions afresh.\n'+
+                                                                kanjidic2_trad_rad: 'Kanjidic2/Traditional Radicals',
+                                                                itemList: 'Item List', blockList: 'Black List', partOfSpeech: 'Part Of Speech',
+                                                                visSim: 'Lars Yencken Visually Similar', joyoJpltFrequency: 'Joyo, JLPT, Frequency'}},
+                                    deleteFilesFromCache: {type: 'button', label: ' ', text: 'Empty the Item Inspector Cache', on_click: deleteFilesFromCache,
+                                                           hover_tip: 'Deletes the versions of the filters and data files stored in cache.\n'+
+                                                                      'This will force loading new versions afresh.\n'+
                                                                       'You need to refresh your browser for\nthis action to take effect.',},
                                     sect_tbl_cnts2:{type:'section',label:'Items Export Options'},
                                     noLatin: {type: 'checkbox', label:'No Latin Characters', default: false, hover_tip:'Radicals with latin characters not exported if set',},
@@ -2408,14 +2824,36 @@
                                                      sect_fpre_name: {type:'section',label:'Filter Set Name'},
                                                      fpre_name: {type:'text',label:'Edit Filter Set Name', on_change: refresh_fpresets,refresh_on_change:true,
                                                                  path:'@fpresets[@active_fpreset].name',hover_tip:'Enter a name for the selected filter set.'},
-                                                     fpre_ask: {type:'checkbox',label:'Ask Before Filtering ', default: false, on_change: noTemporaryFilterAsk,
+                                                     fpre_ask: {type:'checkbox',label:'Ask Before Filtering', default: false, on_change: noTemporaryFilterAsk,
                                                                 path:'@fpresets[@active_fpreset].ask',hover_tip:'Ask for the filter parameters\nbefore filtering.'},
 
                                                      sect_fpre_srcs: {type:'section',label:'Filter Set Settings'},
                                                      fpre_srcs: {type:'tabset', content:{},
                                                                 }
                                                  },
-                                                }
+                                                },
+                                  }},
+                       pg_views: {type:'page',label:'Views and Reports',hover_tip:'Choose the view or report for which you want to define the settings',
+                                  content:{
+                                      grp_vpre_list: {type:'group',label:'Views and Reports',content:{
+                                          active_vpreset: {type:'list', refresh_on_change:true, on_change: setTabVisibility,
+                                                           hover_tip:'Choose a view or a report to edit',content:{}},
+                                      }},
+                                      grp_vpre: {type:'group',label:'Selected View or Report',
+                                                 content:{
+                                                     sect_vpre_name: {type:'section',label:'View or Report Name'},
+                                                     vpre_name: {type:'text',label:'Edit View or Report Name', on_change: refresh_vpresets, refresh_on_change:true,
+                                                                 path:'@vpresets[@active_vpreset].name',hover_tip:'Enter a name for the selected view or report.'},
+                                                     vpre_type: {type:'dropdown',label:'View or Report', default: 'view', on_change: onChangeReportType,
+                                                                path:'@vpresets[@active_vpreset].type',hover_tip:'Choose whether the selection is a view or a report.',
+                                                                content: {view: 'View', report: 'Report'},},
+
+                                                     sect_vpre_srcs: {type:'section',label:'View or Report Settings'},
+                                                     vpre_tabs: {type:'tabset', content:{},
+                                                                 content:{view_contents: viewsTabConfig, report_contents: reportsTabConfig},
+                                                                },
+                                                 },
+                                                },
                                   }},
                       }};
 
@@ -2426,55 +2864,113 @@
 
     function warnAboutRefresh(){
         return {valid:true, msg: 'You need to refresh your browser for this change to take effect.'};
-    }
+    };
 
     function noTemporaryFilterAsk(){
         if ($('#Item_Inspector_active_fpreset').prop('selectedIndex') === 0) $('#Item_Inspector_fpre_ask').prop('checked', false);
-    }
+    };
+
+    function onChangeReportType(){
+        let active_vpreset = $('#Item_Inspector_active_vpreset').prop('selectedIndex');
+        if (quiz.settings.vpresets[active_vpreset].type === 'view'){
+            $('#Item_Inspector_view_contents_tab').css('display', 'block');
+            $('#Item_Inspector_report_contents_tab').css('display', 'None');
+            $('#Item_Inspector_view_contents').css('display', 'block');
+            $('#Item_Inspector_report_contents').css('display', 'None');
+        } else {
+            $('#Item_Inspector_view_contents_tab').css('display', 'none');
+            $('#Item_Inspector_report_contents_tab').css('display', 'block');
+            $('#Item_Inspector_view_contents').css('display', 'none');
+            $('#Item_Inspector_report_contents').css('display', 'block');
+        };
+    };
+
+    function setTabVisibility(){
+        let active_vpreset = quiz.settings.active_vpreset;
+        if (active_vpreset === 0) {
+            $('#Item_Inspector_vpre_type').closest('.row').css('display', 'none');
+            $('#Item_Inspector_view_contents_tab').css('display', 'none');
+            $('#Item_Inspector_report_contents_tab').css('display', 'None');
+            $('#Item_Inspector_view_contents').css('display', 'none');
+            $('#Item_Inspector_report_contents').css('display', 'None');
+        } else {
+            $('#Item_Inspector_vpre_type').closest('.row').css('display', 'block');
+            if (quiz.settings.vpresets[active_vpreset].type === 'view'){
+                $('#Item_Inspector_view_contents_tab').css('display', 'block');
+                $('#Item_Inspector_report_contents_tab').css('display', 'None');
+                $('#Item_Inspector_view_contents').css('display', 'block');
+                $('#Item_Inspector_report_contents').css('display', 'None');
+            } else {
+                $('#Item_Inspector_view_contents_tab').css('display', 'none');
+                $('#Item_Inspector_report_contents_tab').css('display', 'block');
+                $('#Item_Inspector_view_contents').css('display', 'none');
+                $('#Item_Inspector_report_contents').css('display', 'block');
+            };
+        };
+    };
 
     var noTemporaryFilterName = 'No Temporary Filter';
+    var noViewNoReportName = 'No View, No Report';
     var restoreMissingDefaults, lackDefaults;
     //========================================================================
     // initializes settings in memory, setting up defaults at the same time
     //------------------------------------------------------------------------
     var table_defaults;
-    var fpreset_defaults, ipreset_defaults;
+    var fpreset_defaults, ipreset_defaults, vpreset_defaults;
     function init_settings() {
 
         prepare_defaults_for_filters();
 
         // Merge some defaults
         var defaults = {hoursFormat: '24h', position: 2, numberOfLines: 11, listMode: false, audioSource: 'random', audioMode: false, themeColor: 'Breeze_Dark',
-                        optionalFilters: {dateFilters: false, searchFilters: false, statsFilters: false, itemList: false, partOfSpeech: false,},
-                        enableFeatures: {englishMode: true, audioMode: true, randomSelection: true, dateOrdering: true, temporaryFilters: true, exportCSV: true,
-                                          itemExport: true, selfStudy: true},
+                        optionalFilters: {dateFilters: false, searchFilters: false, statsFilters: false, kanjidic2_trad_rad: false,
+                                          itemList: false, blockList: false, partOfSpeech: false, visSim: false, joyoJpltFrequency: false,},
+                        enableFeatures: {englishMode: true, audioMode: true, leechTraining: true, randomSelection: true, dateOrdering: true,
+                                         temporaryFilters: true, viewsReports: true, exportCSV: true, itemExport: true, selfStudy: true},
                         noLatin: false, oneItemPerLine: false, exportLimit: 0, repeatWordCloud: 'No Repeat',
                        };
 
         var settings = $.extend(true, {}, defaults, wkof.settings.Item_Inspector);
         settings.active_fpreset = 0; // must always be 0 on startup
+        settings.active_vpreset = 0; // must always be 0 on startup
         wkof.settings.Item_Inspector = quiz.settings = settings;
 
         let ipresets_defaults = [
             {name:'Leeches', content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,mast:true}}
-                                                                      ,additionalFilters_leechTraining:{enabled:true,value:1}}}},
+                                                                      ,additionalFilters_leechTraining:{enabled:true,value:1}},
+                                                sources:{wk_items: true, trad_rad: false,},},
+                                     trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Failed Last Review', content:{wk_items:{enabled:true,filters:{additionalFilters_failedLastReview:{enabled:true,value:24}}}},
+            {name:'Failed Last Review', content:{wk_items:{enabled:true,filters:{additionalFilters_failedLastReview:{enabled:true,value:24}},
+                                                           sources:{wk_items: true, trad_rad: false,},},
+                                                trad_rad:{enabled:false,filters:{}}},
             },
             {name:'Current Level SRS', content:{wk_items:{enabled:true,filters:{level:{enabled:true,value:"+0"},
                                                                                 srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,
-                                                                                                         mast:true,enli:true,burn:true}}}}},
+                                                                                                         mast:true,enli:true,burn:true}}},
+                                                          sources:{wk_items: true, trad_rad: false,},},
+                                                trad_rad:{enabled:false,filters:{}}},
             },
             {name:'Previous Level SRS', content:{wk_items:{enabled:true,filters:{level:{enabled:true,value:"-1"},
                                                                                  srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,
-                                                                                                          mast:true,enli:true,burn:true}}}}},
+                                                                                                          mast:true,enli:true,burn:true}}},
+                                                           sources:{wk_items: true, trad_rad: false,},},
+                                                trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Burned Items', content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{burn:true}}}}},
+            {name:'Burned Items', content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{burn:true}}},
+                                                     sources:{wk_items: true, trad_rad: false,},},
+                                           trad_rad:{enabled:false,filters:{}}},
             },
             {name:'All Learned Items', content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,
-                                                                                                         mast:true,enli:true,burn:true}}}}},
+                                                                                                         mast:true,enli:true,burn:true}}},
+                                                          sources:{wk_items: true, trad_rad: false,},},
+                                                trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'All Wanikani Items', content:{wk_items:{enabled:true,filters:{}}},
+            {name:'All Wanikani Items', content:{wk_items:{enabled:true,filters:{},sources:{wk_items: true, trad_rad: false,},},
+                                                 trad_rad:{enabled:false,filters:{}}},
+            },
+            {name:'All Wanikani Items and Traditional Radicals', content:{wk_items:{enabled:true,filters:{},sources:{wk_items: true, trad_rad: true,},},
+                                                                          trad_rad:{enabled:true,filters:{}}},
             },
         ];
 
@@ -2502,13 +2998,18 @@
                                                  tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
                                                  tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
                                                  showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+            {name:'All Wanikani Items and Traditional Radicals',
+                                                 tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                                 tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
+                                                 tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
+                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
             ];
 
         table_defaults = {currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
                           tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"None",tooltip4:"None",tooltip5:"None",tooltip6:"None",tooltip7:"None",tooltip8:"None",
                           displayMeaning:false, enlargingTooltip:false, showMarkers:true, showMarkersDate:false, showHours:false, leechStreakLimit:0,
                           showStrokeOrder:true, showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
-                          visSimTreshold:0, visSimTresholdNiai:0.3, niaiAlternate:false,
+                          visSimTreshold:0.0, visSimTresholdNiai:0.3, niaiAlternate:false,
                           randomSelection: 0, navigationDate:'Lesson_Date',
                           trainingSelection:0, oncePerReviewPeriod: true, addSimilarItems: true, similarity:'Niai', visSimTresholdLT:0.45, niaiAlternateLT: true,
                           includeTitle:false, includeLabels:false,missingData:'Code_Word',separator:'\t',quotes:'Never',URLclickable:'Plain',
@@ -2518,25 +3019,155 @@
         };
 
         let fpresets_defaults = [
-            {name: noTemporaryFilterName, ask: false, content:{wk_items:{enabled:true,filters:{}}},
+            {name: noTemporaryFilterName, ask: false, content:{wk_items:{enabled:true,filters:{},sources:{wk_items: true, trad_rad: false,},},
+                                                               trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Leeches Value >= 2.0', ask: false, content:{wk_items:{enabled:true,filters:{additionalFilters_leechTraining:{enabled:true,value:2}}}},
+            {name:'Leeches Value >= 2.0', ask: false, content:{wk_items:{enabled:true,filters:{additionalFilters_leechTraining:{enabled:true,value:2}},
+                                                                        sources:{wk_items: true, trad_rad: false,},},
+                                                               trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Min. Current Streak >= 2', ask: false, content:{wk_items:{enabled:true,filters:{statsFilters_minCurStrGteq:{enabled:true,value:2}}}},
+            {name:'Min. Current Streak >= 2', ask: false, content:{wk_items:{enabled:true,filters:{statsFilters_minCurStrGteq:{enabled:true,value:2}},
+                                                                             sources:{wk_items: true, trad_rad: false,},},
+                                                                   trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Min. Current Streak <= 1', ask: false, content:{wk_items:{enabled:true,filters:{statsFilters_minCurStrLteq:{enabled:true,value:1}}}},
+            {name:'Min. Current Streak <= 1', ask: false, content:{wk_items:{enabled:true,filters:{statsFilters_minCurStrLteq:{enabled:true,value:1}},
+                                                                             sources:{wk_items: true, trad_rad: false,},},
+                                                                   trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Apprentice Items', ask: false, content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:false,guru2:false,mast:false,enli:false}}}}},
+            {name:'Apprentice Items', ask: false, content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,
+                                                                                                                    guru1:false,guru2:false,mast:false,enli:false}}},
+                                                                     sources:{wk_items: true, trad_rad: false,},},
+                                                           trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Has Passed Guru', ask: false, content:{wk_items:{enabled:true,filters:{dateFilters_hadPassedGuru:{enabled:true,value:true},}}},
+            {name:'Has Passed Guru', ask: false, content:{wk_items:{enabled:true,filters:{dateFilters_hadPassedGuru:{enabled:true,value:true},},
+                                                                    sources:{wk_items: true, trad_rad: false,},},
+                                                          trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Has Not Passed Guru', ask: false, content:{wk_items:{enabled:true,filters:{dateFilters_hadPassedGuru:{enabled:true,value:false},}}},
+            {name:'Has Not Passed Guru', ask: false, content:{wk_items:{enabled:true,filters:{dateFilters_hadPassedGuru:{enabled:true,value:false},},
+                                                                        sources:{wk_items: true, trad_rad: false,},},
+                                                              trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Global Search', ask: true, content:{wk_items:{enabled:true,filters:{searchFilters_globalSearch:{enabled:true,value:''},}}},
+            {name:'Global Search', ask: true, content:{wk_items:{enabled:true,filters:{searchFilters_globalSearch:{enabled:true,value:''},},
+                                                                 sources:{wk_items: true, trad_rad: false,},},
+                                                       trad_rad:{enabled:false,filters:{}}},
+            },
+            {name:'Extensive Search', ask: true, content:{wk_items:{enabled:true,filters:{advSearchFilters_extensiveSearch:{enabled:true,value:''},},
+                                                                    sources:{wk_items: true, trad_rad: true,},},
+                                                          trad_rad:{enabled:true,filters:{advSearchFilters_extensiveSearch:{enabled:true,value:''},}}},
+            },
+            {name:'Advanced Search', ask: true, content:{wk_items:{enabled:true,filters:{advSearchFilters_advancedSearch:{enabled:true,value:advancedSearchDefaults},},
+                                                                    sources:{wk_items: true, trad_rad: true,},},
+                                                          trad_rad:{enabled:true,filters:{advSearchFilters_advancedSearch:{enabled:true,value:advancedSearchDefaults},}}},
+            },
+            {name:'Related Search', ask: true, content:{wk_items:{enabled:true,filters:{advSearchFilters_relatedSearch:{enabled:true,value:relatedSearch_defaults},},
+                                                                    sources:{wk_items: true, trad_rad: true,},},
+                                                          trad_rad:{enabled:true,filters:{advSearchFilters_relatedSearch:{enabled:true,value:relatedSearch_defaults},}}},
             },
         ];
-        fpreset_defaults = {ask: false, };
+
+        let vpresets_defaults = [{name: 'No View, No Report', type: 'view',
+                                  vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
+                                  vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
+                                  vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
+                                  vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                                  vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
+                                  report_key: 'Leech', rsortOrder1: 'Default',
+                                  column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
+                                  column8: 'None', column9: 'None',
+                                  rhoursInDate: {'Review_Date': true, 'Last_Review_Date': true,},
+                                  },
+                                 {name: 'Leech Stats View', type: 'view',
+                                  vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
+                                  vtooltip1: 'Level', vtooltip2: 'Srs', vtooltip3: 'Meaning_Current_Streak', vtooltip4: 'Reading_Current_Streak',
+                                  vtooltip5: 'Meaning_Incorrect', vtooltip6: 'Reading_Incorrect', vtooltip7: 'Percentage_Incorrect',
+                                  vtooltip8: 'Review_Count', vshowStrokeOrder: false,
+                                  vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                                  vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
+                                  report_key: 'Leech', rsortOrder1: 'Default',
+                                  column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
+                                  column8: 'None', column9: 'None',
+                                  rhoursInDate: {'Review_Date': true, 'Last_Review_Date': true,},
+                                  },
+                                 {name: 'Progression View', type: 'view',
+                                  vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
+                                  vtooltip1: 'Srs', vtooltip2: 'Unlock_Date', vtooltip3: 'Lesson_Date', vtooltip4: 'Passed_Date',
+                                  vtooltip5: 'Burned_Date', vtooltip6: 'Resurrected_Date', vtooltip7: 'Last_Review_Date', vtooltip8: 'Review_Date',
+                                  vshowStrokeOrder: false, vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                                  vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
+                                  report_key: 'Leech', rsortOrder1: 'Default',
+                                  column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
+                                  column8: 'None', column9: 'None',
+                                  rhoursInDate: {'Review_Date': true, 'Last_Review_Date': true,},
+                                  },
+                                 {name: 'Item Info View', type: 'view',
+                                  vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
+                                  vtooltip1: 'Components', vtooltip2: 'Vis_Sim_Kanji', vtooltip3: 'Lars_Yencken', vtooltip4: 'Niai',
+                                  vtooltip5: 'Used_In', vtooltip6: 'Part_Of_Speech', vtooltip7: 'Allow_List', vtooltip8: 'Block_List',
+                                  vshowStrokeOrder: false, vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                                  vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
+                                  report_key: 'Leech', rsortOrder1: 'Default',
+                                  column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
+                                  column8: 'None', column9: 'None',
+                                  rhoursInDate: {'Review_Date': true, 'Last_Review_Date': true,},
+                                  },
+                                 {name: 'Leech Stats Report', type: 'report',
+                                  vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
+                                  vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
+                                  vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
+                                  vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                                  vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
+                                  report_key: 'Leech', rsortOrder1: 'Default',
+                                  column1: 'Level', column2: 'Srs', column3: 'Meaning_Current_Streak', column4: 'Reading_Current_Streak',
+                                  column5: 'Minimum_Current_Streak', column6: 'Meaning_Incorrect', column7: 'Reading_Incorrect',
+                                  column8: 'Percentage_Incorrect', column9: 'Review_Count',
+                                  rhoursInDate: {'Review_Date': true, 'Last_Review_Date': true,},
+                                  },
+                                 {name: 'Leech By Level Report', type: 'report',
+                                  vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
+                                  vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
+                                  vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
+                                  vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                                  vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
+                                  report_key: 'Level', rsortOrder1: 'Default',
+                                  column1: 'Leech', column2: 'Srs', column3: 'Meaning_Current_Streak', column4: 'Reading_Current_Streak',
+                                  column5: 'Minimum_Current_Streak', column6: 'Meaning_Incorrect', column7: 'Reading_Incorrect',
+                                  column8: 'Percentage_Incorrect', column9: 'Review_Count',
+                                  rhoursInDate: {'Review_Date': true, 'Last_Review_Date': true,},
+                                  },
+                                 {name: 'Progression Report', type: 'report',
+                                  vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
+                                  vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
+                                  vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
+                                  vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                                  vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
+                                  report_key: 'Level', rsortOrder1: 'Default',
+                                  column1: 'Srs', column2: 'Review_Count', column3: 'Unlock_Date', column4: 'Lesson_Date',
+                                  column5: 'Passed_Date', column6: 'Burned_Date', column7: 'Resurrected_Date',
+                                  column8: 'Last_Review_Date', column9: 'Review_Date',
+                                  rhoursInDate: {'Review_Date': true, 'Last_Review_Date': true,},
+                                  },
+                                ];
+
         ipreset_defaults = {};
+        vpreset_defaults = {name: '<untitled>', type: 'view',
+                            vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
+                            vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
+                            vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: true,
+                            vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                            venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                            vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
+                            report_key: 'Leech', rsortOrder1: 'Default',
+                            column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
+                            column8: 'None', column9: 'None', rhoursInDate: {'Review_Date': true, 'Last_Review_Date': true,},
+                            rhoursInDate: {'Review_Date': true, 'Last_Review_Date': true,},
+                           };
 
         // define defaults if ipresets not yet defined or empty
         if (settings.ipresets === undefined || !settings.ipresets.length) {
@@ -2553,6 +3184,12 @@
             settings.fpresets = fpresets_defaults;
         };
 
+        // define defaults if vpresets not yet defined or empty
+        if (settings.vpresets === undefined || !settings.vpresets.length) {
+            settings.active_vpreset = 0;
+            settings.vpresets = vpresets_defaults;
+        };
+
         for (var idx in settings.ipresets) {
             settings.ipresets[idx] = $.extend(true, {}, ipreset_defaults, settings.ipresets[idx]);
             settings.ipresets[idx].content = $.extend(true, {}, ipre_defaults, settings.ipresets[idx].content);
@@ -2561,6 +3198,10 @@
         for (idx in settings.fpresets) {
             settings.fpresets[idx] = $.extend(true, {}, fpreset_defaults, settings.fpresets[idx]);
             settings.fpresets[idx].content = $.extend(true, {}, fpreset_defaults, ipre_defaults, settings.fpresets[idx].content);
+        };
+
+        for (idx in settings.vpresets) {
+            settings.vpresets[idx] = $.extend(true, {}, vpreset_defaults, settings.vpresets[idx]);
         };
 
         for (idx in settings.tablePresets) {
@@ -2660,18 +3301,29 @@
         wrap.prepend(btn_grp.replace(/###/g, 'fpreset'));
         wrap.find('.pre_list_btn_grp').on('click', 'button', preset_button_pressed);
 
+        wrap = dialog.find('#Item_Inspector_active_vpreset').closest('.row');
+        wrap.addClass('pre_list_wrap');
+        wrap.prepend(btn_grp.replace(/###/g, 'vpreset'));
+        wrap.find('.pre_list_btn_grp').on('click', 'button', preset_button_pressed);
+
         $('#Item_Inspector_ipre_srcs .row:first-child').each(function(i,e){
             var row = $(e);
-            var right = row.find('>.right');
-            row.prepend(right);
-            row.addClass('src_enable');
+            var select = row.find('select');
+            if (select.length === 0) {
+                var right = row.find('>.right');
+                row.prepend(right);
+                row.addClass('src_enable');
+            };
         });
 
         $('#Item_Inspector_fpre_srcs .row:first-child').each(function(i,e){
             var row = $(e);
-            var right = row.find('>.right');
-            row.prepend(right);
-            row.addClass('src_enable');
+            var select = row.find('select');
+            if (select.length === 0) {
+                var right = row.find('>.right');
+                row.prepend(right);
+                row.addClass('src_enable');
+            };
         });
 
         // Customize the item source filters.
@@ -2690,8 +3342,16 @@
         filters.prepend('<div class="enable"><input type="checkbox"></div>');
         filters.on('change', '.enable input[type="checkbox"]', toggle_filter);
 
+        $('#Item_Inspector_f_wk_items_sources').click(noTemporaryFilterSourceChanges);
+        setTabVisibility();
+
         refresh_ipresets();
         refresh_fpresets();
+        refresh_vpresets();
+
+        function noTemporaryFilterSourceChanges(e){
+            if ($('#Item_Inspector_active_fpreset').prop('selectedIndex') === 0) $('#Item_Inspector_f_wk_items_sources *').prop('selected', true);
+        };
     }
 
     //========================================================================
@@ -2732,6 +3392,7 @@
         quiz.settings.audioMode = false;
         formatControlBar();
         resetTemporaryFilters();
+        resetViewsAndReports();
         wkof.set_state(Wkit_navigation, 'Pending');
         wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')});
         dataReload('table');
@@ -2760,29 +3421,29 @@
         }
 
        function performRefresh(i,e){
-            var row = $(e);
-            var panel = row.closest('[role="tabpanel"]');
-            var source = panel.attr('id').match(/^Item_Inspector_pg_(.*)$/)[1];
-            var name = row.find('.setting').attr('name');
-            var filter_name = name.slice((source+'_iflt_').length);
-            if (name.charAt(source.length + 1) === 'i') {
-                var preset = quiz.settings.ipresets[quiz.settings.active_ipreset].content;
-            } else {
-                preset = quiz.settings.fpresets[quiz.settings.active_fpreset].content;
-            }
-            var enabled = false;
-            try {
-                enabled = preset[source].filters[filter_name].enabled;
-            } catch(e) {}
+           var row = $(e);
+           var panel = row.closest('[role="tabpanel"]');
+           var source = panel.attr('id').match(/^Item_Inspector_.pg_(.*)$/)[1];
+           var name = row.find('.setting').attr('name');
+           var filter_name = name.slice((source+'_iflt_').length);
+           if (name.charAt(source.length + 1) === 'i') {
+               var preset = quiz.settings.ipresets[quiz.settings.active_ipreset].content;
+           } else {
+               preset = quiz.settings.fpresets[quiz.settings.active_fpreset].content;
+           };
+           var enabled = false;
+           try {
+               enabled = preset[source].filters[filter_name].enabled;
+           } catch(e) {};
 
-            if (enabled) {
-                row.addClass('checked');
-            } else {
-                row.removeClass('checked');
-            }
-            row.find('.enable input[type="checkbox"]').prop('checked', enabled);
+           if (enabled) {
+               row.addClass('checked');
+           } else {
+               row.removeClass('checked');
+           };
+           row.find('.enable input[type="checkbox"]').prop('checked', enabled);
         };
-    }
+    };
 
     //========================================================================
     // refresh_ipresets()
@@ -2798,6 +3459,14 @@
     function refresh_fpresets() {
         var settings = quiz.settings;
         populate_presets($('#Item_Inspector_active_fpreset'), settings.fpresets, settings.active_fpreset);
+    }
+
+    //========================================================================
+    // refresh_vpresets()
+    //------------------------------------------------------------------------
+    function refresh_vpresets() {
+        var settings = quiz.settings;
+        populate_presets($('#Item_Inspector_active_vpreset'), settings.vpresets, settings.active_vpreset);
     }
 
     //========================================================================
@@ -2822,22 +3491,26 @@
                     settings.tablePresets = tablePresets;
                 } else if (ref === 'fpreset') {
                     presets.push($.extend(true, {}, fpreset_defaults, dflt));
-                }
+                } else if (ref === 'vpreset') {
+                    presets.push($.extend(true, {}, vpreset_defaults));
+                };
                 selected = presets.length - 1;
                 settings[ref+'s'] = presets;
                 settings['active_'+ref] = selected;
                 populate_presets(elem, presets, selected);
                 quiz.settings_dialog.refresh();
                 $('#Item_Inspector_'+ref.slice(0,4)+'_name').focus().select();
+                if (ref === 'vpreset') setTabVisibility();
                 break;
 
             case 'up':
                 if (selected <= 0) break;
+                if (selected === 1 && (ref === 'fpreset' || ref === 'vpreset')) break;
                 presets = [].concat(presets.slice(0, selected-1), presets[selected], presets[selected-1], presets.slice(selected+1));
                 if (ref === 'ipreset'){
                     tablePresets = [].concat(tablePresets.slice(0, selected-1), tablePresets[selected], tablePresets[selected-1], tablePresets.slice(selected+1));
                     settings.tablePresets = tablePresets;
-                }
+                };
                 selected--;
                 settings[ref+'s'] = presets;
                 settings['active_'+ref] = selected;
@@ -2845,13 +3518,13 @@
                 break;
 
             case 'down':
-                if (selected === 0 && ref === 'fpreset') break;
+                if (selected === 0 && (ref === 'fpreset' || ref === 'vpreset')) break;
                 if (selected >= presets.length-1) break;
                 presets = [].concat(presets.slice(0, selected), presets[selected+1], presets[selected], presets.slice(selected+2));
                 if (ref === 'ipreset'){
                     tablePresets = [].concat(tablePresets.slice(0, selected), tablePresets[selected+1], tablePresets[selected], tablePresets.slice(selected+2));
                     settings.tablePresets = tablePresets;
-                }
+                };
                 selected++;
                 settings[ref+'s'] = presets;
                 settings['active_'+ref] = selected;
@@ -2859,65 +3532,23 @@
                 break;
 
             case 'delete':
-                if (selected === 0 && ref === 'fpreset') break;
+                if (selected === 0 && (ref === 'fpreset' || ref === 'vpreset')) break;
                 presets = presets.slice(0, selected).concat(presets.slice(selected+1));
                 if (presets.length === 0) presets = [$.extend(true, {}, dflt)];
                 if (ref === 'ipreset'){
                     tablePresets = tablePresets.slice(0, selected).concat(tablePresets.slice(selected+1));
                     if (tablePresets.length === 0) tablePresets = [$.extend(true, {}, table_defaults)];
                     settings.tablePresets = tablePresets;
-                }
+                };
                 selected = Math.max(0, selected-1);
                 settings[ref+'s'] = presets;
                 settings['active_'+ref] = selected;
                 populate_presets(elem, presets, selected);
                 quiz.settings_dialog.refresh();
+                if (ref === 'vpreset') setTabVisibility();
                 break;
-        }
-    }
-
-    function addTable(name){
-        var settings = quiz.settings;
-        var tablePresets = settings.tablePresets;
-        var selected;
-        var presets = settings.ipresets;
-        var dflt = {name:name, content:$.extend(true, {}, ipre_defaults)};
-
-        presets.push($.extend(true, {}, dflt));
-        tablePresets.push($.extend(true, {}, table_defaults));
-        selected = presets.length - 1;
-        let keys = Object.keys(settings.defaults);
-        for (var index in keys){
-            let key = keys[index]
-            tablePresets[selected][key] = settings.defaults[key];
-        };
-        settings.ipresets = presets;
-        settings.active_ipreset = selected;
-        settings.tablePresets = tablePresets;
-        populateDropdown();
-    };
-
-    function removeTempTables(){
-        var settings = quiz.settings;
-        var tablePresets = settings.tablePresets;
-        var presets = settings.ipresets;
-        var selected = settings.active_ipreset;
-
-        for (var j = presets.length - 1; j >=0; j--){
-            if (presets[j].name.slice(0, 6) === '--Temp') deleteTable(j);
-        };
-        settings.ipresets = presets;
-        settings.tablePresets = tablePresets;
-        settings.active_ipreset = selected
-        populateDropdown();
-
-        function deleteTable(j){
-            presets = presets.slice(0, j).concat(presets.slice(j+1));
-            tablePresets = tablePresets.slice(0, j).concat(tablePresets.slice(j+1));
-            if (selected >= j){selected--};
         };
     };
-
 
     //========================================================================
     // Collects from the registry default values for the filters settings
@@ -2926,20 +3557,26 @@
     function prepare_defaults_for_filters(){
         var srcs = wkof.ItemData.registry.sources;
         ipre_defaults = {};
-        let src_name = 'wk_items';
-        var src = srcs[src_name];
-        var settings = {};
-        ipre_defaults[src_name] = settings;
-        if (src.filters && Object.keys(src.filters).length > 0) {
-            settings.filters = {};
-            for (var flt_name in src.filters) {
-                var flt = src.filters[flt_name];
-                settings.filters[flt_name] = {enabled:false, value:flt.default};
-                if (flt.type === 'multi'){
-                    var dflt = flt.default;
-                    if (typeof flt.filter_value_map === 'function') dflt = flt.filter_value_map(dflt);
-                    settings.filters[flt_name].value = dflt;
-                    };
+        for (var src_name in srcs) {
+            var src = srcs[src_name];
+            var settings = {};
+            if (src_name === 'wk_items'){
+                settings.sources = {wk_items: true, trad_rad: false};
+            } else {
+                settings.enabled = false;
+            };
+            ipre_defaults[src_name] = settings;
+            if (src.filters && Object.keys(src.filters).length > 0) {
+                settings.filters = {};
+                for (var flt_name in src.filters) {
+                    var flt = src.filters[flt_name];
+                    settings.filters[flt_name] = {enabled:false, value:flt.default};
+                    if (flt.type === 'multi'){
+                        var dflt = flt.default;
+                        if (typeof flt.filter_value_map === 'function') dflt = flt.filter_value_map(dflt);
+                        settings.filters[flt_name].value = dflt;
+                        };
+                };
             };
         };
     };
@@ -2949,10 +3586,15 @@
     // Calegorizes the filters in groups on the fly
     //------------------------------------------------------------------------
     function populate_items_config(config) {
-        const group_labels = {basics: 'Basics', leech: 'Leech Studying', burned: 'Burned Items Studying', review: 'Lessons and Reviews', date: 'Dates and Events',
-                              search: 'Search', item: 'Items and Information', stats: 'Statistics', other: 'Other Filters'}
+        const group_labels = {basics: {label: 'Basics'}, leech: {label: 'Leech Studying'}, burned: {label: 'Burned Items Studying'},
+                              review: {label: 'Lessons and Reviews'}, date: {label: 'Dates and Events'},
+                              search: {label: 'Search'}, search_trad_rad: {label: 'Search', section: 'Filters Applicable to Both Wanikani Items and Traditional Radicals'},
+                              item: {label: 'Items and Information'}, item_trad_rad: {label: 'Items and Information'},
+                              item_trad_rad: {label: 'Items and Information'},
+                              stats: {label: 'Statistics', section: 'Statistics Filters Are Applicable Only to Wanikani Items',},
+                              other: {label: 'Uncategorized Filters', section: 'Uncategorised Filters May or May Not Use Traditional Radicals',}};
         const flt_ordering = {item_type: {group: 'basics', order: 10, suborder: 10}, level: {group: 'basics', order: 10, suborder: 20},
-                              srs: {group: 'basics', order: 10, suborder: 30}, //have_burned: {group: 'basics', order: 10, suborder: 40},
+                              srs: {group: 'basics', order: 10, suborder: 30},
 
                               additionalFilters_leechTraining: {group: 'leech', order: 20, suborder: 10}, statsFilters_LeechLteq: {group: 'leech', order: 20, suborder: 20},
                               statsFilters_minCurStrGteq: {group: 'leech', order: 20, suborder: 30}, statsFilters_minCurStrLteq: {group: 'leech', order: 20, suborder: 40},
@@ -2985,74 +3627,149 @@
                               searchFilters_allowSearch: {group: 'search', order: 55, suborder: 210}, searchFilters_blockSearch: {group: 'search', order: 55, suborder: 220},
                               searchFilters_ctxSenkSearch: {group: 'search', order: 55, suborder: 230}, searchFilters_mnemonicsSearch: {group: 'search', order: 55, suborder: 240},
 
-                              radical_list: {group: 'item', order: 60, suborder: 10}, kanji_list: {group: 'item', order: 60, suborder: 20},
-                              vocabulary_list: {group: 'item', order: 60, suborder: 30}, additionalFilters_relatedItems: {group: 'item', order: 60, suborder: 40},
+                              radical_list: {group: 'item', order: 60, suborder: 10}, kanji_list: {group: 'item', order: 60, suborder: 11},
+                              vocabulary_list: {group: 'item', order: 60, suborder: 12},
+                              radical_blacklist: {group: 'item', order: 60, suborder: 20}, kanji_blacklist: {group: 'item', order: 60, suborder: 21},
+                              vocabulary_blacklist: {group: 'item', order: 60, suborder: 22},
+                              additionalFilters_relatedItems: {group: 'item', order: 60, suborder: 40},
                               jlpt_level: {group: 'item', order: 60, suborder: 230}, jlpt_level_vocab: {group: 'item', order: 60, suborder: 235},
                               joyo_grade: {group: 'item', order: 60, suborder: 240}, joyo_grade_vocab: {group: 'item', order: 60, suborder: 245},
                               total_frequency: {group: 'item', order: 60, suborder: 250}, total_frequency_vocab: {group: 'item', order: 60, suborder: 255},
 
-                              statsFilters_meaningCorAnsGteq: {group: 'stats', order: 70, suborder: 10}, statsFilters_meaningCorAnsLteq: {group: 'stats', order: 70, suborder: 20},
-                              statsFilters_readingCorAnsGteq: {group: 'stats', order: 70, suborder: 30}, statsFilters_readingCorAnsLteq: {group: 'stats', order: 70, suborder: 40},
-                              statsFilters_meaningIncorAnsGteq: {group: 'stats', order: 70, suborder: 50}, statsFilters_meaningIncorAnsLteq: {group: 'stats', order: 70, suborder: 60},
-                              statsFilters_readingIncorAnsGteq: {group: 'stats', order: 70, suborder: 70}, statsFilters_readingIncorAnsLteq: {group: 'stats', order: 70, suborder: 80},
-                              statsFilters_totalCorAnsGteq: {group: 'stats', order: 70, suborder: 90}, statsFilters_totalCorAnsLteq: {group: 'stats', order: 70, suborder: 100},
-                              statsFilters_totalIncorAnsGteq: {group: 'stats', order: 70, suborder: 110}, statsFilters_totalIncorAnsLteq: {group: 'stats', order: 70, suborder: 120},
-                              statsFilters_percentageMeaningCorGteq: {group: 'stats', order: 70, suborder: 130}, statsFilters_pecentagerMeaningCorLteq: {group: 'stats', order: 70, suborder: 140},
-                              statsFilters_percentageReadingCorGteq: {group: 'stats', order: 70, suborder: 150}, statsFilters_percentageReadingCorLteq: {group: 'stats', order: 70, suborder: 160},
-                              statsFilters_meaningCurStrGteq: {group: 'stats', order: 70, suborder: 170}, statsFilters_meaningCurStrLteq: {group: 'stats', order: 70, suborder: 180},
-                              statsFilters_meaningMaxStrGteq: {group: 'stats', order: 70, suborder: 190}, statsFilters_meaningMaxStrLteq: {group: 'stats', order: 70, suborder: 200},
-                              statsFilters_readingCurStrGteq: {group: 'stats', order: 70, suborder: 210}, statsFilters_readingCurStrLteq: {group: 'stats', order: 70, suborder: 220},
-                              statsFilters_readingMaxStrGteq: {group: 'stats', order: 70, suborder: 230}, statsFilters_readingMaxStrLteq: {group: 'stats', order: 70, suborder: 240},
-                              statsFilters_bothCurStrGteq: {group: 'stats', order: 70, suborder: 250}, statsFilters_bothCurStrLteq: {group: 'stats', order: 70, suborder: 260},
-                              statsFilters_numReviewsLteq: {group: 'stats', order: 70, suborder: 270}, statsFilters_numReviewsGteq: {group: 'stats', order: 70, suborder: 280},
+                              advSearchFilters_extensiveSearch: {group: 'search_trad_rad', order: 1000, suborder: 10},
+                              advSearchFilters_advancedSearch: {group: 'search_trad_rad', order: 1000, suborder: 20},
+                              advSearchFilters_relatedSearch: {group: 'search_trad_rad', order: 1000, suborder: 30},
+
+                              advSearchFilters_strokeCountGteq: {group: 'item_trad_rad', order: 1100, suborder: 20},
+                              advSearchFilters_strokeCountLteq: {group: 'item_trad_rad', order: 1100, suborder: 30},
+                              advSearchFilters_explicitList: {group: 'item_trad_rad', order: 1100, suborder: 40},
+                              advSearchFilters_explicitBlock: {group: 'item_trad_rad', order: 1100, suborder: 50},
+
+                              statsFilters_meaningCorAnsGteq: {group: 'stats', order: 2000, suborder: 10}, statsFilters_meaningCorAnsLteq: {group: 'stats', order: 2000, suborder: 20},
+                              statsFilters_readingCorAnsGteq: {group: 'stats', order: 2000, suborder: 30}, statsFilters_readingCorAnsLteq: {group: 'stats', order: 2000, suborder: 40},
+                              statsFilters_meaningIncorAnsGteq: {group: 'stats', order: 2000, suborder: 50}, statsFilters_meaningIncorAnsLteq: {group: 'stats', order: 2000, suborder: 60},
+                              statsFilters_readingIncorAnsGteq: {group: 'stats', order: 2000, suborder: 70}, statsFilters_readingIncorAnsLteq: {group: 'stats', order: 2000, suborder: 80},
+                              statsFilters_totalCorAnsGteq: {group: 'stats', order: 2000, suborder: 90}, statsFilters_totalCorAnsLteq: {group: 'stats', order: 2000, suborder: 100},
+                              statsFilters_totalIncorAnsGteq: {group: 'stats', order: 2000, suborder: 110}, statsFilters_totalIncorAnsLteq: {group: 'stats', order: 2000, suborder: 120},
+                              statsFilters_percentageMeaningCorGteq: {group: 'stats', order: 2000, suborder: 130}, statsFilters_pecentagerMeaningCorLteq: {group: 'stats', order: 2000, suborder: 140},
+                              statsFilters_percentageReadingCorGteq: {group: 'stats', order: 2000, suborder: 150}, statsFilters_percentageReadingCorLteq: {group: 'stats', order: 2000, suborder: 160},
+                              statsFilters_meaningCurStrGteq: {group: 'stats', order: 2000, suborder: 170}, statsFilters_meaningCurStrLteq: {group: 'stats', order: 2000, suborder: 180},
+                              statsFilters_meaningMaxStrGteq: {group: 'stats', order: 2000, suborder: 190}, statsFilters_meaningMaxStrLteq: {group: 'stats', order: 2000, suborder: 200},
+                              statsFilters_readingCurStrGteq: {group: 'stats', order: 2000, suborder: 210}, statsFilters_readingCurStrLteq: {group: 'stats', order: 2000, suborder: 220},
+                              statsFilters_readingMaxStrGteq: {group: 'stats', order: 2000, suborder: 230}, statsFilters_readingMaxStrLteq: {group: 'stats', order: 2000, suborder: 240},
+                              statsFilters_bothCurStrGteq: {group: 'stats', order: 2000, suborder: 250}, statsFilters_bothCurStrLteq: {group: 'stats', order: 2000, suborder: 260},
+                              statsFilters_numReviewsLteq: {group: 'stats', order: 2000, suborder: 270}, statsFilters_numReviewsGteq: {group: 'stats', order: 2000, suborder: 280},
+
                              };
         const dflt_ordering = {group: 'other', order: 100000, suborder: 100000};
 
         var ipre_srcs = config.settings.pg_items.content.grp_ipre.content.ipre_srcs.content;
+        var ipre_filters_srcs = {};
+        ipre_srcs.ipg_filters = {type:'page',label:'Filters',content:ipre_filters_srcs,hover_tip:'Select the items in your table.'};
         var fpre_srcs = config.settings.pg_filters.content.grp_fpre.content.fpre_srcs.content;
         var srcs = wkof.ItemData.registry.sources;
-        let src_name = 'wk_items';
-        var src = srcs[src_name];
-        var pg_icontent = {};
-        var pg_fcontent = {};
-        ipre_srcs['pg_'+src_name] = {type:'page',label:'Filters',content:pg_icontent};
-        fpre_srcs['pg_'+src_name] = {type:'page',label:'Filters',content:pg_fcontent};
+        for (var src_name in srcs) {
+            var src = srcs[src_name];
+            if (Object.values(src.filters).reduce(((acc, data) => acc && (typeof data.main_source) !== 'undefined'), true)) continue;
+            var isettings = {};
+            var pg_icontent = isettings;
+            var fsettings = {};
+            var pg_fcontent = fsettings;
+            ipre_filters_srcs['ipg_'+src_name] = {type:'page',label:src.description,content:pg_icontent};
+            fpre_srcs['fpg_'+src_name] = {type:'page',label:src.description,content:pg_fcontent};
+            if (src_name === 'wk_items'){
+                pg_icontent['i_'+src_name+'_sources'] = {
+                    type:'list',
+                    multi: true,
+                    label:'Include These Items',
+                    path:'@ipresets[@active_ipreset].content["'+src_name+'"].sources',
+                    hover_tip:'Select to include these data sources in the itemss',
+                    default:{wk_items: true, trad_rad: false},
+                    content:{wk_items: 'Wanikani Items', trad_rad: 'Traditional Radicals'},
+                };
+                pg_fcontent['f_'+src_name+'_sources'] = {
+                    type:'list',
+                    multi: true,
+                    label:'Include These Items',
+                    path:'@fpresets[@active_fpreset].content["'+src_name+'"].sources',
+                    hover_tip:'Select to include these data sources in the itemss',
+                    default:{wk_items: true, trad_rad: true},
+                    content:{wk_items: 'Wanikani Items', trad_rad: 'Traditional Radicals'},
+                };
+                // Enable Wanikani source by default.
+                isettings.sources = {wk_items: true, trad_rad: false};
+                fsettings.sources = {wk_items: true, trad_rad: false};
 
-        // Add 'Filters' section.
-        if (src.filters && Object.keys(src.filters).length > 0) {
-            var flt_icontent = {};
-            var flt_fcontent = {};
-            var flt_content;
-            let fltList = [];
-            pg_icontent['grp_'+src_name+'_ifilters'] = {type:'group',label:group_labels.basics,content:flt_icontent};
-            pg_fcontent['grp_'+src_name+'_ffilters'] = {type:'group',label:group_labels.basics,content:flt_fcontent};
-            for (var flt_name in src.filters) {
-                var flt = src.filters[flt_name];
-                if (flt.no_ui  || flt.type === undefined) continue;  // no_ui or one of Kumirei's typeless filters
-                let fltOrder = flt_ordering[flt_name] || dflt_ordering;
-                fltList.push([flt_name, flt, fltOrder]);
+                pg_icontent['div_'+src_name+'_isources'] = {type: 'divider'};
+                pg_icontent['sect_'+src_name+'_isources'] = {
+                    type:'section',
+                    label:'Filters That Apply Only to Wanikani Items',
+                };
+                pg_fcontent['div_'+src_name+'_fsources'] = {type: 'divider'};
+                pg_fcontent['sect_'+src_name+'_fsources'] = {
+                    type:'section',
+                    label:'Filters That Apply Only to Wanikani Items',
+                };
+            } else {
+                pg_icontent['i_'+src_name+'_enable'] = {
+                    type:'checkbox',
+                    label:'Include This Source',
+                    path:'@ipresets[@active_ipreset].content["'+src_name+'"].enabled',
+                    hover_tip:'Check to include this data source in the items'
+                };
+                pg_fcontent['f_'+src_name+'_enable'] = {
+                    type:'checkbox',
+                    label:'Include This Source',
+                    path:'@fpresets[@active_fpreset].content["'+src_name+'"].enabled',
+                    hover_tip:'Check to include this data source in the items'
+                };
+                isettings.enabled = false;
+                fsettings.enabled = false;
             };
-            fltList.sort((a,b)=> a[2].order === b[2].order ? a[2].suborder - b[2].suborder : a[2].order - b[2].order);
-            let curGroup = 'basics'
-            for (let triple in fltList){
-                flt_name = fltList[triple][0];
-                flt = fltList[triple][1];
-                let group = fltList[triple][2].group;
-                if (group !== curGroup){
-                    flt_icontent = {};
-                    flt_fcontent = {};
-                    pg_icontent['grp_'+group+'_ifilters'] = {type:'group',label:group_labels[group],content:flt_icontent};
-                    pg_fcontent['grp_'+group+'_ffilters'] = {type:'group',label:group_labels[group],content:flt_fcontent};
-                    curGroup = group;
-                }
-                flt_content = getFilterInformation(flt);
-                flt_icontent[src_name+'_iflt_'+flt_name] = $.extend(true, {}, flt_content);
-                flt_icontent[src_name+'_iflt_'+flt_name].path = '@ipresets[@active_ipreset].content["'+src_name+'"].filters["'+flt_name+'"].value';
-                flt_fcontent[src_name+'_fflt_'+flt_name] = $.extend(true, {}, flt_content);
-                flt_fcontent[src_name+'_fflt_'+flt_name].path = '@fpresets[@active_fpreset].content["'+src_name+'"].filters["'+flt_name+'"].value';
+
+            // Add 'Filters' section.
+            if (src.filters && Object.keys(src.filters).length > 0) {
+                var flt_icontent = {};
+                var flt_fcontent = {};
+                var flt_content;
+                let fltList = [];
+                pg_icontent['grp_'+src_name+'_ifilters'] = {type:'group', label:group_labels.basics.label, content:flt_icontent};
+                pg_fcontent['grp_'+src_name+'_ffilters'] = {type:'group', label:group_labels.basics.label, content:flt_fcontent};
+                for (var flt_name in src.filters) {
+                    var flt = src.filters[flt_name];
+                    if (flt.no_ui  || flt.type === undefined) continue;  // no_ui or one of Kumirei's typeless filters
+                    if (typeof wkof.ItemData.registry.sources[src_name].filters[flt_name].main_source !== 'undefined') continue;
+                    let fltOrder = flt_ordering[flt_name] || dflt_ordering;
+                    fltList.push({name: flt_name, filter: flt, ordering: fltOrder, kind: 'filter'});
+                };
+                fltList.sort((a,b)=> a.ordering.order === b.ordering.order ? a.ordering.suborder - b.ordering.suborder : a.ordering.order - b.ordering.order);
+                let curGroup = 'basics'
+                for (let idx in fltList){
+                    flt_name = fltList[idx].name;
+                    flt = fltList[idx].filter;
+                    let group = fltList[idx].ordering.group;
+                    if (group !== curGroup){
+                        flt_icontent = {};
+                        flt_fcontent = {};
+                        if (typeof group_labels[group].section !== undefined){
+                            pg_icontent['div_'+src_name+'_'+group+'_isection'] = {type:'divider',};
+                            pg_fcontent['div_'+src_name+'_'+group+'_fsection'] = {type:'divider',};
+                            pg_icontent['sect_'+src_name+'_'+group+'_isection'] = {type:'section', label: group_labels[group].section};
+                            pg_fcontent['sect_'+src_name+'_'+group+'_fsection'] = {type:'section', label: group_labels[group].section};
+                        };
+                        pg_icontent['grp_'+src_name+'_'+group+'_ifilters'] = {type:'group', label:group_labels[group].label, content:flt_icontent};
+                        pg_fcontent['grp_'+src_name+'_'+group+'_ffilters'] = {type:'group', label:group_labels[group].label, content:flt_fcontent};
+                        curGroup = group;
+                    }
+                    flt_content = getFilterInformation(flt);
+                    flt_icontent[src_name+'_iflt_'+flt_name] = $.extend(true, {}, flt_content);
+                    flt_icontent[src_name+'_iflt_'+flt_name].path = '@ipresets[@active_ipreset].content["'+src_name+'"].filters["'+flt_name+'"].value';
+                    flt_fcontent[src_name+'_fflt_'+flt_name] = $.extend(true, {}, flt_content);
+                    flt_fcontent[src_name+'_fflt_'+flt_name].path = '@fpresets[@active_fpreset].content["'+src_name+'"].filters["'+flt_name+'"].value';
+                };
             };
         };
-    }
+    };
 
     function getFilterInformation(flt){
         var flt_content
@@ -3111,7 +3828,7 @@
     function toggle_filter(e) {
         var row = $(e.delegateTarget);
         var panel = row.closest('[role="tabpanel"]');
-        var source = panel.attr('id').match(/^Item_Inspector_pg_(.*)$/)[1];
+        var source = panel.attr('id').match(/^Item_Inspector_.pg_(.*)$/)[1];
         var enabled = row.find('.enable input[type="checkbox"]').prop('checked');
         var name = row.find('.setting').attr('name');
         var filter_name = name.slice((source+'_iflt_').length);
@@ -3141,6 +3858,7 @@
     function populate_presets(elem, presets, active_preset) {
         var html = '';
         var is_fpresets = (elem.attr('id') === 'Item_Inspector_active_fpreset');
+        var is_vpresets = (elem.attr('id') === 'Item_Inspector_active_vpreset');
         for (var idx in presets) {
             var preset = presets[idx];
             var name = preset.name.replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -3150,6 +3868,13 @@
                 $('#Item_Inspector_fpre_name').val(name);
                 preset.ask = false;
                 $('#Item_Inspector_fpre_ask').val(false);
+            }
+            if ((idx === '0') && (idx === active_preset) && is_vpresets){
+                name = noViewNoReportName;
+                preset.name = name;
+                $('#Item_Inspector_vpre_name').val(name);
+                preset.type = 'view';
+                $('#Item_Inspector_vpre_type').val('view');
             }
             html += '<option name="'+idx+'">'+name+'</option>';
         }
@@ -3192,6 +3917,9 @@
             '#wkofs_Item_Inspector #Item_Inspector_ipre_srcs .src_enable .left {width:initial;}'+
             '#wkofs_Item_Inspector #Item_Inspector_ipre_srcs .src_enable .left label {text-align:left;width:initial;line-height:30px;}'+
             '#wkofs_Item_Inspector #Item_Inspector_ipre_srcs .src_enable .right {float:left; margin:0 4px;width:initial;}'+
+            '#wkofs_Item_Inspector #Item_Inspector_fpre_srcs .src_enable .left {width:initial;}'+
+            '#wkofs_Item_Inspector #Item_Inspector_fpre_srcs .src_enable .left label {text-align:left;width:initial;line-height:30px;}'+
+            '#wkofs_Item_Inspector #Item_Inspector_fpre_srcs .src_enable .right {float:left; margin:0 4px;width:initial;}'+
             //----------------------------------------------------------------
 
             '</style>'
@@ -3231,8 +3959,8 @@
     //============================================================================
     // Begin code lifted from wkof core module and adapted to transfer binary data
 
-	function split_list(str) {return str.replace(/^\s+|\s*(,)\s*|\s+$/g, '$1').split(',').filter(function(name) {return (name.length > 0);});}
-	function promise(){var a,b,c=new Promise(function(d,e){a=d;b=e;});c.resolve=a;c.reject=b;return c;}
+	function split_list(str) {return str.replace(/^\s+|\s*(,)\s*|\s+$/g, '$1').split(',').filter(function(name) {return (name.length > 0);});};
+	function promise(){var a,b,c=new Promise(function(d,e){a=d;b=e;});c.resolve=a;c.reject=b;return c;};
 
     //------------------------------
 	// Load a file asynchronously, and pass the file as resolved Promise data.
@@ -3245,7 +3973,7 @@
 			return wkof.file_cache.load(url, use_cache).catch(fetch_url);
 		} else {
 			return fetch_url();
-		}
+		};
 
 		// Retrieve file from server
 		function fetch_url(){
@@ -3255,7 +3983,7 @@
             if (options.responseType) request.responseType = options.responseType;
 			request.send();
 			return fetch_promise;
-		}
+		};
 
 		function process_result(event){
 			if (event.target.readyState !== 4) return;
@@ -3265,9 +3993,9 @@
 				.then(fetch_promise.resolve.bind(null,event.target.response));
 			} else {
 				fetch_promise.resolve(event.target.response);
-			}
-		}
-	}
+			};
+		};
+	};
 
     // End code lifted from wkof core module and adapted to transfer binary data
 
@@ -3277,16 +4005,17 @@
     // function to be invoked in the startup sequence
     //------------------------------------------------------------------------
     function fetch_all_items() {
-
-//        return wkof.load_file('http://127.0.0.1:8887/All_Items.json')
-//                  .then(function(items){quiz.allItems = JSON.parse(items); makeIndexes(quiz.allItems);});
-
         let configIndex = {wk_items: {filters:{},
                                       options:{'subjects': true, 'assignments': true, 'review_statistics': true, 'study_materials': true}}};
         return wkof.ItemData.get_items(configIndex).then(function(items){quiz.allItems = items; makeIndexes(items);})
     };
 
     function makeIndexes(items){
+         // publish data to advSearchFilters script
+        if (typeof advSearchFilters === 'object'){
+            advSearchFilters.allItems =  items;
+        };
+        itemsBySource.wk_items = items;
         subjectIndex = {};
         for (let item of items){
             subjectIndex[item.id] = item;
@@ -3303,13 +4032,19 @@
                     break;
             };
         };
+        wkof.set_state('Wkit_makeIndexes', 'ready');
     };
+
+    // ----------------------------------------------------------------------
+    // SVG images for radicals without characters
+    // ----------------------------------------------------------------------
 
     function loadSvgForRadicals(){
         return wkof.file_cache.load(Wkit_SVGforRadicals)
                    .then(function(data){svgForRadicals = data})
-                   .catch(function(e){return assembleSvgForRadicals()
-                                                .then(function(){wkof.file_cache.save(Wkit_SVGforRadicals, svgForRadicals)})
+                   .catch(function(e){return wkof.wait_state('Wkit_makeIndexes', 'ready')
+                                                 .then(function(){assembleSvgForRadicals()
+                                                                     .then(function(){wkof.file_cache.save(Wkit_SVGforRadicals, svgForRadicals)})})
                                      }
                          )
 
@@ -3326,69 +4061,243 @@
             return Promise.all(promiseList);
         };
 
-        //return load_file(svgForRadicalsFile, true, {responseType: "arraybuffer"})
-        //     .then(function(data){lzmaDecompressAndProcessSvgForRadicals(data)})
     };
 
-/*    function lzmaDecompressAndProcessSvgForRadicals(data){
+    // ----------------------------------------------------------------------
+    // Kanjidic2 data
+    // ----------------------------------------------------------------------
+
+    var kanjidic2Data;
+    function loadKanjidic2(){
+        // check if advSearchFilters script has already loaded the data
+        if (typeof (advSearchFilters) === 'object' && (kanjidic2Data in advSearchFilters)){
+            kanjidic2Data = advSearchFilters.kanjidic2Data;
+            return Promise.resolve();
+        };
+        return load_file(kanjidic2File, true, {responseType: "arraybuffer"})
+             .then(function(data){lzmaDecompressAndProcessKanjidic2(data)})
+    };
+
+    function lzmaDecompressAndProcessKanjidic2(data){
         let inStream = new LZMA.iStream(data);
         let outStream = LZMA.decompressFile(inStream);
         let string = streamToString(outStream);
-        svgForRadicals = JSON.parse(string);
-    };*/
+        kanjidic2Data = JSON.parse(string);
+         // publish data to advSearchFilters script
+        if (typeof advSearchFilters === 'object'){
+            advSearchFilters.kanjidic2Data =  kanjidic2Data;
+        };
+    };
+
+    function kanjidic2_cacheDelete(){
+        return wkof.file_cache.delete(kanjidic2File);
+    };
+
+    // ----------------------------------------------------------------------
+    // A series of functions to add traditional radicals as a source of items
+    // ----------------------------------------------------------------------
+
+    var traditionalRadicalsLoaded = false;
+    var traditionalRadicals;
+    var traditionalRadicalsItems;
+    function loadTraditionalRadicals(){
+        if (traditionalRadicalsLoaded) return wkof.wait_state('Wkit_trad_rad_load', 'ready');
+        traditionalRadicalsLoaded = true; // must be done first - otherwise this code may be ran twice
+        // check if advSearchFilters script has already loaded the data
+        if (typeof (advSearchFilters) === 'object' && (traditionalRadicals in advSearchFilters)){
+            traditionalRadicals = advSearchFilters.traditionalRadicals;
+            makeRadindexes();
+            return Promise.resolve();
+        };
+        return load_file(traditionaRadicalsFile, true, {responseType: "arraybuffer"})
+             .then(function(data){lzmaDecompressAndProcessTradRad(data)})
+    };
+
+    function lzmaDecompressAndProcessTradRad(data){
+        let inStream = new LZMA.iStream(data);
+        let outStream = LZMA.decompressFile(inStream);
+        let string = streamToString(outStream);
+        traditionalRadicals = JSON.parse(string);
+        traditionalRadicalsItems = Object.values(traditionalRadicals);
+         // publish data to advSearchFilters script
+        if (typeof advSearchFilters === 'object'){
+            advSearchFilters.traditionalRadicals =  traditionalRadicals;
+        };
+        makeRadindexes();
+    };
+
+    function makeRadindexes(){
+        traditionalRadicalsItems = itemsBySource.trad_rad = Object.values(traditionalRadicals);
+        let rads = Object.keys(traditionalRadicals);
+        for (let rad of rads){
+            subjectIndex[traditionalRadicals[rad].id] = traditionalRadicals[rad]
+        };
+        wkof.set_state('Wkit_trad_rad_load', 'ready');
+    };
+
+    function trad_rad_cacheDelete(){
+        return wkof.file_cache.delete(traditionaRadicalsFile);
+    };
+
+    function tradRadFetcher(){
+        return Promise.resolve(traditionalRadicals);
+    };
+
+    function registerTraditionalRadicals(){
+        if (typeof wkof.ItemData.registry.sources.trad_rad === 'undefined'){
+            wkof.ItemData.registry.sources.trad_rad = {
+                description: 'Traditional Radicals',
+                fetcher: tradRadFetcher,
+                options: {},
+                filters: {},
+            };
+        };
+        wkof.set_state('Wkit_trad_rad', 'ready');
+        return Promise.resolve();
+    };
 
     //========================================================================
     // Filtering the items for a table
     //------------------------------------------------------------------------
+
+    const itemsBySource = {wk_items: quiz.allItems, trad_rad: traditionalRadicals};
+
     function filter_items_for_table() {
         var settings = quiz.settings;
         var ipreset = settings.ipresets[settings.active_ipreset].content;
         var presets = settings.tablePresets[settings.active_ipreset];
+        var promiseList = []
 
-        var src_name = 'wk_items';
-        var src_preset = ipreset[src_name];
-        var filters = {};
-        var ipre_filters = src_preset.filters;
-        for (var flt_name in ipre_filters) {
-            var ipre_flt = ipre_filters[flt_name];
-            if (!ipre_flt.enabled) continue;
-            if (!wkof.ItemData.registry.sources[src_name].filters[flt_name]) continue;
-            filters[flt_name] = {value: ipre_flt.value};
-            if (ipre_flt.invert === true) filters[flt_name].invert = true;
-        }
+        var config = {};
+        for (let src_name in ipreset) {
+            if (src_name === 'wk_items'){
+                config.wk_items = {enabled: ipreset.wk_items.sources.wk_items, filters: {}, };
+                config.trad_rad = {enabled: ipreset.wk_items.sources.trad_rad, filters: {}, };
+            } else if (src_name !== 'trad_rad') {
+                config[src_name] = {enabled: ipreset[src_name].enabled, filters: {}, };
+            };
+        };
 
-        var spec = wkof.ItemData.registry.sources[src_name];
-        return apply_filters(quiz.allItems, filters, spec);
+        for (let src_name in ipreset) {
+            //if (!config[src_name].enabled) continue;
+
+            var src_preset = ipreset[src_name];
+            if (src_name !== 'wk_items' && !src_preset.enabled) continue;
+            var ipre_filters = src_preset.filters;
+            for (var flt_name in ipre_filters) {
+                if (!wkof.ItemData.registry.sources[src_name].filters[flt_name]) continue;
+                if (typeof wkof.ItemData.registry.sources[src_name].filters[flt_name].main_source !== 'undefined') continue;
+                var ipre_flt = ipre_filters[flt_name];
+                if (!ipre_flt.enabled) continue;
+                if (!wkof.ItemData.registry.sources[src_name].filters[flt_name]) continue;
+                config[src_name].filters[flt_name] = {value: ipre_flt.value};
+                if (ipre_flt.invert === true) config[src_name].filters[flt_name].invert = true;
+                if (typeof wkof.ItemData.registry.sources[src_name].filters[flt_name].alternate_sources === 'object'){
+                    let alternate_sources = wkof.ItemData.registry.sources[src_name].filters[flt_name].alternate_sources;
+                    for (let source of alternate_sources){
+                        if (config[source].enabled){
+                            config[source].filters[flt_name] = {value: ipre_flt.value};
+                            if (ipre_flt.invert === true) config[source].filters[flt_name].invert = true;
+                        };
+                    };
+                };
+            };
+        };
+
+        for (let src_name in config){
+            if (!config[src_name].enabled) continue;
+            var spec = wkof.ItemData.registry.sources[src_name];
+            promiseList.push(apply_filters(itemsBySource[src_name], config[src_name].filters, spec));
+        };
+        return Promise.all(promiseList)
+            .then(aggregateResults)
+
+        function aggregateResults(dataArray){
+            var result = [];
+            for (let data of dataArray){
+                result = result.concat(data);
+            };
+            quiz.items = result;
+        };
     };
 
+    //========================================================================
+    // Filtering the items for a temporary filter
+    //------------------------------------------------------------------------
     function applyTemporaryFilter(){
         var settings = quiz.settings;
         if (settings.active_fpreset === 0) return;
         var fpreset = settings.fpresets[settings.active_fpreset].content;
         var presets = settings.tablePresets[settings.active_ipreset];
+        var items;
+        var promiseList = []
 
-        var src_name = 'wk_items';
-        var src_preset = fpreset[src_name];
-        var filters = {};
-        var fpre_filters = src_preset.filters;
-        for (var flt_name in fpre_filters) {
-            var fpre_flt = fpre_filters[flt_name];
-            if (!fpre_flt.enabled) continue;
-            if (!wkof.ItemData.registry.sources[src_name].filters[flt_name]) continue;
-            filters[flt_name] = {value: fpre_flt.value};
-            if (fpre_flt.invert === true) filters[flt_name].invert = true;
-        }
-        var spec = wkof.ItemData.registry.sources[src_name];
-        return apply_filters(quiz.items, filters, spec);
-    }
+        var config = {};
+        for (let src_name in fpreset) {
+            if (src_name === 'wk_items'){
+                config.wk_items = {enabled: fpreset.wk_items.sources.wk_items, filters: {}, };
+                config.trad_rad = {enabled: fpreset.wk_items.sources.trad_rad, filters: {}, };
+            } else if (src_name !== 'trad_rad') {
+                config[src_name] = {enabled: fpreset[src_name].enabled, filters: {}, };
+            };
+        };
+
+        for (var src_name in fpreset) {
+            //if (!config[src_name].enabled) continue;
+
+            var src_preset = fpreset[src_name];
+            var fpre_filters = src_preset.filters;
+            for (var flt_name in fpre_filters) {
+                if (!wkof.ItemData.registry.sources[src_name].filters[flt_name]) continue;
+                var fpre_flt = fpre_filters[flt_name];
+                if (!fpre_flt.enabled) continue;
+                if (!wkof.ItemData.registry.sources[src_name].filters[flt_name]) continue;
+                config[src_name].filters[flt_name] = {value: fpre_flt.value};
+                if (fpre_flt.invert === true) config[src_name].filters[flt_name].invert = true;
+                if (typeof wkof.ItemData.registry.sources[src_name].filters[flt_name].alternate_sources === 'object'){
+                    let alternate_sources = wkof.ItemData.registry.sources[src_name].filters[flt_name].alternate_sources;
+                    for (let source of alternate_sources){
+                        if (config[source].enabled){
+                            config[source].filters[flt_name] = {value: fpre_flt.value};
+                            if (fpre_flt.invert === true) config[source].filters[flt_name].invert = true;
+                        };
+                    };
+                };
+            }
+        };
+        for (let src_name in config){
+            if (!config[src_name].enabled) continue;
+            var spec = wkof.ItemData.registry.sources[src_name];
+            promiseList.push(apply_filters(quiz.items, config[src_name].filters, spec));
+        };
+        return Promise.all(promiseList)
+            .then(aggregateResults)
+
+        function aggregateResults(dataArray){
+            var result = [];
+            for (let data of dataArray){
+                result = result.concat(data);
+            };
+            quiz.items = result;
+        };
+    };
 
 	//------------------------------
 	// Filter the items array according to the specified filters and options.
 	//------------------------------
-	function apply_filters(items, cfg, spec) {
+
+	function apply_filters(baseItems, cfg, spec) {
+		var fetch_promise = promise();
 		var prep_promises = [];
 		var filters = [];
+        var items
 		var is_wk_items = (spec === wkof.ItemData.registry.sources.wk_items);
+		var is_trad_rad = (spec === wkof.ItemData.registry.sources.trad_rad);
+        if (is_wk_items){
+            items = baseItems.filter(function(item){return item.object === 'vocabulary' || item.object === 'kanji' || item.object === 'radical'});
+        } else if (is_trad_rad) {
+            items = baseItems.filter(function(item){return item.object === 'trad_rad'});
+        };
 		for (var filter_name in cfg) {
 			var filter_cfg = cfg[filter_name];
 			if (typeof filter_cfg !== 'object' || filter_cfg.value === undefined)
@@ -3410,12 +4319,18 @@
 			});
 		}
 
- 		return Promise.all(prep_promises).then(function(){
+        let doFiltering = filterItems.bind(null, filters.slice());
+ 		return Promise.all(prep_promises).then(doFiltering);
+
+        function filterItems(filters){
             result = [];
+			var max_level = Math.max(wkof.user.subscription.max_level_granted, wkof.user.override_max_level || 0);
             for (var idx in items) {
                 var item = items[idx];
                 var keep = true;
-                for (var filter of filters) {
+				if (is_wk_items && (item.data.level > max_level)) continue;
+                for (var j = 0, l = filters.length; l > j; j++) {
+                    var filter = filters[j];
                     try {
                         keep = filter.func(filter.filter_value, item);
                         if (filter.invert) keep = !keep;
@@ -3428,9 +4343,9 @@
                 }
                 if (keep) result.push(item);
             }
-            quiz.items = result;
-        })
-	}
+            return Promise.resolve(result);
+        };
+	};
 
     //====================================
     // end of the fetching, filtering and indexing functions
@@ -3438,7 +4353,7 @@
     //------------------------------------
 
     //====================================
-    // Producing the popup and exported data
+    // Handling data elements when producing the popups. reports and exported data
     //
     // The heart is a big object called metadata
     // All the code doing the processing specific to a popup or export data is registered in metadata
@@ -3459,7 +4374,7 @@
     // exists            - A function (item) => boolean  indicating whether the information is relevant to an item type
     // label             - The text of the label for the information in a popup table
     // tableEntry        - A function (item) => string  formatting the data for display as the table element in table mode
-    // tableEntry Marker - A function (item) => string  formatting the data for display as the marker in icon list mode
+    // tableEntryMarker  - A function (item) => string  formatting the data for display as the marker in icon list mode
     // tooltipEntry      - A function (item) => string  formatting the data for display in a popup table
     // sortKey           - A function (item) => data    preferred data used as a sort key when items are sorted by this table entry
     // sortOrder         - The sort order for sortKey
@@ -3468,14 +4383,17 @@
     // sortOrder2        - The sort order for sortKey2
     // preciseSortKey    - A function (item) => data    A sort key for dates precise to the millisecond. Other date sort keys are trimmed to the minutes boundary for UI reasons
     // wordCloud         - A function (item) => integer  for producing a repeat count of items for word cloud generation
-    // title             - The column title in an expeort to csv title line
+    // title             - The column title in an export to csv title line or a report column
     // needQuotes        - A boolean indicating wether the export to csv data needs quotes whne comma is the separator because it contains commas
     // freeFormText      - A boolean indicating wether text may contain quotes or linefeeds
     // export            - A function (item) => string  formatting the data for an export to csv
     // itemList          - A function (item) => Array of items  for producing the array of items for data that is a list of subject id
     // idList            - A function (item) => Array of subject id  for producing all the subject id for data that is a list of subject id
     // isDate            - A boolean indicating whether the data is a date
+    // isDateMonthly     - A boolean indicating that the date includes only the year and the month
     // isList            - A boolean indicating whether the data is a list of subject id
+    // reportValue       - A function (item) => number  for producing a statistics value - returns 'Unavailable' when no data is available.
+    // reportString      - A function (number) => string  for producing a string suitable to a report entry
 
     const metadata = {
                       // ----------------------------
@@ -3500,6 +4418,8 @@
                              'freeFormText': false,
                              'export': ((item) => {return (item.object != undefined ? item.object : 'Unavailable')}),
                              'isDate': false, 'isList': false,
+                             'reportValue': ((item) => {return item.object}),
+                             'reportString': ((type) => {return type}),
                             },
                     'Meaning_Brief': {'exists': ((item) => {return true}), 'label': 'Meaning ',
                                       'tableEntry': meaningsBrief,
@@ -3529,10 +4449,10 @@
                                      'export': meaningsFull,
                                      'isDate': false, 'isList': true,
                                     },
-                    'Reading_Brief': {'exists': ((item) => {return !(item.data.readings == undefined)}), 'label': 'Reading ',
-                                      'tableEntry': readingsBrief,
+                    'Reading_Brief': {'exists': ((item) => {return !(item.data.readings === undefined)}), 'label': 'Reading ',
+                                      'tableEntry': readingsBrief || "Unavailable",
                                       'tableEntryMarker': ((item)=>''),
-                                      'tooltipEntry': readingsBrief,
+                                      'tooltipEntry': readingsBrief || "Unavailable",
                                       'sortkey': ((item) => {return 0}),
                                       'sortOrder': 'Ascending',
                                       'sortkey2': ((item) => {return 0}),
@@ -3541,13 +4461,13 @@
                                       'labelExport': '',
                                       'needQuotes': true,
                                       'freeFormText': false,
-                                      'export': readingsBrief,
+                                      'export': readingsBrief || "Unavailable",
                                       'isDate': false, 'isList': true,
                                      },
-                    'Reading_Full': {'exists': ((item) => {return !(item.data.readings == undefined)}), 'label': 'Reading ',
-                                     'tableEntry': readingsFull,
+                    'Reading_Full': {'exists': ((item) => {return !(item.data.readings === undefined)}), 'label': 'Reading ',
+                                     'tableEntry': readingsFull || "Unavailable",
                                      'tableEntryMarker': ((item) => ''),
-                                     'tooltipEntry': readingsFull,
+                                     'tooltipEntry': readingsFull || "Unavailable",
                                      'sortkey': ((item) => {return 0}),
                                      'sortOrder': 'Ascending',
                                      'sortkey2': ((item) => {return 0}),
@@ -3556,23 +4476,29 @@
                                      'labelExport': '',
                                      'needQuotes': true,
                                      'freeFormText': false,
-                                     'export': readingsFull,
+                                     'export': readingsFull || "Unavailable",
                                      'isDate': false, 'isList': true,
                                     },
                     'Reading_by_Type': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'vocabulary'}), 'label': 'Rd.&nbsp;Type',
-                                        'tooltipEntry': readingByType,
+                                        'tooltipEntry': readingByType || "Unavailable",
+                                        'tableEntry': readingByType || "Unavailable",
+                                        'tableEntryMarker': readingByType || "Unavailable",
+                                        'sortkey': ((item) => {return 0}),
+                                        'sortOrder': 'Ascending',
+                                        'sortkey2': ((item) => {return 0}),
+                                        'sortOrder2': 'Ascending',
                                         'title': 'Readings by Type',
                                         'labelExport': '',
                                         'needQuotes': true,
                                         'freeFormText': false,
-                                        'export': readingByType,
+                                        'export': readingByType || "Unavailable",
                                         'isDate': false, 'isList': true,
                                        },
-                    'Level': {'exists': ((item) => {return true}), 'label': 'Level ',
-                              'tableEntry': ((item) => {return item.data.level}),
-                              'tableEntryMarker': ((item) => {return item.data.level}),
-                              'tooltipEntry': ((item) => {return item.data.level}),
-                              'sortkey': ((item) => {return item.data.level}),
+                    'Level': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Level ',
+                              'tableEntry': ((item) => {return item.data.level || "Unavailable"}),
+                              'tableEntryMarker': ((item) => {return item.data.level || "Unavailable"}),
+                              'tooltipEntry': ((item) => {return item.data.level || "Unavailable"}),
+                              'sortkey': ((item) => {return item.data.level || "Unavailable"}),
                               'sortOrder': 'Ascending',
                               'sortkey2': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined ? item.assignments.srs_stage : 10) : 10)}),
                               'sortOrder2': 'Ascending',
@@ -3580,10 +4506,12 @@
                               'labelExport': 'Level: ',
                               'needQuotes': false,
                               'freeFormText': false,
-                              'export': ((item) => {return item.data.level}),
+                              'export': ((item) => {return item.data.level || "Unavailable"}),
                               'isDate': false, 'isList': false,
+                              'reportValue': ((item) => {return item.data.level || "Unavailable"}),
+                              'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100) : 'Not in Wanikani')}),
                              },
-                    'Srs': {'exists': ((item) => {return true}), 'label': 'SRS ',
+                    'Srs': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'SRS ',
                             'tableEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined ? srsName[item.assignments.srs_stage] : 'Locked') : 'Locked')}),
                             'tableEntryMarker': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined ? srsName[item.assignments.srs_stage] : 'Locked') : 'Locked')}),
                             'tooltipEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined ? srsName[item.assignments.srs_stage] : 'Locked') : 'Locked')}),
@@ -3597,12 +4525,70 @@
                             'freeFormText': false,
                             'export': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined ? srsName[item.assignments.srs_stage] : 'Locked') : 'Locked')}),
                             'isDate': false, 'isList': false,
+                            'reportValue': ((item) => {return (item.object !== 'trad_rad' ? (item.assignments != undefined && item.assignments.srs_stage != undefined ? item.assignments.srs_stage : -1) : 'Unavailable')}),
+                            'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(num) === -1 ? 'Locked' : srsName[Math.round(num)]) : 'Not in Wanikani')}),
                            },
+
+                      // ----------------------------
+                      // Kanjidic2 data
+
+                    'Kanjidic2_Meaning': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Meaning&nbsp;Kanjidic2 ',
+                                     'tooltipEntry': meaningsKanjidic2 || "Unavailable",
+                                     'sortkey': ((item) => {return 0}),
+                                     'sortOrder': 'Ascending',
+                                     'sortkey2': ((item) => {return 0}),
+                                     'sortOrder2': 'Ascending',
+                                     'title': 'Meaning Kanjidic2',
+                                     'labelExport': '',
+                                     'needQuotes': true,
+                                     'freeFormText': false,
+                                     'export': meaningsKanjidic2 || "Unavailable",
+                                     'isDate': false, 'isList': true,
+                                    },
+                    'Kanjidic2_Onyomi': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Onyomi&nbsp;Kanjidic2',
+                                     'tooltipEntry': onyomiKanjidic2 || "Unavailable",
+                                     'sortkey': ((item) => {return 0}),
+                                     'sortOrder': 'Ascending',
+                                     'sortkey2': ((item) => {return 0}),
+                                     'sortOrder2': 'Ascending',
+                                     'title': 'Onyomi Kanjidic2',
+                                     'labelExport': '',
+                                     'needQuotes': true,
+                                     'freeFormText': false,
+                                     'export': onyomiKanjidic2 || "Unavailable",
+                                     'isDate': false, 'isList': true,
+                                    },
+                    'Kanjidic2_Kunyomi': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Knyomi&nbsp;Kanjidic2 ',
+                                     'tooltipEntry': kunyomiKanjidic2 || "Unavailable",
+                                     'sortkey': ((item) => {return 0}),
+                                     'sortOrder': 'Ascending',
+                                     'sortkey2': ((item) => {return 0}),
+                                     'sortOrder2': 'Ascending',
+                                     'title': 'Kunyomi Kanjidic2',
+                                     'labelExport': '',
+                                     'needQuotes': true,
+                                     'freeFormText': false,
+                                     'export': kunyomiKanjidic2 || "Unavailable",
+                                     'isDate': false, 'isList': true,
+                                    },
+                    'Kanjidic2_Nanori': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Nanorii&nbsp;Kanjidic2 ',
+                                     'tooltipEntry': nanoriKanjidic2 || "Unavailable",
+                                     'sortkey': ((item) => {return 0}),
+                                     'sortOrder': 'Ascending',
+                                     'sortkey2': ((item) => {return 0}),
+                                     'sortOrder2': 'Ascending',
+                                     'title': 'Nanori Kanjidic2',
+                                     'labelExport': '',
+                                     'needQuotes': true,
+                                     'freeFormText': false,
+                                     'export': nanoriKanjidic2 || "Unavailable",
+                                     'isDate': false, 'isList': true,
+                                    },
 
                       // ----------------------------
                       // Statistics
 
-                    'Leech': {'exists': ((item) => {return true}), 'label': 'Leech ',
+                    'Leech': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Leech ',
                               'tableEntry': leechScore,
                               'tableEntryMarker': leechScore,
                               'tooltipEntry': leechScore,
@@ -3618,8 +4604,10 @@
                               'needQuotes': true,
                               'export': ((item)=>leechScore(item).toLocaleString()),
                               'isDate': false, 'isList': false,
+                              'reportValue': leechScore,
+                              'reportString': ((num) => {return (Math.round(100 * num) / 100).toLocaleString()}),
                              },
-                    'Total_Incorrect_Answers': {'exists': ((item) => {return true}), 'label': 'Tot.&nbsp;Incor. ',
+                    'Total_Incorrect_Answers': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Tot.&nbsp;Incor. ',
                                                 'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect + (item.object !== 'radical' ? item.review_statistics.reading_incorrect : 0) : 'Unavailable')}),
                                                 'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect + (item.object !== 'radical' ? item.review_statistics.reading_incorrect : 0) : 'Unavailable')}),
                                                 'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect + (item.object !== 'radical' ? item.review_statistics.reading_incorrect : 0) : 'Unavailable')}),
@@ -3634,8 +4622,10 @@
                                                 'freeFormText': false,
                                                 'export': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect + (item.object !== 'radical' ? item.review_statistics.reading_incorrect : 0) : 'Unavailable')}),
                                                 'isDate': false, 'isList': false,
+                                                'reportValue': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect + (item.object !== 'radical' ? item.review_statistics.reading_incorrect : 0) : 'Unavailable')}),
+                                                'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                                },
-                    'Total_Correct_Answers': {'exists': ((item) => {return true}), 'label': 'Tot.&nbsp;Cor. ',
+                    'Total_Correct_Answers': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Tot.&nbsp;Cor. ',
                                               'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : 'Unavailable')}),
                                               'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : 'Unavailable')}),
                                               'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : 'Unavailable')}),
@@ -3650,8 +4640,10 @@
                                               'labelExport': 'Total Cor: ',
                                               'export': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : 'Unavailable')}),
                                               'isDate': false, 'isList': false,
+                                              'reportValue': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct : 0) : 'Unavailable')}),
+                                              'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString(): 'Unavailable')}),
                                              },
-                    'Percentage_Correct': {'exists': ((item) => {return true}), 'label': '%Total ',
+                    'Percentage_Correct': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label':  '%Total ',
                                            'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.percentage_correct+'%' : 'Unavailable')}),
                                            'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.percentage_correct+'%' : 'Unavailable')}),
                                            'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.percentage_correct+'%' : 'Unavailable')}),
@@ -3666,8 +4658,10 @@
                                            'freeFormText': false,
                                            'export': ((item) => {return (item.review_statistics ? item.review_statistics.percentage_correct+'%' : 'Unavailable')}),
                                            'isDate': false, 'isList': false,
+                                           'reportValue': ((item) => {return (item.review_statistics ? item.review_statistics.percentage_correct : 'Unavailable')}),
+                                           'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() +'%' : 'Unavailable')}),
                                           },
-                    'Meaning_Correct': {'exists': ((item) => {return true}), 'label': '%Meaning ',
+                    'Meaning_Correct': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': '%Meaning ',
                                         'tableEntry': ((item) => {return (item.review_statistics ? MeaningCorrect(item)+'%' : 'Unavailable')}),
                                         'tableEntryMarker': ((item) => {return (item.review_statistics ? MeaningCorrect(item)+'%' : 'Unavailable')}),
                                         'tooltipEntry':  ((item) => {return (item.review_statistics ? MeaningCorrect(item)+'%' : 'None')}),
@@ -3681,8 +4675,10 @@
                                         'freeFormText': false,
                                         'export': ((item) => {return (item.review_statistics ? MeaningCorrect(item)+'%' : 'Unavailable')}),
                                         'isDate': false, 'isList': false,
+                                        'reportValue': ((item) => {return (item.review_statistics ? MeaningCorrect(item) : 'Unavailable')}),
+                                        'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() +'%' : 'Unavailable')}),
                                        },
-                    'Reading_Correct': {'exists': ((item) => {return item.object !== 'radical'}), 'label': '%Reading ',
+                    'Reading_Correct': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': '%Reading ',
                                         'tableEntry': ((item) => {return (item.review_statistics ? ReadingCorrect(item)+'%' : 'Unavailable')}),
                                         'tableEntryMarker': ((item) => {return (item.review_statistics ? ReadingCorrect(item)+'%' : 'Unavailable')}),
                                         'tooltipEntry':  ((item) => {return (item.review_statistics ? ReadingCorrect(item)+'%' : 'Unavailable')}),
@@ -3697,8 +4693,10 @@
                                         'freeFormText': false,
                                         'export': ((item) => {return (item.review_statistics ? ReadingCorrect(item)+'%' : 'Unavailable')}),
                                         'isDate': false, 'isList': false,
+                                        'reportValue': ((item) => {return (item.review_statistics ? ReadingCorrect(item) : 'Unavailable')}),
+                                        'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() +'%': 'Unavailable')}),
                                        },
-                    'Percentage_Incorrect': {'exists': ((item) => {return true}), 'label': '%Inc.&nbsp;Total ',
+                    'Percentage_Incorrect': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': '%Inc.&nbsp;Total ',
                                            'tableEntry': ((item) => {return (item.review_statistics ? (100 - item.review_statistics.percentage_correct)+'%' : 'Unavailable')}),
                                            'tableEntryMarker': ((item) => {return (item.review_statistics ? (100 - item.review_statistics.percentage_correct)+'%' : 'Unavailable')}),
                                            'tooltipEntry':  ((item) => {return (item.review_statistics ? (100 - item.review_statistics.percentage_correct)+'%' : 'Unavailable')}),
@@ -3713,8 +4711,10 @@
                                            'freeFormText': false,
                                            'export': ((item) => {return (item.review_statistics ? (100 - item.review_statistics.percentage_correct)+'%' : 'Unavailable')}),
                                            'isDate': false, 'isList': false,
+                                           'reportValue': ((item) => {return (item.review_statistics ? (100 - item.review_statistics.percentage_correct) : 'Unavailable')}),
+                                           'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() +'%': 'Unavailable')}),
                                           },
-                    'Meaning_Incorrect': {'exists': ((item) => {return true}), 'label': '%Inc.&nbsp;Meaning ',
+                    'Meaning_Incorrect': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': '%Inc.&nbsp;Meaning ',
                                         'tableEntry': ((item) => {return (item.review_statistics ? (100 - MeaningCorrect(item))+'%' : 'Unavailable')}),
                                         'tableEntryMarker': ((item) => {return (item.review_statistics ? (100 - MeaningCorrect(item))+'%' : 'Unavailable')}),
                                         'tooltipEntry':  ((item) => {return (item.review_statistics ? (100 - MeaningCorrect(item))+'%' : 'None')}),
@@ -3728,8 +4728,10 @@
                                         'freeFormText': false,
                                         'export': ((item) => {return (item.review_statistics ? (100 - MeaningCorrect(item))+'%' : 'Unavailable')}),
                                         'isDate': false, 'isList': false,
+                                        'reportValue': ((item) => {return (item.review_statistics ? (100 - MeaningCorrect(item)) : 'Unavailable')}),
+                                        'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() +'%': 'Unavailable')}),
                                        },
-                    'Reading_Incorrect': {'exists': ((item) => {return item.object !== 'radical'}), 'label': '%Inc.&nbsp;Reading ',
+                    'Reading_Incorrect': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': '%Inc.&nbsp;Reading ',
                                         'tableEntry': ((item) => {return (item.review_statistics ? (100 - ReadingCorrect(item))+'%' : 'Unavailable')}),
                                         'tableEntryMarker': ((item) => {return (item.review_statistics ? (100 - ReadingCorrect(item))+'%' : 'Unavailable')}),
                                         'tooltipEntry':  ((item) => {return (item.review_statistics ? (100 - ReadingCorrect(item))+'%' : 'Unavailable')}),
@@ -3744,8 +4746,10 @@
                                         'freeFormText': false,
                                         'export': ((item) => {return (item.review_statistics ? (100 - ReadingCorrect(item))+'%' : 'Unavailable')}),
                                         'isDate': false, 'isList': false,
+                                        'reportValue': ((item) => {return (item.review_statistics ? (100 - ReadingCorrect(item)) : 'Unavailable')}),
+                                        'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() +'%': 'Unavailable')}),
                                        },
-                    'Meaning_Incorrect_Answers': {'exists': ((item) => {return true}), 'label': 'Mg&nbsp;Incor. ',
+                    'Meaning_Incorrect_Answers': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Mg&nbsp;Incor. ',
                                                   'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect : 'Unavailable')}),
                                                   'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect : 'Unavailable')}),
                                                   'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect : 'Unavailable')}),
@@ -3760,8 +4764,10 @@
                                                   'freeFormText': false,
                                                   'export': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect : 'Unavailable')}),
                                                   'isDate': false, 'isList': false,
+                                                  'reportValue': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect : 'Unavailable')}),
+                                                  'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                                  },
-                    'Meaning_Correct_Answers': {'exists': ((item) => {return true}), 'label': 'Mg&nbsp;Cor. ',
+                    'Meaning_Correct_Answers': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Mg&nbsp;Cor. ',
                                                 'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'Unavailable')}),
                                                 'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'Unavailable')}),
                                                 'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'Unavailable')}),
@@ -3776,8 +4782,10 @@
                                                 'freeFormText': false,
                                                 'export': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'Unavailable')}),
                                                 'isDate': false, 'isList': false,
+                                                'reportValue': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'Unavailable')}),
+                                                'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                                },
-                    'Meaning_Current_Streak': {'exists': ((item) => {return true}), 'label': 'Mg&nbsp;Cur.&nbsp;Str. ',
+                    'Meaning_Current_Streak': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Mg&nbsp;Cur.&nbsp;Streak ',
                                                'tableEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_current_streak - 1, 0) : 'Unavailable')}),
                                                'tableEntryMarker': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_current_streak - 1, 0) : 'Unavailable')}),
                                                'tooltipEntry':  ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_current_streak - 1, 0) : 'Unavailable')}),
@@ -3786,14 +4794,16 @@
                                                'sortkey2': leechScore,
                                                'sortOrder2': 'Descending',
                                                'wordCloud': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_current_streak - 1, 0): 'Unavailable')}),
-                                               'title': 'Meaning Cur. Str.',
-                                               'labelExport': 'Meaning Cur. Str: ',
+                                               'title': 'Mean. Cur. Streak',
+                                               'labelExport': 'Mean. Cur. Streak: ',
                                                'needQuotes': false,
                                                'freeFormText': false,
                                                'export': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_current_streak - 1, 0) : 'Unavailable')}),
                                                'isDate': false, 'isList': false,
+                                               'reportValue': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_current_streak - 1, 0) : 'Unavailable')}),
+                                               'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                               },
-                    'Meaning_Max_Streak': {'exists': ((item) => {return true}), 'label': 'Mg&nbsp;Max.&nbsp;Str. ',
+                    'Meaning_Max_Streak': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Mg&nbsp;Max.&nbsp;Streak ',
                                            'tableEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_max_streak - 1, 0) : 'Unavailable')}),
                                            'tableEntryMarker': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_max_streak - 1, 0) : 'Unavailable')}),
                                            'tooltipEntry':  ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_max_streak - 1, 0) : 'Unavailable')}),
@@ -3802,14 +4812,16 @@
                                            'sortkey2': leechScore,
                                            'sortOrder2': 'Descending',
                                            'wordCloud': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_max_streak - 1, 0) : 'Unavailable')}),
-                                           'title': 'Meaning Max. Str.',
-                                           'labelExport': 'Meaning Max. Str: ',
+                                           'title': 'Mean. Max. Streak',
+                                           'labelExport': 'Mean. Max. Streak: ',
                                            'needQuotes': false,
                                            'freeFormText': false,
                                            'export': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_max_streak - 1, 0) : 'Unavailable')}),
                                            'isDate': false, 'isList': false,
+                                           'reportValue': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_max_streak - 1, 0) : 'Unavailable')}),
+                                           'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                           },
-                    'Reading_Incorrect_Answers': {'exists': ((item) => {return item.object !== 'radical'}), 'label': 'Rg&nbsp;Incor. ',
+                    'Reading_Incorrect_Answers': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'Rg&nbsp;Incor. ',
                                                   'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : 'Unavailable')}),
                                                   'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : 'Unavailable')}),
                                                   'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : 'Unavailable')}),
@@ -3824,8 +4836,10 @@
                                                   'freeFormText': false,
                                                   'export': ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : 'Unavailable')}),
                                                   'isDate': false, 'isList': false,
+                                                  'reportValue': ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : 'Unavailable')}),
+                                                  'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                                  },
-                    'Reading_Correct_Answers': {'exists': ((item) => {return item.object !== 'radical'}), 'label': 'Rg&nbsp;Cor. ',
+                    'Reading_Correct_Answers': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'Rg&nbsp;Cor. ',
                                                 'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : 'Unavailable')}),
                                                 'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : 'Unavailable')}),
                                                 'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : 'Unavailable')}),
@@ -3840,8 +4854,10 @@
                                                 'freeFormText': false,
                                                 'export': ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : 'Unavailable')}),
                                                 'isDate': false, 'isList': false,
+                                                'reportValue': ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : 'Unavailable')}),
+                                                'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                                },
-                    'Reading_Current_Streak': {'exists': ((item) => {return item.object !== 'radical'}), 'label': 'Rg&nbsp;Cur.&nbsp;Str. ',
+                    'Reading_Current_Streak': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'Rg&nbsp;Cur.&nbsp;Streak ',
                                                'tableEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
                                                'tableEntryMarker': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
                                                'tooltipEntry':  ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
@@ -3850,14 +4866,16 @@
                                                'sortkey2': leechScore,
                                                'sortOrder2': 'Descending',
                                                'wordCloud': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
-                                               'title': 'Reading Cur. Str.',
-                                               'labelExport': 'Reading Cur. Str: ',
+                                               'title': 'Read. Cur. Streak',
+                                               'labelExport': 'Read. Cur. Streak: ',
                                                'needQuotes': false,
                                                'freeFormText': false,
                                                'export': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
                                                'isDate': false, 'isList': false,
+                                               'reportValue': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
+                                               'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                               },
-                    'Reading_Max_Streak': {'exists': ((item) => {return item.object !== 'radical'}), 'label': 'Rg&nbsp;Max.&nbsp;Str. ',
+                    'Reading_Max_Streak': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'Rg&nbsp;Max.&nbsp;Streak ',
                                            'tableEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
                                            'tableEntryMarker': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
                                            'tooltipEntry':  ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
@@ -3866,14 +4884,16 @@
                                            'sortkey2': leechScore,
                                            'sortOrder2': 'Descending',
                                            'wordCloud': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
-                                           'title': 'Reading Max. Str.',
-                                           'labelExport': 'Reading Max. Str: ',
+                                           'title': 'Read. Max. Streak',
+                                           'labelExport': 'Read. Max. Streak: ',
                                            'needQuotes': false,
                                            'freeFormText': false,
                                            'export': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
                                            'isDate': false, 'isList': false,
+                                           'reportValue': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
+                                           'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                           },
-                    'Minimum_Current_Streak': {'exists': ((item) => {return true}), 'label': 'Min&nbsp;Cur.&nbsp;Str. ',
+                    'Minimum_Current_Streak': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Min&nbsp;Cur.&nbsp;Streak ',
                                                'tableEntry': ((item) => {return (item.review_statistics ? Math.max(Math.min(item.review_statistics.reading_current_streak, item.review_statistics.meaning_current_streak) - 1, 0) : 'Unavailable')}),
                                                'tableEntryMarker': ((item) => {return (item.review_statistics ? Math.max(Math.min(item.review_statistics.reading_current_streak, item.review_statistics.meaning_current_streak) - 1, 0) : 'Unavailable')}),
                                                'tooltipEntry':  ((item) => {return (item.review_statistics ? Math.max(Math.min(item.review_statistics.reading_current_streak, item.review_statistics.meaning_current_streak) - 1, 0) : 'Unavailable')}),
@@ -3882,14 +4902,16 @@
                                                'sortkey2': leechScore,
                                                'sortOrder2': 'Descending',
                                                'wordCloud': ((item) => {return (item.review_statistics ? Math.max(Math.min(item.review_statistics.reading_current_streak, item.review_statistics.meaning_current_streak) - 1, 0) : 'Unavailable')}),
-                                               'title': 'Minimum Cur. Str.',
-                                               'labelExport': 'Minimum Cur. Str: ',
+                                               'title': 'Min. Cur. Streak',
+                                               'labelExport': 'Min. Cur. Streak: ',
                                                'needQuotes': false,
                                                'freeFormText': false,
                                                'export': ((item) => {return (item.review_statistics ? Math.max(Math.min(item.review_statistics.reading_current_streak, item.review_statistics.meaning_current_streak) - 1, 0) : 'Unavailable')}),
                                                'isDate': false, 'isList': false,
+                                               'reportValue': ((item) => {return (item.review_statistics ? Math.max(Math.min(item.review_statistics.reading_current_streak, item.review_statistics.meaning_current_streak) - 1, 0) : 'Unavailable')}),
+                                               'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                               },
-                    'Review_Count': {'exists': ((item) => {return true}), 'label': 'Nb&nbsp;of&nbsp;Reviews ',
+                    'Review_Count': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Nb&nbsp;of&nbsp;Reviews ',
                                               'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : 'None')}),
                                               'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : 'None')}),
                                               'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : 'None')}),
@@ -3904,12 +4926,14 @@
                                               'labelExport': 'Nb Reviews: ',
                                               'export': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : 'None')}),
                                               'isDate': false, 'isList': false,
+                                              'reportValue': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) :0)}),
+                                              'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                              },
 
                       // ----------------------------
                       // Dates
 
-                    'Last_Review_Date': {'exists': ((item) => {return true}), 'label': 'Last&nbsp;Review ',
+                    'Last_Review_Date': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Last&nbsp;Review ',
                                     'tableEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? makeLastReview(item) : 'Not yet') : 'Not yet')}),
                                     'tableEntryMarker': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? makeLastReviewMarker(item) : 'Not yet') : 'Not yet')}),
                                     'tooltipEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? makeLastReview(item) : 'Not yet') : 'Not yet')}),
@@ -3924,8 +4948,20 @@
                                     'freeFormText': false,
                                     'export': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? makeLastReviewForExport(item) : 'Not yet') : 'Not yet')}),
                                     'isDate': true, 'isList': false,
+                                    'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? makeLastReviewSortKey(item, true) : 'Unavailable') : 'Unavailable')}),
+                                    'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
                                    },
-                    'Review_Date': {'exists': ((item) => {return true}), 'label': 'Next&nbsp;Review ',
+                    'Last_Review_Monthly': {'exists': ((item) => {return item.object !== 'trad_rad'}),
+                                            'sortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? makeLastReviewSortKey(item, false) : theFuture) : theFuture)}),
+                                            'sortOrder': 'Ascending',
+                                            'sortkey2': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined? item.assignments.srs_stage : 10) : 10)}),
+                                            'sortOrder2': 'Ascending',
+                                            'title': 'Last Review',
+                                            'isDate': true, 'isDateMonthly': true,
+                                            'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? makeLastReviewSortKey(item, true) : 'Unavailable') : 'Unavailable')}),
+                                            'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
+                                           },
+                    'Review_Date': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Next&nbsp;Review ',
                                     'tableEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? makeDate(item) : 'Unscheduled') : 'Unscheduled')}),
                                     'tableEntryMarker': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? makeDateMarker(item) : 'Unscheduled') : 'Unscheduled')}),
                                     'tooltipEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? makeDate(item) : 'Unscheduled') : 'Unscheduled')}),
@@ -3934,14 +4970,26 @@
                                     'sortkey2': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined? item.assignments.srs_stage : 10) : 10)}),
                                     'sortOrder2': 'Ascending',
                                     'preciseSortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? Date.parse(item.assignments.available_at) : theFuture) : theFuture)}),
-                                    'title': 'Review Date',
-                                    'labelExport': 'Review Date: ',
+                                    'title': 'Next Review',
+                                    'labelExport': 'Next Review: ',
                                     'needQuotes': false,
                                     'freeFormText': false,
                                     'export': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? forExportDate(item.assignments.available_at) : 'Unscheduled') : 'Unscheduled')}),
                                     'isDate': true, 'isList': false,
+                                    'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? Date.parse(item.assignments.available_at) : 'Unavailable') : 'Unavailable')}),
+                                    'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
                                    },
-                    'Review_Wait': {'exists': ((item) => {return true}), 'label': 'Wait ',
+                    'Review_Monthly': {'exists': ((item) => {return item.object !== 'trad_rad'}),
+                                       'sortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? trimDate(Date.parse(item.assignments.available_at)) : theFuture) : theFuture)}),
+                                       'sortOrder': 'Ascending',
+                                       'sortkey2': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined? item.assignments.srs_stage : 10) : 10)}),
+                                       'sortOrder2': 'Ascending',
+                                       'title': 'Next Review',
+                                       'isDate': true, 'isDateMonthly': true,
+                                       'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? Date.parse(item.assignments.available_at) : 'Unavailable') : 'Unavailable')}),
+                                       'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
+                                      },
+                    'Review_Wait': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Wait ',
                                     'tableEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? reviewWait(item) : 'Unscheduled') : 'Unscheduled')}),
                                     'tableEntryMarker': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? reviewWait(item) : 'Unscheduled') : 'Unscheduled')}),
                                     'tooltipEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? reviewWait(item) : 'Unscheduled') : 'Unscheduled')}),
@@ -3957,11 +5005,11 @@
                                     'export': ((item) => 'None'),
                                     'isDate': true, 'isList': false,
                                    },
-                    'Passed_Date': {'exists': ((item) => {return true}), 'label': 'Passed ',
+                    'Passed_Date': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Passed ',
                                     'tableEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.passed_at != undefined ? makePassedDate(item) : 'Not yet') : 'Not yet')}),
                                     'tableEntryMarker': ((item) => {return (item.assignments != undefined ? (item.assignments.passed_at != undefined ? makePassedDateMarker(item) : 'Not yet') : 'Not yet')}),
                                     'tooltipEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.passed_at != undefined ? makePassedDate(item) : 'Not yet') : 'Not yet')}),
-                                    'sortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.passed_at != undefined ? trimDate(Date.parse(item.assignments.passed_at)) : 0) : 0)}),
+                                    'sortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.passed_at != undefined ? trimDate(Date.parse(item.assignments.passed_at)) : theFuture) : theFuture)}),
                                     'sortOrder': 'Ascending',
                                     'sortkey2': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined ? item.assignments.srs_stage : 10) : 10)}),
                                     'sortOrder2': 'Ascending',
@@ -3972,12 +5020,24 @@
                                     'freeFormText': false,
                                     'export': ((item) => {return (item.assignments != undefined ? (item.assignments.passed_at != undefined ? forExportDate(item.assignments.passed_at) : 'Not yet') : 'Not yet')}),
                                     'isDate': true, 'isList': false,
+                                    'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.passed_at != undefined ? Date.parse(item.assignments.passed_at) : 'Unavailable') : 'Unavailable')}),
+                                    'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
                                    },
-                    'Burned_Date': {'exists': ((item) => {return true}), 'label': 'Burned ',
+                    'Passed_Monthly': {'exists': ((item) => {return item.object !== 'trad_rad'}),
+                                       'sortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.passed_at != undefined ? trimDate(Date.parse(item.assignments.passed_at)) : theFuture) : theFuture)}),
+                                       'sortOrder': 'Ascending',
+                                       'sortkey2': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined ? item.assignments.srs_stage : 10) : 10)}),
+                                       'sortOrder2': 'Ascending',
+                                       'title': 'Passed Guru',
+                                       'isDate': true, 'isDateMonthly': true,
+                                       'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.passed_at != undefined ? Date.parse(item.assignments.passed_at) : 'Unavailable') : 'Unavailable')}),
+                                       'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
+                                      },
+                    'Burned_Date': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Burned ',
                                     'tableEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.burned_at != undefined ? makeBurnedDate(item) : 'Not yet') : 'Not yet')}),
                                     'tableEntryMarker': ((item) => {return (item.assignments != undefined ? (item.assignments.burned_at != undefined ? makeBurnedDateMarker(item) : 'Not yet') : 'Not yet')}),
                                     'tooltipEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.burned_at != undefined ? makeBurnedDate(item) : 'Not yet') : 'Not yet')}),
-                                    'sortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.burned_at != undefined ? trimDate(Date.parse(item.assignments.burned_at)) : 0) : 0)}),
+                                    'sortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.burned_at != undefined ? trimDate(Date.parse(item.assignments.burned_at)) : theFuture) : theFuture)}),
                                     'sortOrder': 'Ascending',
                                     'sortkey2': ((item) => {return item.data.level}),
                                     'sortOrder2': 'Ascending',
@@ -3988,8 +5048,20 @@
                                     'freeFormText': false,
                                     'export': ((item) => {return (item.assignments != undefined ? (item.assignments.burned_at != undefined ? forExportDate(item.assignments.burned_at) : 'Not yet') : 'Not yet')}),
                                     'isDate': true, 'isList': false,
+                                    'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.burned_at != undefined ? Date.parse(item.assignments.burned_at) : 'Unavailable') : 'Unavailable')}),
+                                    'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
                                    },
-                    'Resurrected_Date': {'exists': ((item) => {return true}), 'label': 'Resurrected ',
+                    'Burned_Monthly': {'exists': ((item) => {return item.object !== 'trad_rad'}),
+                                       'sortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.burned_at != undefined ? trimDate(Date.parse(item.assignments.burned_at)) : theFuture) : theFuture)}),
+                                       'sortOrder': 'Ascending',
+                                       'sortkey2': ((item) => {return item.data.level}),
+                                       'sortOrder2': 'Ascending',
+                                       'title': 'Burned',
+                                       'isDate': true, 'isDateMonthly': true,
+                                       'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.burned_at != undefined ? Date.parse(item.assignments.burned_at) : 'Unavailable') : 'Unavailable')}),
+                                       'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
+                                      },
+                    'Resurrected_Date': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Resurrected ',
                                          'tableEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.resurrected_at != undefined ? makeResurrectedDate(item) : 'Not yet') : 'Not yet')}),
                                          'tableEntryMarker': ((item) => {return (item.assignments != undefined ? (item.assignments.resurrected_at != undefined ? makeResurrectedDateMarker(item) : 'Not yet') : 'Not yet')}),
                                          'tooltipEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.resurrected_at != undefined ? makeResurrectedDate(item) : 'Not yet') : 'Not yet')}),
@@ -4004,8 +5076,20 @@
                                          'freeFormText': false,
                                          'export': ((item) => {return (item.assignments != undefined ? (item.assignments.resurrected_at != undefined ? forExportDate(item.assignments.resurrected_at) : 'Not yet') : 'Not yet')}),
                                          'isDate': true, 'isList': false,
-                                        },
-                    'Lesson_Date': {'exists': ((item) => {return true}), 'label': 'Lesson ',
+                                         'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.resurrected_at != undefined ? Date.parse(item.assignments.resurrected_at) : 'Unavailable') : 'Unavailable')}),
+                                         'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
+                                         },
+                    'Resurrected_Monthly': {'exists': ((item) => {return item.object !== 'trad_rad'}),
+                                            'sortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.resurrected_at != undefined ? trimDate(Date.parse(item.assignments.resurrected_at)).toDateString() : 0) : 0)}),
+                                            'sortOrder': 'Ascending',
+                                            'sortkey2': ((item) => {return item.data.level}),
+                                            'sortOrder2': 'Ascending',
+                                            'title': 'Resurrected',
+                                            'isDate': true, 'isDateMonthly': true,
+                                            'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.resurrected_at != undefined ? Date.parse(item.assignments.resurrected_at) : 'Unavailable') : 'Unavailable')}),
+                                            'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
+                                           },
+                    'Lesson_Date': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Lesson ',
                                     'tableEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.started_at != undefined ? makeLessonDate(item) : 'Not yet') : 'Not yet')}),
                                     'tableEntryMarker': ((item) => {return (item.assignments != undefined ? (item.assignments.started_at != undefined ? makeLessonDateMarker(item) : 'Not yet') : 'Not yet')}),
                                     'tooltipEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.started_at != undefined ? makeLessonDate(item) : 'Not yet') : 'Not yet')}),
@@ -4020,8 +5104,20 @@
                                     'freeFormText': false,
                                     'export': ((item) => {return (item.assignments != undefined ? (item.assignments.started_at != undefined ? forExportDate(item.assignments.started_at) : 'Not yet') : 'Not yet')}),
                                     'isDate': true, 'isList': false,
+                                    'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.started_at != undefined ? Date.parse(item.assignments.started_at) : 'Unavailable') : 'Unavailable')}),
+                                    'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
                                    },
-                    'Unlock_Date': {'exists': ((item) => {return true}), 'label': 'Unlock ',
+                    'Lesson_Monthly': {'exists': ((item) => {return item.object !== 'trad_rad'}),
+                                       'sortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.started_at ? trimDate(Date.parse(item.assignments.started_at)) : theFuture) : theFuture)}),
+                                       'sortOrder': 'Ascending',
+                                       'sortkey2': ((item) => {return item.data.level}),
+                                       'sortOrder2': 'Ascending',
+                                       'title': 'Lesson',
+                                       'isDate': true, 'isDateMonthly': true,
+                                       'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.started_at != undefined ? Date.parse(item.assignments.started_at) : 'Unavailable') : 'Unavailable')}),
+                                       'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
+                                      },
+                    'Unlock_Date': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Unlock ',
                                     'tableEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.unlocked_at != undefined ? makeUnlockDate(item) : 'Not yet') : 'Not yet')}),
                                     'tableEntryMarker': ((item) => {return (item.assignments != undefined ? (item.assignments.unlocked_at != undefined ? makeUnlockDateMarker(item) : 'Not yet') : 'Not yet')}),
                                     'tooltipEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.unlocked_at != undefined ? makeUnlockDate(item) : 'Not yet') : 'Not yet')}),
@@ -4036,19 +5132,31 @@
                                     'freeFormText': false,
                                     'export': ((item) => {return (item.assignments != undefined ? (item.assignments.unlocked_at != undefined ? forExportDate(item.assignments.unlocked_at) : 'Not yet') : 'Not yet')}),
                                     'isDate': true, 'isList': false,
-                                   },
+                                    'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.unlocked_at != undefined ? Date.parse(item.assignments.unlocked_at) : 'Unavailable') : 'Unavailable')}),
+                                    'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
+                                    },
+                    'Unlock_Monthly': {'exists': ((item) => {return item.object !== 'trad_rad'}),
+                                       'sortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.unlocked_at ? trimDate(Date.parse(item.assignments.unlocked_at)) : theFuture) : theFuture)}),
+                                       'sortOrder': 'Ascending',
+                                       'sortkey2': ((item) => {return item.data.level}),
+                                       'sortOrder2': 'Ascending',
+                                       'title': 'Unlock',
+                                       'isDate': true, 'isDateMonthly': true,
+                                       'reportValue': ((item) => {return (item.assignments != undefined ? (item.assignments.unlocked_at != undefined ? Date.parse(item.assignments.unlocked_at) : 'Unavailable') : 'Unavailable')}),
+                                       'reportString': ((num) => {return (typeof num === 'number' ? formatDate(new Date(Math.round(num)), false, true) : 'Not Yet')}),
+                                      },
 
                       // ----------------------------
                       // Related Items
 
-                    'Used_In': {'exists': ((item) => {return (item.object === 'radical' || item.object === 'kanji')}), 'label': 'Used&nbsp;In',
+                    'Used_In': {'exists': ((item) => {return (item.object !== 'vocabulary')}), 'label': 'Used&nbsp;In',
                                 'title': 'Used In',
                                 'labelExport': 'Used In: ',
                                 'needQuotes': true,
                                 'freeFormText': false,
-                                'export': ((item) => {return (item.object === 'radical' ? makeNameListBySubjectKan(item.data.amalgamation_subject_ids) : makeNameListBySubjectVoc(item.data.amalgamation_subject_ids))}),
-                                'itemList': ((item)=>{return (item.object === 'radical' ? makeItemListKan(item.data.amalgamation_subject_ids) : makeItemListVoc(item.data.amalgamation_subject_ids))}),
-                                'idList': ((item)=>(item.object === 'radical' || item.object === 'kanji' ? item.data.amalgamation_subject_ids : [])),
+                                'export': makeUsedInListBySubject,
+                                'itemList': makeUsedInItemList,
+                                'idList': makeSubjectIdUsedInList,
                                 'isDate': false, 'isList': true,
                                },
                     'Components': {'exists': ((item) => {return (item.object === 'kanji' || item.object === 'vocabulary')}), 'label': 'Components',
@@ -4071,7 +5179,7 @@
                                       'idList': ((item)=>(item.object === 'kanji' ? item.data.visually_similar_subject_ids : [])),
                                       'isDate': false, 'isList': true,
                                      },
-                    'Lars_Yencken':  {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Vis.&nbsp;Sim.&nbsp;LY',
+                    'Lars_Yencken': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Vis.&nbsp;Sim.&nbsp;LY',
                                      'title': 'Vis. Sim. Kanjis LY',
                                      'labelExport': 'Vis. Sim. Kanjis LY: ',
                                      'needQuotes': true,
@@ -4081,7 +5189,7 @@
                                      'idList': ((item)=>{return makeIdListVisSimKan(visuallySimilarData[item.data.characters])}),
                                      'isDate': false, 'isList': true,
                                     },
-                    'Niai':  {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Vis.&nbsp;Sim.&nbspNiai',
+                    'Niai': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Vis.&nbsp;Sim.&nbspNiai',
                                      'title': 'Vis. Sim. Kanjis Niai',
                                      'labelExport': 'Vis. Sim. Kanjis Niai: ',
                                      'needQuotes': true,
@@ -4089,6 +5197,16 @@
                                      'export': ((item) => {return makeKanjiListNiai(item.data.characters)}),
                                      'itemList': ((item)=>{return makeItemListVisSimNiai(item.data.characters)}),
                                      'idList': ((item)=>{return makeIdListVisSimNiai(item.data.characters)}),
+                                     'isDate': false, 'isList': true,
+                                    },
+                    'trad_rad': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Traditional&nbsp;Radicals',
+                                     'title': 'Traditional Radicals',
+                                     'labelExport': 'Traditional Radicals: ',
+                                     'needQuotes': true,
+                                     'freeFormText': false,
+                                     'export': makeTradRadList,
+                                     'itemList': makeItemTradRadList,
+                                     'idList': makeIdListTradRad,
                                      'isDate': false, 'isList': true,
                                     },
 
@@ -4104,7 +5222,7 @@
                                        'export': ((item) => {return item.data.parts_of_speech.join(', ')}),
                                        'isDate': false, 'isList': true,
                                       },
-                    'Block_List': {'exists': ((item) => {return true}), 'label': 'Block&nbsp;List',
+                    'Block_List': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Block&nbsp;List',
                                    'tooltipEntry':  ((item) => {return makeAuxMeaningList(item.data.auxiliary_meanings, 'blacklist')}),
                                    'sortkey':  ((item) => {return 0}),
                                    'sortOrder': 'Ascending',
@@ -4117,7 +5235,7 @@
                                    'export': ((item) => {return makeAuxMeaningList(item.data.auxiliary_meanings, 'blacklist')}),
                                    'isDate': false, 'isList': true,
                                   },
-                    'Allow_List': {'exists': ((item) => {return true}), 'label': 'Allow&nbsp;List',
+                    'Allow_List': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Allow&nbsp;List',
                                    'tooltipEntry':  ((item) => {return makeAuxMeaningList(item.data.auxiliary_meanings, 'whitelist')}),
                                    'sortkey':  ((item) => {return 0}),
                                    'sortOrder': 'Ascending',
@@ -4130,9 +5248,9 @@
                                    'export': ((item) => {return makeAuxMeaningList(item.data.auxiliary_meanings, 'whitelist')}),
                                    'isDate': false, 'isList': true,
                                   },
-                    'Joyo': {'exists': ((item) => {return item.object !== 'radical'}), 'label': 'Joyo',
-                                   'tableEntry':  makeJoyoData,
-                                   'tableEntryMarker':  makeJoyoData,
+                    'Joyo': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'Joyo',
+                                   'tableEntry':  makeJoyoData || "Unavailable",
+                                   'tableEntryMarker':  makeJoyoData || "Unavailable",
                                    'tooltipEntry':  makeJoyoData,
                                    'sortkey':  makeJoyoSortData,
                                    'sortOrder': 'Ascending',
@@ -4142,12 +5260,14 @@
                                    'labelExport': 'Joyo Grade: ',
                                    'needQuotes': false,
                                    'freeFormText': false,
-                                   'export': makeJoyoData,
+                                   'export': makeJoyoData || "Unavailable",
                                    'isDate': false, 'isList': true,
+                                   'reportValue': makeJoyoReportValue,
+                                   'reportString': ((num) => {return (typeof num === 'number' ? Math.round(num).toString(): 'Unavailable')}),
                                   },
-                    'JLPT': {'exists': ((item) => {return item.object !== 'radical'}), 'label': 'JLPT',
-                                   'tableEntry':  makeJlptData,
-                                   'tableEntryMarker':  makeJlptData,
+                    'JLPT': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'JLPT',
+                                   'tableEntry':  makeJlptData || "Unavailable",
+                                   'tableEntryMarker':  makeJlptData || "Unavailable",
                                    'tooltipEntry':  makeJlptData,
                                    'sortkey': makeJlptSortData,
                                    'sortOrder': 'Descending',
@@ -4157,12 +5277,14 @@
                                    'labelExport': 'JLPT: ',
                                    'needQuotes': false,
                                    'freeFormText': false,
-                                   'export': makeJlptData,
+                                   'export': makeJlptData || "Unavailable",
                                    'isDate': false, 'isList': true,
+                                   'reportValue': makeJlptReportValue,
+                                   'reportString': ((num) => {return (typeof num === 'number' ? 'N' + Math.round(num).toString(): 'Unavailable')}),
                                   },
-                    'Frequency': {'exists': ((item) => {return item.object !== 'radical'}), 'label': 'Frequency',
-                                   'tableEntry':  makeFrequencyData,
-                                   'tableEntryMarker':  makeFrequencyData,
+                    'Frequency': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'Frequency',
+                                   'tableEntry':  makeFrequencyData || "Unavailable",
+                                   'tableEntryMarker':  makeFrequencyData || "Unavailable",
                                    'tooltipEntry':  makeFrequencyData,
                                    'sortkey': makeFrequencySortData,
                                    'sortOrder': 'Ascending',
@@ -4172,19 +5294,39 @@
                                    'labelExport': 'Frequency: ',
                                    'needQuotes': false,
                                    'freeFormText': false,
-                                   'export': makeFrequencyData,
+                                   'export': makeFrequencyData || "Unavailable",
                                    'isDate': false, 'isList': true,
+                                   'reportValue': makeFrequencyReportValue,
+                                   'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(num / 500) * 500).toString(): 'Unavailable')}),
                                   },
+                    'Stroke_Count': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'trad_rad'}), 'label': 'Stroke&nbsp;Count',
+                                   'tableEntry':  makeStrokeCountData || "Unavailable",
+                                   'tableEntryMarker':  makeStrokeCountData || "Unavailable",
+                                   'tooltipEntry':  makeStrokeCountData,
+                                   'sortkey': ((item) => ((item.object === 'kanji' || item.object === 'trad_rad') ? makeStrokeCountData(item) : infinity)),
+                                   'sortOrder': 'Ascending',
+                                   'sortkey2':  ((item) => {return item.data.level}),
+                                   'sortOrder2': 'Ascending',
+                                   'title': 'Stroke Count',
+                                   'labelExport': 'Stroke Count: ',
+                                   'needQuotes': false,
+                                   'freeFormText': false,
+                                   'export': makeStrokeCountData || "Unavailable",
+                                   'isDate': false, 'isList': true,
+                                   'reportValue': ((item) => {return Number(makeStrokeCountData(item)) || "Unavailable"}),
+                                   'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
+                                   },
+
 
                     // -------------------------
                     // Export only info
 
-                    'Item_Page': {'exists': ((item) => {return true}),
+                    'Item_Page': {'exists': ((item) => {return item.object !== 'trad_rad'}),
                                   'title': 'Item Page URL',
                                   'labelExport': '',
                                   'needQuotes': false,
                                   'freeFormText': false,
-                                  'export': ((item) => {return item.data.document_url}),
+                                  'export': ((item) => {return item.data.document_url || "Unavailable"}),
                                   'isDate': false, 'isList': false,
                                  },
                     'Export_Date': {'exists': ((item) => {return true}),
@@ -4197,10 +5339,10 @@
                                    },
 
                     // --------------------------------------------------------
-                    // The following data is export only for metadata purposes
+                    // For *metadata purposes* the following data is configured for export only
                     // They are available in popups through dedicated helper functions for producing popups
 
-                    'mMnemonics': {'exists': ((item) => {return true}),
+                    'mMnemonics': {'exists': ((item) => {return item.object !== 'trad_rad'}),
                                    'title': 'Meaning Mnemonics',
                                    'labelExport': 'Meaning Mnemonic: ',
                                    'needQuotes': true,
@@ -4208,7 +5350,7 @@
                                    'export': ((item) => {return item.data.meaning_mnemonic}),
                                    'isDate': false, 'isList': false,
                                    },
-                    'rMnemonics': {'exists': ((item) => {return item.object !== 'radical'}),
+                    'rMnemonics': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}),
                                    'title': 'Reading Mnemonics',
                                    'labelExport': 'Reading Mnemonic: ',
                                    'needQuotes': true,
@@ -4240,7 +5382,7 @@
                                           'export': ((item) => {return (item.data.context_sentences && item.data.context_sentences !== 0 ? item.data.context_sentences : "Unavailable")}),
                                           'isDate': false, 'isList': true,
                                           },
-                    'mNotes': {'exists': ((item) => {return true}),
+                    'mNotes': {'exists': ((item) => {return item.object !== 'trad_rad'}),
                                'title': 'Meaning Notes',
                                'labelExport': 'Meaning Note: ',
                                'needQuotes': true,
@@ -4248,7 +5390,7 @@
                                'export': ((item) => {return (item.study_materials !== undefined ? (item.study_materials.meaning_note ? item.study_materials.meaning_note : 'Unavailable') : 'Unavailable')}),
                                'isDate': false, 'isList': false,
                                },
-                    'rNotes': {'exists': ((item) => {return true}),
+                    'rNotes': {'exists': ((item) => {return item.object !== 'trad_rad'}),
                                'title': 'Reading Notes',
                                'labelExport': 'Reading Note: ',
                                'needQuotes': true,
@@ -4256,7 +5398,7 @@
                                'export': ((item) => {return (item.study_materials !== undefined ? (item.study_materials.reading_note? item.study_materials.reading_note : 'Unavailable') : 'Unavailable')}),
                                'isDate': false, 'isList': false,
                                },
-                    'Synonyms': {'exists': ((item) => {return true}),
+                    'Synonyms': {'exists': ((item) => {return item.object !== 'trad_rad'}),
                                 'title': 'User Synonyms',
                                 'labelExport': 'User Synonym: ',
                                 'needQuotes': true,
@@ -4280,7 +5422,31 @@
       var dNum = d.getTime();
       if(!dNum && dNum !== 0) return false; // NaN value, Invalid date
       return d.toISOString().slice(0,10) === dateString;
-    }
+    };
+
+    function makeTradRadList(item){
+        if (kanjidic2Data[item.data.characters] === undefined) return [];
+        return kanjidic2Data[item.data.characters].radicals;
+    };
+
+    function makeItemTradRadList(item){
+        if (kanjidic2Data[item.data.characters] === undefined) return [];
+        return kanjidic2Data[item.data.characters].radicals.map((rad) => traditionalRadicals[rad]);
+    };
+
+    function makeIdListTradRad(item){
+        if (kanjidic2Data[item.data.characters] === undefined) return [];
+        return kanjidic2Data[item.data.characters].radicals.map((rad) => traditionalRadicals[rad].id);
+    };
+
+    function makeStrokeCountData(item){
+        if (item.object !== 'kanji' && item.object !== 'trad_rad'){
+            return 'Unavailable';
+        };
+        if (item.object === 'kanji' && kanjidic2Data[item.data.characters] !== undefined) {return kanjidic2Data[item.data.characters].stroke_count;};
+        if (item.object === 'trad_rad' && item.data.stroke_count !== undefined){return item.data.stroke_count;}
+        return 'Unavailable';
+    };
 
     function nameItem(item){
         return (item.data.characters === null ? item.data.slug : item.data.characters);
@@ -4289,32 +5455,68 @@
     function makeNameListBySubjectRad(subjectArray){
         if (subjectArray.length === 0)return '-Empty-';
         return subjectArray.map((id) => nameItem(subjectIndexRad[id]));
-    }
+    };
 
     function makeNameListBySubjectKan(subjectArray){
         if (subjectArray.length === 0)return '-Empty-';
         return subjectArray.map((id) => nameItem(subjectIndexKan[id]));
-    }
+    };
 
     function makeNameListBySubjectVoc(subjectArray){
         if (subjectArray.length === 0)return '-Empty-';
         return subjectArray.map((id) => nameItem(subjectIndexVoc[id]));
-    }
+    };
+
+    function makeUsedInListBySubject(item){
+        switch (item.object){
+            case 'kanji':
+                return makeNameListBySubjectVoc(item.data.amalgamation_subject_ids);
+            case 'radical':
+                return makeNameListBySubjectKan(item.data.amalgamation_subject_ids);
+            case 'trad_rad':
+               if (item.data.kanji.length === 0)return '';
+               return item.data.kanji;
+        };
+    };
+
 
     function makeItemListRad(subjectArray){
         if (subjectArray === undefined){return []};
         return subjectArray.map((id) => {return subjectIndexRad[id]});
-    }
+    };
 
     function makeItemListKan(subjectArray){
         if (subjectArray === undefined){return []};
         return subjectArray.map((id) => {return subjectIndexKan[id]});
-    }
+    };
 
     function makeItemListVoc(subjectArray){
         if (subjectArray === undefined){return []};
         return subjectArray.map((id) => {return subjectIndexVoc[id]});
-    }
+    };
+
+    function makeUsedInItemList(item){
+        let x;
+        switch (item.object){
+            case 'kanji':
+                return makeItemListVoc(item.data.amalgamation_subject_ids);
+            case 'radical':
+                return makeItemListKan(item.data.amalgamation_subject_ids);
+            case 'trad_rad':
+                x = item.data.kanji.map((kan) => {return kanjiIndex[kan]});
+                return x;
+        };
+    };
+
+    function makeSubjectIdUsedInList(item){
+        switch (item.object){
+            case 'kanji':
+            case 'radical':
+                return item.data.amalgamation_subject_ids;
+            case 'trad_rad':
+                return item.data.kanji.map((kan) => kanjiIndex[kan].id);
+        };
+    };
 
     function MeaningCorrect(item){
         let stats = item.review_statistics;
@@ -4323,8 +5525,8 @@
             return 100
         } else {
             return Math.floor(100 * stats.meaning_correct / denominator)
-        }
-    }
+        };
+    };
 
     function ReadingCorrect(item){
         let stats = item.review_statistics;
@@ -4333,8 +5535,8 @@
             return 100
         } else {
             return Math.floor(100 * stats.reading_correct / denominator)
-        }
-    }
+        };
+    };
 
     function leechScore(item){
         if (item.review_statistics != undefined){
@@ -4343,19 +5545,19 @@
             let readingScore = getLeechScore(reviewStats.reading_incorrect, reviewStats.reading_current_streak);
 
             return Math.max(meaningScore, readingScore);
-        } else {return 0}
-    }
+        } else {return 0};
+    };
 
     function getLeechScore(incorrect, currentStreak) {
         //get incorrect number than lessen it using the user's correctStreak
         let leechScore = incorrect / Math.pow((currentStreak || 0.5), 1.5); // '||' => if currentstreak zero make 0.5 instead (prevents dividing by zero)
         leechScore = Math.round(leechScore * 100) / 100; //round to two decimals
         return leechScore;
-    }
+    };
 
     function reviewWait(item){
         return (Date.parse(item.assignments.available_at) < Date.now() ? 'Now' : s_to_dhm((Date.parse(item.assignments.available_at)-Date.now())/1000))
-    }
+    };
 
     // Converts seconds to days, hours, and minutes
     function s_to_dhm(s) {
@@ -4363,15 +5565,15 @@
         var h = Math.floor(s%(60*60*24)/60/60);
         var m = Math.ceil(s%(60*60*24)%(60*60)/60);
         return (d>0?d+'d ':'')+(h>0?h+'h ':'')+(m>0?m+'m':'1m');
-    }
+    };
 
     function makeDate(item){
         return formatDate(new Date(item.assignments.available_at), true, /* is_next_date */);
-    }
+    };
 
     function makeDateMarker(item){
         return formatDateMarker(new Date(item.assignments.available_at), true, /* is_next_date */);
-    }
+    };
 
     const regularSrsIntervals = [0, 4, 8, 23, 47, 167, 335, 719, 2879];
     const acceleratedSrsIntervals = [0, 2, 4, 8, 23, 167, 335, 719, 2879];
@@ -4382,71 +5584,71 @@
         let srsInvervals = acceleratedLevels.includes(item.data.level) ? acceleratedSrsIntervals : regularSrsIntervals;
 		let deltaTime = parseInt(srsInvervals[srsStage]) * 1000 * 60 * 60; // convert hours to in milliseconds
         return new Date(item.assignments.available_at) - deltaTime;
-    }
+    };
 
     function makeLastReview(item){
         let lastReviewTime = computeLastReviewDate(item);
         return lastReviewTime === -infinity ? 'Not Yet' : formatDate(new Date(lastReviewTime), false);
-    }
+    };
 
     function makeLastReviewMarker(item){
         let lastReviewTime = computeLastReviewDate(item);
         return lastReviewTime === -infinity ? 'Not Yet' : formatDateMarker(new Date(lastReviewTime));
-    }
+    };
 
     function makeLastReviewSortKey(item, precise){
         let lastReviewTime = computeLastReviewDate(item);
         return precise ? lastReviewTime : trimDate(lastReviewTime);
-    }
+    };
 
     function makeLastReviewForExport(item){
         let lastReviewTime = computeLastReviewDate(item);
         return lastReviewTime === -infinity ? 'Not Yet' : forExportDate(lastReviewTime);
-    }
+    };
 
     function makePassedDate(item){
         return formatDate(new Date(item.assignments.passed_at), false, /* is_next_date */);
-    }
+    };
 
     function makePassedDateMarker(item){
         return formatDateMarker(new Date(item.assignments.passed_at), false, /* is_next_date */);
-    }
+    };
 
     function makeBurnedDate(item){
         return formatDate(new Date(item.assignments.burned_at), false, /* is_next_date */);
-    }
+    };
 
     function makeBurnedDateMarker(item){
         return formatDateMarker(new Date(item.assignments.burned_at), false, /* is_next_date */);
-    }
+    };
 
     function makeResurrectedDate(item){
         return formatDate(new Date(item.assignments.resurrected_at), false, /* is_next_date */);
-    }
+    };
 
     function makeResurrectedDateMarker(item){
         return formatDateMarker(new Date(item.assignments.resurrected_at), false, /* is_next_date */);
-    }
+    };
 
     function makeLessonDate(item){
         return formatDate(new Date(item.assignments.started_at), false, /* is_next_date */);
-    }
+    };
 
     function makeLessonDateMarker(item){
         return formatDateMarker(new Date(item.assignments.started_at), false, /* is_next_date */);
-    }
+    };
 
     function makeUnlockDate(item){
         return formatDate(new Date(item.assignments.unlocked_at), false, /* is_next_date */);
-    }
+    };
 
     function makeUnlockDateMarker(item){
         return formatDateMarker(new Date(item.assignments.unlocked_at), false, /* is_next_date */);
-    }
+    };
 
     function forExportDate(date) {
         return new Date(date).toISOString().slice(0, 16).replace('T', ' ');
-    }
+    };
 
     function formatDateMarker(date) {
         var YY = ''+date.getFullYear(),
@@ -4463,10 +5665,10 @@
                 s += ' '+('0'+hh).slice(-2)+':'+('0'+mm).slice(-2);
             } else {
                 s += ' '+(((hh+11)%12)+1)+':'+('0'+mm).slice(-2)+['am','pm'][Math.floor(date.getHours()/12)];
-            }
+            };
         };
         return s;
-    }
+    };
 
     function today() {
         var d = new Date(),
@@ -4481,7 +5683,7 @@
         if (hh.length < 2) hh = '0' + hh;
         if (mm.length < 2) mm = '0' + mm;
         return [year, month, day].join('-') + ' ' + hh + ':' + mm;
-    }
+    };
 
     //========================================================================
     // Print date in pretty format.
@@ -4504,7 +5706,7 @@
         if (same_day) {
             s += 'Today ';
         } else if (show_year){
-            s += d.toISOString().slice(10);
+            s += d.toISOString().slice(0, 10) + ' ';
         } else {
             s += ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+', '+
                 ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][MM]+' '+DD+', ';
@@ -4534,6 +5736,7 @@
 
     function meaningsFull(item){
         // make sure meanings are returned in the order WK provides them, but primary comes first
+        if (item.data.meanings.length === 0) return '';
         var meanings = "";
         var meaningsPrimary = "";
         for (var k = 0; k < item.data.meanings.length; k++){
@@ -4557,6 +5760,7 @@
 
 
     function meaningsBrief(item){
+        if (item.data.meanings.length === 0) return '';
         var meanings = item.data.meanings[0].meaning;
         for (var k = 0; k < item.data.meanings.length; k++){if (item.data.meanings[k].primary){return item.data.meanings[k].meaning}};
         return meanings;
@@ -4578,6 +5782,27 @@
         };
         return l;
     };
+
+    function meaningsKanjidic2(item){
+        if (kanjidic2Data[item.data.characters] === undefined) return '';
+        return kanjidic2Data[item.data.characters].meanings.join(', ');
+    };
+
+    function onyomiKanjidic2(item){
+        if (kanjidic2Data[item.data.characters] === undefined) return '';
+        return kanjidic2Data[item.data.characters].onyomi.join(', ');
+    };
+
+    function kunyomiKanjidic2(item){
+        if (kanjidic2Data[item.data.characters] === undefined) return '';
+        return kanjidic2Data[item.data.characters].kunyomi.join(', ');
+    };
+
+    function nanoriKanjidic2(item){
+        if (kanjidic2Data[item.data.characters] === undefined) return '';
+        return kanjidic2Data[item.data.characters].nanori.join(', ');
+    };
+
 
     // -----------------------------------------------------------------
     // data for use with the readingsFull(item, needType=true) algorithm
@@ -4913,6 +6138,7 @@
 
     function readingsFull(item){
         // make sure readings are returned in the order WK provides them, but primary comes first
+        if (item.data.readings.length === 0) return '';
         var readings = "";
         var readingsPrimary = "";
         for (var k = 0; k < item.data.readings.length; k++){
@@ -4935,6 +6161,7 @@
     }
 
     function readingsBrief(item){
+        if (item.data.readings.length === 0) return '';
         var readings = item.data.readings[0].reading;
         for (var k = 0; k < item.data.readings.length; k++){if (item.data.readings[k].primary){return item.data.readings[k].reading}};
         return readings;
@@ -4945,6 +6172,11 @@
     var visuallySimilarData;
     // function to be invoked in the startup sequence
     function get_visually_similar_data(){
+        // check if advSearchFilters script has already loaded the data
+        if (typeof (advSearchFilters) === 'object' && visuallySimilarData in advSearchFilters){
+            visuallySimilarData = advSearchFilters.visuallySimilarData;
+            return Promise.resolve();
+        };
         return load_file(visuallySimilarFilename, true, {responseType: "arraybuffer"})
              .then(function(data){lzmaDecompressAndProcessVisuallySimilar(data)})
     };
@@ -4954,6 +6186,10 @@
         let outStream = LZMA.decompressFile(inStream);
         let string = streamToString(outStream);
         visuallySimilarData = JSON.parse(string);
+        // publish data to advSearchFilters script
+        if (typeof advSearchFilters === 'object'){
+            advSearchFilters.visuallySimilarData = visuallySimilarData;
+        };
     };
 
     function deleteVisuallySimilarCache(){
@@ -4962,7 +6198,8 @@
 
     function makeListVisSimKan(visuallySimilarData, thresholdProvided){
         if (visuallySimilarData === undefined) return [];
-        let threshold = thresholdProvided === undefined ? quiz.settings.tablePresets[quiz.settings.active_ipreset].visSimTreshold : thresholdProvided;
+        //let threshold = thresholdProvided === undefined ? LYvisSimThreshold : thresholdProvided;
+        let threshold = LYvisSimThreshold;
         let acc = [];
         for (var data of visuallySimilarData){
             if (data.score >= threshold && kanjiIndex[data.kan] !== undefined) acc.push(nameItem(kanjiIndex[data.kan])); // test because some Lars Yencken kanji are not in WK
@@ -4972,7 +6209,8 @@
 
     function makeItemListVisSimKan(visuallySimilarData, thresholdProvided){
         if (visuallySimilarData === undefined) return [];
-        let threshold = thresholdProvided === undefined ? quiz.settings.tablePresets[quiz.settings.active_ipreset].visSimTreshold : thresholdProvided;
+        // not using || because thresholdProvided can be zero and this is falsy
+        let threshold = thresholdProvided === undefined ? LYvisSimThreshold : thresholdProvided;
         let acc = [];
         for (var data of visuallySimilarData){
             if (data.score >= threshold && kanjiIndex[data.kan] !== undefined) acc.push(kanjiIndex[data.kan]); // test because some Lars Yencken kanji are not in WK
@@ -4983,7 +6221,7 @@
     function makeIdListVisSimKan(visuallySimilarData){
         if (visuallySimilarData === undefined) return [];
         let acc = [];
-        let threshold = quiz.settings.tablePresets[quiz.settings.active_ipreset].visSimTreshold;
+        let threshold = LYvisSimThreshold;
         for (var data of visuallySimilarData){
             if (data.score >= threshold && kanjiIndex[data.kan] !== undefined) acc.push(kanjiIndex[data.kan].id); // test because some Lars Yencken kanji are not in WK
         };
@@ -5001,15 +6239,21 @@
 
     var from_keisei_db;
     var lookup_db;
-    var manual_db;
     var old_script_db;
     var wk_niai_noto_db;
     var yl_radical_db;
 
     // function to be invoked in the startup sequence
     function loadNiaiDatabase(){
+        // check if advSearchFilters script has already loaded the data
+        if (typeof (advSearchFilters) === 'object' && (from_keisei_db in advSearchFilters)){
+            from_keisei_db = advSearchFilters.from_keisei_db;
+            old_script_db = advSearchFilters.old_script_db;
+            wk_niai_noto_db = advSearchFilters.wk_niai_noto_db;
+            yl_radical_db = advSearchFilters.yl_radical_db;
+            return Promise.resolve();
+        };
         let promiseList = [];
-        promiseList.push(load_file(from_keisei_db_filename, true, {responseType: "arraybuffer"}).then(data => {lzmaDecompressAndProcessNiai_manual_db(data);}));
         promiseList.push(load_file(from_keisei_db_filename, true, {responseType: "arraybuffer"}).then(data => {lzmaDecompressAndProcessNiai_from_keisei_db(data);}));
         promiseList.push(load_file(old_script_db_filename, true, {responseType: "arraybuffer"}).then(data => {lzmaDecompressAndProcessNiai_old_script_db(data);}));
         promiseList.push(load_file(wk_niai_noto_db_filename, true, {responseType: "arraybuffer"}).then(data => {lzmaDecompressAndProcessNiai_wk_niai_noto_db(data);}));
@@ -5017,18 +6261,15 @@
         return Promise.all(promiseList);
     };
 
-    function lzmaDecompressAndProcessNiai_manual_db(data){
-        let inStream = new LZMA.iStream(data);
-        let outStream = LZMA.decompressFile(inStream);
-        let string = streamToString(outStream);
-        manual_db = JSON.parse(string);
-    };
-
     function lzmaDecompressAndProcessNiai_from_keisei_db(data){
         let inStream = new LZMA.iStream(data);
         let outStream = LZMA.decompressFile(inStream);
         let string = streamToString(outStream);
         from_keisei_db = JSON.parse(string);
+        // publish data to advSearchFilters script
+        if (typeof advSearchFilters === 'object'){
+            advSearchFilters.from_keisei_db = from_keisei_db;
+        };
     };
 
     function lzmaDecompressAndProcessNiai_old_script_db(data){
@@ -5036,6 +6277,10 @@
         let outStream = LZMA.decompressFile(inStream);
         let string = streamToString(outStream);
         old_script_db = JSON.parse(string);
+        // publish data to advSearchFilters script
+        if (typeof advSearchFilters === 'object'){
+            advSearchFilters.old_script_db = old_script_db;
+        };
     };
 
     function lzmaDecompressAndProcessNiai_wk_niai_noto_db(data){
@@ -5043,6 +6288,10 @@
         let outStream = LZMA.decompressFile(inStream);
         let string = streamToString(outStream);
         wk_niai_noto_db = JSON.parse(string);
+        // publish data to advSearchFilters script
+        if (typeof advSearchFilters === 'object'){
+            advSearchFilters.wk_niai_noto_db = wk_niai_noto_db;
+        };
     };
 
     function lzmaDecompressAndProcessNiai_yl_radical_db(data){
@@ -5050,6 +6299,10 @@
         let outStream = LZMA.decompressFile(inStream);
         let string = streamToString(outStream);
         yl_radical_db = JSON.parse(string);
+        // publish data to advSearchFilters script
+        if (typeof advSearchFilters === 'object'){
+            advSearchFilters.yl_radical_db = yl_radical_db;
+        };
     };
 
     function deleteNiaiCache(){
@@ -5063,8 +6316,7 @@
         let preset = quiz.settings.tablePresets[quiz.settings.active_ipreset]
         if (kanji in wk_niai_noto_db) return true;
         if (kanji in from_keisei_db) return true;
-        if (kanji in manual_db) return true;
-        let alternate = includesAlternate === undefined ? preset.niaiAlternate : includesAlternate;
+        let alternate = includesAlternate === undefined ? NiaiAlternate : includesAlternate;
         if (alternate) {
             if (kanji in old_script_db) return true;
             if (kanji in yl_radical_db) return true;
@@ -5080,7 +6332,6 @@
         const sources = [
             {"id": "noto_db",        "base_score": 0.1},
             {"id": "keisei_db",      "base_score": 0.65},
-            {"id": "manual_db",      "base_score": 0.9},
         ];
         const alt_sources = [
             {"id": "old_script_db",  "base_score": 0.4},
@@ -5088,7 +6339,7 @@
             {"id": "stroke_dist_db", "base_score": -0.2},
         ];
         let selectedSources, score, old_score, similarData;
-        let alternate = includesAlternate === undefined ? preset.niaiAlternate : includesAlternate;
+        let alternate = includesAlternate === undefined ? NiaiAlternate: includesAlternate;
         if (alternate){
             selectedSources = [...alt_sources, ...sources];
         } else {
@@ -5096,7 +6347,7 @@
         };
         let similar_kanji = {};
         for (let source of selectedSources ){
-            let threshold = thresholdProvided === undefined ? preset.visSimTresholdNiai : thresholdProvided;
+            let threshold = thresholdProvided === undefined ? NiaiVisSimThreshold : thresholdProvided;
 
             switch (source.id){
                 case 'noto_db': // has scores
@@ -5119,10 +6370,6 @@
                     if (!(kanji in visuallySimilarData)) continue;
                     similarData = visuallySimilarData[kanji];
                     break;
-                case 'manual_db': // no scores
-                    if (!(kanji in manual_db)) continue;
-                    similarData = manual_db[kanji];
-                    break;
             };
 
             switch (source.id){
@@ -5141,7 +6388,6 @@
                     break;
                 case 'keisei_db': // no scores
                 case 'old_script_db': // no scores
-                case 'manual_db': // no scores
                     score = source.base_score;
                     for (let similar of similarData){
                         old_score = (similar in similar_kanji ? similar_kanji[similar].score :  0.0);
@@ -5155,8 +6401,7 @@
             };
         };
         let acc = Object.values(similar_kanji);
-        acc.sort(function(a, b){return b.score - a.score});
-        let seen = {};
+        acc.sort(function(a, b){return 2*Math.sign(b.score - a.score) + a.kan.localeCompare(b.kan)});
         acc = acc.map((a) => a.kan)
         return acc;
     };
@@ -5195,7 +6440,7 @@
     function isKanji(characters) {
         var c = characters.charCodeAt(0);
         return (c >= 0x4e00 && c <= 0x9faf) || (c >= 0x3400 && c <= 0x4dbf);
-    }
+    };
 
     // Jlpt
     function jlptDataKanji(characters) {
@@ -5203,10 +6448,10 @@
         if (!jlpt_level) return 'None';
         jlpt_level = jlpt_level.jlpt_level;
         return (jlpt_level ? 'N'+jlpt_level : 'None');
-    }
+    };
 
     function makeJlptData(item) {
-        if (item.object === 'radical') return '';
+        if (item.object === 'radical' || item.object === 'trad_rad') return '';
         var characters = item.data.characters;
         if (item.object === 'kanji') return jlptDataKanji(characters);
         let result = [];
@@ -5215,17 +6460,17 @@
             if (isKanji(char)) result.push(char+': '+jlptDataKanji(char));
         };
         return (result === '' ? 'None' : result.join(', '))
-    }
+    };
 
     function jlptSortDataKanji(characters) {
         var jlpt_level = jlptJoyoFreqdata[characters];
         if (!jlpt_level) return -infinity + 1;
         jlpt_level = jlpt_level.jlpt_level;
         return (jlpt_level ? jlpt_level : -infinity + 1);
-    }
+    };
 
     function makeJlptSortData(item) {
-        if (item.object === 'radical') return -infinity;
+        if (item.object === 'radical' || item.object === 'trad_rad') return -infinity;
         var characters = item.data.characters;
         if (item.object === 'kanji') return jlptSortDataKanji(characters) * 0x10000;
         let result = -infinity + 1;
@@ -5234,7 +6479,22 @@
             if (isKanji(char)) result = Math.max(result, jlptSortDataKanji(char) * 0x10000 - characters.charCodeAt(idx));
         };
         return result
-    }
+    };
+
+    function makeJlptReportValue(item){
+        if (item.object === 'radical' || item.object === 'trad_rad') return 'Unavailable';
+        var characters = item.data.characters;
+        let result = -infinity + 1;
+        if (item.object === 'kanji'){
+            result = jlptSortDataKanji(characters);
+        } else {
+            for (var idx in characters) {
+                let char = characters.charAt(idx);
+                if (isKanji(char)) result = Math.max(result, jlptSortDataKanji(char));
+            };
+        };
+        return (result > 0 ? result : 'Unavailable')
+    };
 
     // Joyo
     function joyoDataKanji(characters) {
@@ -5242,10 +6502,10 @@
         if (!joyo_grade) return 'None';
         joyo_grade = joyo_grade.joyo_grade;
         return (joyo_grade ? joyo_grade : 'None');
-    }
+    };
 
     function makeJoyoData(item) {
-        if (item.object === 'radical') return '';
+        if (item.object === 'radical' || item.object === 'trad_rad') return '';
         var characters = item.data.characters;
         if (item.object === 'kanji') return joyoDataKanji(characters);
         let result = [];
@@ -5254,17 +6514,17 @@
             if (isKanji(char)) result.push(char+': '+joyoDataKanji(char));
         };
         return (result === '' ? 'None' : result.join(', '))
-    }
+    };
 
     function joyoSortDataKanji(characters) {
         var joyo_grade = jlptJoyoFreqdata[characters];
         if (!joyo_grade) return 10;
         joyo_grade = joyo_grade.joyo_grade;
         return (joyo_grade ? joyo_grade : 10);
-    }
+    };
 
     function makeJoyoSortData(item) {
-        if (item.object === 'radical') return infinity;
+        if (item.object === 'radical' || item.object === 'trad_rad') return infinity;
         var characters = item.data.characters;
         if (item.object === 'kanji') return joyoSortDataKanji(characters) * 0x10000;
         let result = infinity - 1;
@@ -5273,7 +6533,22 @@
             if (isKanji(char)) result = Math.min(result, joyoSortDataKanji(char) * 0x10000 + characters.charCodeAt(idx));
         };
         return result
-    }
+    };
+
+    function makeJoyoReportValue(item) {
+        if (item.object === 'radical' || item.object === 'trad_rad') return 'Unavailable';
+        var characters = item.data.characters;
+        let result = infinity - 1;
+        if (item.object === 'kanji'){
+            result = joyoSortDataKanji(characters);
+        } else {
+            for (var idx in characters) {
+                let char = characters.charAt(idx);
+                if (isKanji(char)) result = Math.min(result, joyoSortDataKanji(char));
+            };
+        };
+        return (result < 10 ? result : 'Unavailable')
+    };
 
     // Frequency
     function frequencyDataKanji(characters) {
@@ -5284,7 +6559,7 @@
     }
 
     function makeFrequencyData(item) {
-        if (item.object === 'radical') return '';
+        if (item.object === 'radical' || item.object === 'trad_rad') return '';
         var characters = item.data.characters;
         if (item.object === 'kanji') return frequencyDataKanji(characters);
         let result = [];
@@ -5303,7 +6578,7 @@
     }
 
     function makeFrequencySortData(item) {
-        if (item.object === 'radical') return infinity;
+        if (item.object === 'radical' || item.object === 'trad_rad') return infinity;
         var characters = item.data.characters;
         if (item.object === 'kanji') return frequencySortDataKanji(characters) * 0x8000;
         let result = infinity - 1;
@@ -5312,6 +6587,21 @@
             if (isKanji(char)) result = Math.min(result, frequencySortDataKanji(char) * 0x8000 + characters.charCodeAt(idx));
         };
         return result
+    }
+
+    function makeFrequencyReportValue(item) {
+        if (item.object === 'radical' || item.object === 'trad_rad') return 'Unavailable';
+        var characters = item.data.characters;
+        let result = infinity - 1;
+        if (item.object === 'kanji') {
+            result = frequencySortDataKanji(characters);
+        } else {
+            for (var idx in characters) {
+                let char = characters.charAt(idx);
+                if (isKanji(char)) result = Math.min(result, frequencySortDataKanji(char));
+            };
+        };
+        return (result < 2501 ? result : 'Unavailable');
     }
 
     // END Support of JLPT, Joyo and Frequency
@@ -5664,20 +6954,13 @@
                 Object.keys(this.kanji_db).forEach(
                     (kan) => {
                         this.kanji_db[kan].phonetic = [];
-                        //if (this.checkPhonetic(kan)){
-                        //    this.kanji_db[kan].phonetic.push(kan);
-                        //}
-                    });
+                   });
                 Object.keys(this.phonetic_db).forEach(
                     (phon) => {
                           this.phonetic_db[phon].compounds.forEach(
                                (kan) => {
                                    if (this.kanji_db[kan].phonetic.indexOf(phon) === -1 && this.checkPhonetic(phon)) this.kanji_db[kan].phonetic.push(phon);
                                })
-                          /*this.phonetic_db[phon].xrefs.forEach(
-                               (kan) => {
-                                   if (this.kanji_db[kan].phonetic.indexOf(phon) === -1 && this.checkPhonetic(phon)) this.kanji_db[kan].phonetic.push(phon);
-                               })*/
                     })
             },
             // #####################################################################
@@ -6158,6 +7441,15 @@
 
     // function to be invoked in the startup sequence
     function loadKeiseiDatabase(){
+        // check if advSearchFilters script has already loaded the data
+        if (typeof (advSearchFilters) === 'object' && (kanji_db in advSearchFilters)){
+            KeiseiDB.prototype.kanji_db = advSearchFilters.kanji_db;
+            KeiseiDB.prototype.phonetic_db = advSearchFilters.phonetic_db;
+            KeiseiDB.prototype.wk_kanji_db = advSearchFilters.wk_kanji_db;
+            keiseiDB = new KeiseiDB();
+            keiseiDB.init();
+            return Promise.resolve();
+        };
         let promiseList = [];
         promiseList.push(load_file(kanji_db, true, {responseType: "arraybuffer"}).then(data => {lzmaDecompressAndProcessKanjiDB(data);}));
         promiseList.push(load_file(phonetic_db, true, {responseType: "arraybuffer"}).then(data => {lzmaDecompressAndProcessPhoneticDB(data);}));
@@ -6170,6 +7462,10 @@
         let outStream = LZMA.decompressFile(inStream);
         let string = streamToString(outStream);
         KeiseiDB.prototype.kanji_db = JSON.parse(string);
+        // publish data to advSearchFilters script
+        if (typeof advSearchFilters === 'object'){
+            advSearchFilters.kanji_db =  KeiseiDB.prototype.kanji_db;
+        };
     };
 
     function lzmaDecompressAndProcessPhoneticDB(data){
@@ -6177,6 +7473,10 @@
         let outStream = LZMA.decompressFile(inStream);
         let string = streamToString(outStream);
         KeiseiDB.prototype.phonetic_db = JSON.parse(string);
+        // publish data to advSearchFilters script
+        if (typeof advSearchFilters === 'object'){
+            advSearchFilters.phonetic_db =  KeiseiDB.prototype.phonetic_db;
+        };
     };
 
     function lzmaDecompressAndProcessWkKanjiDB(data){
@@ -6184,7 +7484,11 @@
         let outStream = LZMA.decompressFile(inStream);
         let string = streamToString(outStream);
         KeiseiDB.prototype.wk_kanji_db = JSON.parse(string);
-    };
+         // publish data to advSearchFilters script
+        if (typeof advSearchFilters === 'object'){
+            advSearchFilters.wk_kanji_db =  KeiseiDB.prototype.wk_kanji_db;
+        };
+   };
 
     function deleteKeiseiCache(){
         wkof.file_cache.delete(kanji_db);
@@ -6405,11 +7709,11 @@
                 var buf = buffers[n];
                 for (var i = 0, iL = buf.length; i < iL; i++) {
                     charList.push(conv(buf[i]));
-                }
-            }
-		}
+                };
+            };
+		};
 		return charList.join('');
-    }
+    };
 
     // END Kanji Stroke Order SVG Files
 
@@ -6675,10 +7979,8 @@
                         let settings = quiz.settings;
                         let presets = settings.tablePresets[settings.active_ipreset];
                         settings.audioMode = false;
-                        if (quiz.items === undefined) console.trace();
                         formatControlBar();
                         resetTemporaryFilters();
-                        if (quiz.items === undefined) console.trace();
                         switch (presets.selection) {
                             case 'None':
                                 presets.selection = 'LeechTraining';
@@ -6687,7 +7989,6 @@
                                 presets.currentItem = currentItem = 0;
                                 quiz.savedItems = quiz.items.slice(0, quiz.items.length);
                                 quasiEmulateLeechTraining();
-                                if (quiz.items === undefined) console.trace();
                                 break;
                             case 'Random':
                             case 'Date':
@@ -6695,13 +7996,11 @@
                                 quiz.items = quiz.savedItems.slice(0, quiz.savedItems.length);
                                 presets.currentItem = currentItem = 0;
                                 quasiEmulateLeechTraining()
-                                if (quiz.items === undefined) console.trace();
                                 break;
                             case 'LeechTraining':
                             default:
                                 presets.selection = 'None';
                                 if (quiz.savedItems !== undefined) quiz.items = quiz.savedItems;
-                                if (quiz.items === undefined) console.trace();
                                 quiz.savedItems = [];
                                 presets.currentItem = currentItem = presets.savedCurrentItem;
                                 presets.nextCurrentItem = nextCurrentItem = presets.savedNextCurrentItem;
@@ -6710,7 +8009,6 @@
                         setSelectionButtonsColors()
                         wkof.set_state(Wkit_navigation, 'Pending')
                         wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
-                        if (quiz.items === undefined) console.trace();
                         displayItems();
                         dataReady = true;
                     });
@@ -6719,7 +8017,6 @@
     };
 
     function quasiEmulateLeechTraining(){
-        let userLevel = userData.level;
         let settings = quiz.settings;
         let presets = settings.tablePresets[settings.active_ipreset];
         let selected = {};
@@ -6938,10 +8235,8 @@
                         let settings = quiz.settings;
                         let presets = settings.tablePresets[settings.active_ipreset];
                         settings.audioMode = false;
-                        if (quiz.items === undefined) console.trace();
                         formatControlBar();
                         resetTemporaryFilters();
-                        if (quiz.items === undefined) console.trace();
                         switch (presets.selection){
                             case 'None':
                                 presets.selection = 'Random';
@@ -6949,20 +8244,17 @@
                                 presets.savedNextCurrentItem = nextCurrentItem;
                                 quiz.savedItems = quiz.items.slice(0, quiz.items.length);
                                 doRandomSelection();
-                                if (quiz.items === undefined) console.trace();
                                 break;
                             case 'Date':
                             case 'LeechTraining':
                                 presets.selection = 'Random';
                                 quiz.items = quiz.savedItems.slice(0, quiz.savedItems.length);
                                 doRandomSelection();
-                                if (quiz.items === undefined) console.trace();
                                 break;
                             case 'Random':
                             default:
                                 presets.selection = 'None';
                                 if (quiz.savedItems !== undefined) quiz.items = quiz.savedItems;
-                                if (quiz.items === undefined) console.trace();
                                 quiz.savedItems = [];
                                 presets.currentItem = currentItem = presets.savedCurrentItem;
                                 presets.nextCurrentItem = nextCurrentItem = presets.savedNextCurrentItem;
@@ -6971,7 +8263,6 @@
                         setSelectionButtonsColors()
                         wkof.set_state(Wkit_navigation, 'Pending')
                         wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
-                        if (quiz.items === undefined) console.trace();
                         displayItems();
                         dataReady = true;
                     });
@@ -6995,7 +8286,6 @@
         quiz.items = quiz.items.slice(0, nextCurrentItem);
         presets.nextCurrentItem = nextCurrentItem;
         saveSelectedItems();
-        if (quiz.items === undefined) console.trace();
     };
 
     function shuffle(items){
@@ -7168,7 +8458,7 @@
                         }
                         wkof.set_state(Wkit_navigation, 'Pending');
                         wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')});
-                        displayItems();
+                        dataReload();
                         dataReady = true;
                         return;
                     }
@@ -7215,8 +8505,8 @@
             presets.currentItem = currentItem = presets.savedCurrentItem;
             presets.nextCurrentItem = nextCurrentItem = presets.savedNextCurrentItem;
             $('#WkitFilterSelector').prop('selectedIndex', 0);
-        }
-    }
+        };
+    };
 
     function applyFiltersAndDisplay(){
         let settings = quiz.settings;
@@ -7227,7 +8517,7 @@
                     presets.nextCurrentItem = nextCurrentItem = quiz.items.length;
                     wkof.set_state(Wkit_navigation, 'Pending');
                     wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')});
-                    displayItems();
+                    dataReload('table');
                     dataReady = true;
             })
     };
@@ -7276,6 +8566,20 @@
 
     };
 
+    // Event handlers for selecting views and reports
+    function selectView(e){
+        document.getElementById("WkitViewSelector").blur();
+        quiz.settings.active_vpreset = $('#WkitViewSelector').prop('selectedIndex');
+        dataReady = false;
+        dataReload();
+        dataReady = true;
+    };
+
+    function resetViewsAndReports() {
+        quiz.settings.active_vpreset = 0;
+        $('#WkitViewSelector').prop('selectedIndex', 0);
+    };
+
     // utility function for setting the colors of the buttons
     function setSelectionButtonsColors(){
         let settings = quiz.settings;
@@ -7320,13 +8624,30 @@
     // functions to order the items and dispatch the data to the displaying function according to current mode
 
     function findSortOrder(){
-        let settings = quiz.settings.tablePresets[quiz.settings.active_ipreset];
-        let tableKey = settings.table_data;
-        let sort1 = settings.sort1;
-        let sort2 = settings.sort2;
-        let sortKey, sortKey2;
-        let sortOrder = settings.sortOrder1;
-        let sortOrder2 = settings.sortOrder2;
+        let tableKey, sort1, sort2, sortKey, sortKey2, sortOrder, sortOrder2;
+        let settings = quiz.settings;
+        let preset = settings.vpresets[settings.active_vpreset];
+        if (preset.type === 'report') {
+            tableKey = preset.report_key;
+            sort1 = 'Default';
+            sort2 = 'Default';
+            sortOrder = preset.rsortOrder1;
+            sortOrder2 = 'Default';
+        } else if (preset.type === 'view' && settings.active_vpreset !== 0) {
+            let presetBase = settings.tablePresets[settings.active_ipreset];
+            tableKey = preset.vtable_data === 'Same' ? presetBase.table_data : preset.vtable_data;
+            sort1 = preset.vsort1 === 'Same' ? presetBase.sort1 : preset.vsort1;
+            sort2 = preset.vsort2 === 'Same' ? presetBase.sort2 : preset.vsort2;
+            sortOrder = preset.vsortOrder1 === 'Same' ? presetBase.sortOrder1 : preset.vsortOrder1;
+            sortOrder2 = preset.vsortOrder2 === 'Same' ? presetBase.sortOrder2 : preset.vsortOrder2;
+       } else {
+            preset = settings.tablePresets[settings.active_ipreset];
+            tableKey = preset.table_data;
+            sort1 = preset.sort1;
+            sort2 = preset.sort2;
+            sortOrder = preset.sortOrder1;
+            sortOrder2 = preset.sortOrder2;
+        };
         if ((sort1 == "Default") && (sort2 == 'Default')){
             sortKey = metadata[tableKey].sortkey;
             if (sortOrder === 'Default'){sortOrder = metadata[tableKey].sortOrder};
@@ -7347,9 +8668,9 @@
             if (sortOrder === 'Default'){sortOrder = metadata[sort1].sortOrder};
             sortKey2 = metadata[sort2].sortkey;
             if (sortOrder === 'Default'){sortOrder2 = metadata[sort2].sortOrder};
-        }
+        };
         return {sortKey: sortKey, sortKey2: sortKey2, sortOrder: sortOrder, sortOrder2: sortOrder2,};
-    }
+    };
 
     function updatePage(noCreateTable) {
         let leechStreakLimit = quiz.settings.tablePresets[quiz.settings.active_ipreset].leechStreakLimit;
@@ -7358,7 +8679,6 @@
                                                              ((item.review_statistics.meaning_current_streak < (leechStreakLimit+1)) || (item.review_statistics.reading_current_streak < (leechStreakLimit+1))) : false)}));
         };
 
-        let settings = quiz.settings.tablePresets[quiz.settings.active_ipreset];
         let sorting = findSortOrder();
         let sortKey = sorting.sortKey;
         let sortKey2 = sorting.sortKey2;
@@ -7377,6 +8697,7 @@
             quiz.items = quiz.items.sort(function(a, b){return(a.sortKey == b.sortKey ? a.sortKey2 - b.sortKey2 : a.sortKey - b.sortKey)});
         };
 
+        let settings = quiz.settings.tablePresets[quiz.settings.active_ipreset];
         setSelectionButtonsColors()
         switch (settings.selection) {
             case 'Random':
@@ -7408,7 +8729,9 @@
     };
 
     function displayItems(){
-        if (quiz.settings.listMode){
+        if (quiz.settings.vpresets[quiz.settings.active_vpreset].type === 'report') {
+            makeStatsReport();
+        } else if (quiz.settings.listMode){
             createItemList(quiz.items, false);
         } else {
             createTopLeechTables(quiz.items);
@@ -7423,26 +8746,30 @@
                 determineDataRequiredExport();
                 return loadMissingData()
                             .then(filter_items_for_table)
+                            .then(function(){return temporaryFilter()})
                             .then(function(){updatePage(true);})
-                            .then(temporaryFilter)
-                            .then(performExport)
+                            .then(function(){performExport()})
                 break;
           case 'table':
             default:
                 determineDataRequiredTable();
                 return loadMissingData()
                             .then(filter_items_for_table)
+                            .then(function(){return temporaryFilter()})
                             .then(function(){updatePage(true);})
-                            .then(temporaryFilter)
-                            .then(displayItems)
+                            .then(function(){displayItems()})
                 break;
         };
 
         function temporaryFilter(){
             quiz.unfilteredItems = quiz.items;
             if (quiz.settings.active_fpreset !== 0) return applyTemporaryFilter();
-        }
-    }
+        };
+
+        function wrapPromise(f){
+            return new Promise((res, rej) => {f(); res()});
+        };
+    };
 
     //=================================================================
     // HTML generation
@@ -7485,8 +8812,12 @@
             itemList = item.data.amalgamation_subject_ids;
         } else if (type === 'Niai') {
             itemList = metadata.Niai.idList(item);
+        } else if (type === 'trad_rad'){
+            itemList = makeSubjectIdUsedInList(item);
         };
-        itemList.forEach(function(id){makeIconForTooltip(subjectIndex[id], stringList)});
+        stringList.push('<div class="WkitAndMoreInnerIcons">');
+            itemList.forEach(function(id){makeIconForTooltip(subjectIndex[id], stringList)});
+        stringList.push('</div>');
     }
 
     // event handler for making the more icons popup
@@ -7564,13 +8895,13 @@
     function makeTooltipIcon(item, tableName, id, stringList){
         let tableData = metadata[tableName];
         if (tableData.exists(item)) {
-            let iconLimit = 31; //(quiz.settings.listMode ? 15 : 40);
+            let iconLimit = 29; //(quiz.settings.listMode ? 15 : 40);
             let overhead = 0.8;
             let itemList = tableData.itemList(item);
             let itemListShort = [];
             let charCount = 0;
             let index = 0;
-            let object = tableName === 'Niai' ? 'Niai' : 'vocabulary';
+            let object = tableName === 'Niai' ? 'Niai' : (item.object === 'trad_rad' ? 'trad_rad' : 'vocabulary');
             while (charCount < iconLimit && index < itemList.length){
                 let item2 = itemList[index];
                 itemListShort.push(item2);
@@ -7599,6 +8930,7 @@
 
     const notesLabel = {meaning_note: 'Meaning Note', reading_note: 'Reading Note', meaning_synonyms: 'Synonyms', };
     function makePopupNotes(item, element, stringList){
+        if (item.object === 'trad_rad') return;
         if (!item.study_materials || !item.study_materials[element]  || (element === 'meaning_synonyms' && item.study_materials[element].length === 0)) return false;
         stringList.push('<div class="WkitMnemonic">');
         stringList.push('<div class="WkitMnemonicPopup">');
@@ -7620,6 +8952,7 @@
     const mnemonicsLabel = {meaning_mnemonic: 'Meaning Mnemonic', meaning_hint: 'Meaning Hint', reading_mnemonic: 'Reading Mnemonic', reading_hint: 'Reading Hint', };
     function makePopupMnemonics(item, element, stringList){
         if (!item.data[element]) return;
+        if (item.object === 'trad_rad') return;
         stringList.push('<div class="WkitMnemonic">');
         stringList.push('<div class="WkitMnemonicPopup">');
         stringList.push('<p>');
@@ -7634,6 +8967,7 @@
 
     function makeContextSentences(item, stringList){
         if (!item.data.context_sentences) return;
+        if (item.object === 'trad_rad') return;
         stringList.push('<div class="WkitMnemonic">');
         stringList.push('<div class="WkitMnemonicPopup">');
         for (let sentences of item.data.context_sentences){
@@ -7675,14 +9009,17 @@
 
     function makeTableEntry(item, selectedTable){
         let presets = quiz.settings.tablePresets[selectedTable];
+        let vpreset = quiz.settings.vpresets[quiz.settings.active_vpreset];
         let tableData;
         if (presets.selection === "Date"){
             tableData = metadata[presets.navigationDate];
-        } else {
+        } else if (quiz.settings.active_vpreset === 0) {
             tableData = metadata[presets.table_data];
+        } else {
+            tableData = vpreset.vtable_data === 'Same' ? metadata[presets.table_data] : metadata[vpreset.vtable_data];
         };
-        return (tableData.exists(item) ? tableData.tableEntry(item) : '')
-    }
+        return (tableData.exists(item) ? tableData.tableEntry(item) : '');
+    };
 
     function makeTooltipEntry(item, tableName, stringList){
         let tableData = metadata[tableName];
@@ -7696,6 +9033,7 @@
     };
 
     function makeMnemonicsEntry(item, stringList){
+        if (item.object === 'trad_rad') return;
         stringList.push('<tr><td class="WkitLabel">');
         stringList.push('Mnemonics');
         stringList.push('</td><td class="WkitMnemonicContainer">');
@@ -7708,6 +9046,7 @@
     };
 
     function makeNotesEntry(item, stringList){
+        if (item.object === 'trad_rad') return;
         stringList.push('<tr><td class="WkitLabel">');
         stringList.push('Notes');
         stringList.push('</td><td class="WkitMnemonicContainer">');
@@ -7723,8 +9062,19 @@
             stringList.push('No notes or synonyms');
             stringList.push('</span>');
             stringList.push('</div>');
-        }
+        };
         stringList.push('</td></tr>');
+    };
+
+    function reportSearchResult(item, stringList){
+        if (typeof item.report === 'string'){
+            stringList.push('<tr><td class="WkitLabel">');
+            stringList.push('Search&nbsp;Result');
+            stringList.push('</td><td>');
+            stringList.push(item.report);
+            stringList.push('</td></tr>');
+            delete item.report;
+        };
     };
 
     var audioCounter = 0;
@@ -7790,11 +9140,11 @@
         };
 
         let visualInfoFormat = 'itemOnly';
-        let strokeOrderPopup = presets.showStrokeOrder;
+        let strokeOrderPopup = showStrokeOrder;
         let pitchInfoDiagrams, message, keiseiIconsList;
         switch (item.object) {
             case ('radical'):
-                if (presets.showRadical === 'Keisei') {
+                if (showRadical === 'Keisei') {
                     keiseiIconsList = makeKeiseiIconsRad(item.data.slug);
                     if (typeof keiseiIconsList === 'string'){
                         visualInfoFormat = 'message';
@@ -7805,9 +9155,9 @@
                 };
                 break;
             case ('kanji'):
-                if (presets.showKanji === 'Stroke Order'){
+                if (showKanji === 'Stroke Order'){
                     visualInfoFormat = 'strokeOrder';
-                } else if (presets.showKanji === 'Keisei') {
+                } else if (showKanji === 'Keisei') {
                     keiseiIconsList = makeKeiseiIconsKan(item.data.slug);
                     if (typeof keiseiIconsList === 'string'){
                         visualInfoFormat = 'message';
@@ -7818,7 +9168,7 @@
                 };
                 break;
             case ('vocabulary'):
-                if (presets.showVocabulary === 'Pitch Info'){
+                if (showVocabulary === 'Pitch Info'){
                     pitchInfoDiagrams = getPitchInfoDiagram(item);
                     if (pitchInfoDiagrams.length > 0) visualInfoFormat = 'pitchInfo';
                 }
@@ -7951,7 +9301,7 @@
             stringList.push(info.characters);
         };
         stringList.push('</span>');
-    }
+    };
 
     // Another function for making a popup that is delayed until mouse over
     function makeTooltips(item, selectedTable, mode){
@@ -7971,6 +9321,7 @@
         if (mode === 'list' && selection == 'Date') makeTooltipEntry(item, presets.navigationDate, stringList);
         if (needMnemonics) makeMnemonicsEntry(item, stringList);
         if (needNotes) makeNotesEntry(item, stringList);
+        reportSearchResult(item, stringList);
 
         stringList.push('</tbody></table>');
         //stringList.push(makeTableButton);
@@ -7998,14 +9349,42 @@
     var iconEntries;
     var needMnemonics;
     var needNotes;
+    var LYvisSimThreshold;
+    var NiaiVisSimThreshold;
+    var NiaiAlternate;
+    var showRadical;
+    var showKanji;
+    var showVocabulary;
+    var showStrokeOrder;
     function initTooltipGlobals(){
-        let presets = quiz.settings.tablePresets[quiz.settings.active_ipreset];
         toolTipEntries = [];
         iconEntries = [];
         needMnemonics = false;
         needNotes = false;
-        let tableNames = ['tooltip1', 'tooltip2', 'tooltip3', 'tooltip4', 'tooltip5', 'tooltip6', 'tooltip7', 'tooltip8', ];
-        let entriesWithIcons = {'Vis_Sim_Kanji': true, 'Components': true, 'Used_In': true, 'Lars_Yencken': true, 'Niai': true};
+        let presets, tableNames;
+        if (quiz.settings.active_vpreset === 0) {
+            presets = quiz.settings.tablePresets[quiz.settings.active_ipreset];
+            tableNames = ['tooltip1', 'tooltip2', 'tooltip3', 'tooltip4', 'tooltip5', 'tooltip6', 'tooltip7', 'tooltip8', ];
+            LYvisSimThreshold = presets.visSimTreshold;
+            NiaiVisSimThreshold = presets.visSimTresholdNiai;
+            NiaiAlternate = presets.niaiAlternate;
+            showStrokeOrder = presets.showStrokeOrder;
+            showRadical = presets.showRadical;
+            showKanji = presets.showKanji;
+            showVocabulary = presets.showVocabulary;
+        } else {
+            presets = quiz.settings.vpresets[quiz.settings.active_vpreset];
+            if (presets.type !== 'view') throw 'Not a view type - should use report display';
+            tableNames = ['vtooltip1', 'vtooltip2', 'vtooltip3', 'vtooltip4', 'vtooltip5', 'vtooltip6', 'vtooltip7', 'vtooltip8', ];
+            LYvisSimThreshold = presets.vvisSimTreshold;
+            NiaiVisSimThreshold = presets.vvisSimTresholdNiai;
+            NiaiAlternate = presets.vniaiAlternate;
+            showStrokeOrder = presets.vshowStrokeOrder;
+            showRadical = presets.vshowRadical;
+            showKanji = presets.vshowKanji;
+            showVocabulary = presets.vshowVocabulary;
+        };
+        let entriesWithIcons = {'Vis_Sim_Kanji': true, 'Components': true, 'Used_In': true, 'Lars_Yencken': true, 'Niai': true, 'trad_rad': true};
         tableNames.forEach(processName);
 
         function processName(name){
@@ -8175,24 +9554,26 @@
         $("#WkitTopBar").find(".WkitMiniIcon").mouseenter(insertPopup);
         $("#WkitTopBar").find(".WkitAndMore").mouseenter(insertAddMorePopup);
         $("#WkitTopBar").find(".WkitTooltip").mouseenter(insertTooltip.bind('table'));
-    }
+    };
 
     // displaying items in icon list mode
     var direction = 'Forward';
     function createItemList(items, noDisplay){
         let startNumberItem = currentItem;
-        if (items === undefined) console.trace();
         let itemsLength = items.length;
         let selected_table = quiz.settings.active_ipreset;
         let presets = quiz.settings.tablePresets[selected_table]
         let meaningMode = presets.displayMeaning;
-        let get_table_data = metadata[presets.table_data].tableEntryMarker;
         let showMarkers = presets.showMarkers;
         if (presets.selection === 'Random' || presets.selection === 'LeechTraining' ) showMarkers = false;
         if (presets.selection === 'Date') showMarkers = presets.showMarkersDate;
         let dateSelection = (presets.selection === 'Date');
         let dateSelected = presets.navigationDate;
+        let get_table_data = metadata[presets.table_data].tableEntryMarker;
         if (dateSelection) get_table_data = metadata[dateSelected].tableEntryMarker;
+        let active_vpreset = quiz.settings.active_vpreset;
+        let vpreset = quiz.settings.vpresets[active_vpreset];
+        if (active_vpreset !== 0 && vpreset.vtable_data !== 'Same') get_table_data = metadata[vpreset.vtable_data].tableEntryMarker;
         audioCounter = 0;
         initTooltipGlobals();
 
@@ -8361,6 +9742,237 @@
         }
     };
 
+    // Make and publish the statistiscs report
+    function makeStatsReport(){
+        if (quiz.items.length === 0) return;
+        let columns = ['column1', 'column2', 'column3', 'column4', 'column5', 'column6', 'column7', 'column8', 'column9', ];
+        let settings = quiz.settings;
+        let preset = settings.vpresets[settings.active_vpreset];
+        let tablePreset = settings.tablePresets[settings.active_ipreset];
+        let newKeyValue, oldKeyValue, reportKey, keyColumn, keyCount, total;
+        if (preset.report_key === 'Default'){
+            keyColumn = tablePreset.table_data;
+        } else {
+            keyColumn = preset.report_key;
+        };
+        reportKey = metadata[keyColumn];
+        let stringList = [];
+        stringList.push('<div class="WkitReportContainer">');
+        stringList.push('<table>');
+        writeTitleLine(stringList);
+        stringList.push('<tbody>');
+        let item = quiz.items[0];
+        oldKeyValue = keyValue(item);
+
+        keyCount = 1;
+        let accumulatorGroup = {};
+        for (let column of columns) accumulatorGroup[column] = {};
+        initialize(accumulatorGroup);
+
+        total = 1;
+        let accumulatorTotal = {};
+        for (let column of columns) accumulatorTotal[column] = {};
+        initialize(accumulatorTotal);
+
+        accumulateValues(); // Don't forget to accumulate current item
+        for (let idx=1, l=quiz.items.length; idx < l; idx++){
+            item = quiz.items[idx];
+            newKeyValue = keyValue(item);
+            if (newKeyValue !== oldKeyValue) {
+                wrapUp(accumulatorGroup);
+                writeDown(stringList, accumulatorGroup, oldKeyValue, keyCount);
+                oldKeyValue = newKeyValue;
+                keyCount = 0;
+                initialize(accumulatorGroup);
+            };
+            accumulateValues();
+            keyCount++;
+            total++;
+        };
+        wrapUp(accumulatorGroup);
+        writeDown(stringList, accumulatorGroup, oldKeyValue, keyCount);
+        wrapUp(accumulatorTotal);
+        writeDown(stringList, accumulatorTotal, 'Total', total);
+        stringList.push('</tbody></table></div>');
+
+        let $leech_table = $('#leech_table').empty();
+        let html = stringList.join('')
+        $leech_table.html(html);
+
+        function keyValue(item){
+            let key = reportKey.reportString(reportKey.reportValue(item));
+            if (reportKey.isDate){
+                if (!preset.rhoursInDate[keyColumn]) {
+                    key = key.slice(0, 10);
+                };
+                if (reportKey.isDateMonthly) key = key.slice(0, 7);
+             };
+             return key;
+        };
+
+        function initialize(accumulatorGroup){
+            for (let column of columns){
+                if (preset[column] === 'None') continue;
+                let acc = accumulatorGroup[column];
+                acc.count = 0;
+                acc.total = 0;
+                acc.max = -infinity;
+                if (metadata[preset[column]].isDate){
+                    acc.min = theFuture;
+                } else {
+                    acc.min = infinity;
+                };
+            };
+        };
+
+        function accumulateValues(){
+            for (let column of columns){
+                if (preset[column] === 'None') continue;
+                if (metadata[preset[column]].exists(item)) {
+                    let value = metadata[preset[column]].reportValue(item);
+                    let acc = accumulatorGroup[column];
+                    if (value !== 'Unavailable') {
+                        acc.count++;
+                        acc.total += value;
+                        acc.min = Math.min(acc.min, value);
+                        acc.max = Math.max(acc.max, value);
+                    };
+                    acc = accumulatorTotal[column];
+                    if (value !== 'Unavailable') {
+                        acc.count++;
+                        acc.total += value;
+                        acc.min = Math.min(acc.min, value);
+                        acc.max = Math.max(acc.max, value);
+                    };
+                };
+            };
+            return;
+        };
+
+        function wrapUp(accumulator){
+            for (let column of columns){
+                if (preset[column] === 'None') continue;
+                let acc = accumulator[column];
+                if (acc.count !== 0) {
+                    let toString = metadata[preset[column]].reportString;
+                    acc.average = toString(acc.total / acc.count);
+                    acc.min = toString(acc.min);
+                    acc.max = toString(acc.max);
+                    if (metadata[preset[column]].isDate){
+                        if (!preset.rhoursInDate[preset[column]]) {
+                            acc.average = acc.average.slice(0, 10);
+                            acc.min = acc.min.slice(0, 10);
+                            acc.max = acc.max.slice(0, 10);
+                        };
+                    };
+                 } else {
+                    acc.min = 'No Data';
+                    acc.max = 'No Data';
+                    acc.average = 'No Data';
+                };
+            };
+            return;
+        };
+
+        function writeDown(stringList, accumulator, oldKeyValue, keyCount){
+            // doing to key and count row
+            stringList.push('<tr>');
+            stringList.push('<td class="WkitReportCellFormat">');
+            stringList.push(oldKeyValue);
+            stringList.push('</td>');
+            stringList.push('<td class="WkitReportCellFormat">');
+            stringList.push(keyCount);
+            stringList.push('</td>');
+            stringList.push('<td class="WkitReportCellFormat">');
+            stringList.push('');
+            stringList.push('</td>');
+            for (let column of columns){
+                if (preset[column] === 'None') continue;
+                stringList.push('<td class="WkitReportCellFormat">');
+                stringList.push('');
+                stringList.push('</td>');
+            };
+            stringList.push('</tr>');
+
+            // doing the min row
+            stringList.push('<tr>');
+            stringList.push('<td class="WkitReportCellFormat">');
+            stringList.push('');
+            stringList.push('</td>');
+            stringList.push('<td class="WkitReportCellFormat">');
+            stringList.push('');
+            stringList.push('</td>');
+            stringList.push('<td class="WkitReportCellFormat">');
+            stringList.push('Min.');
+            stringList.push('</td>');
+            for (let column of columns){
+                if (preset[column] === 'None') continue;
+                stringList.push('<td class="WkitReportCellFormat">');
+                stringList.push(accumulator[column].min);
+                stringList.push('</td>');
+            };
+
+            // doing the average row
+            stringList.push('<tr>');
+            stringList.push('<td class="WkitReportCellFormat">');
+            stringList.push('');
+            stringList.push('</td>');
+            stringList.push('<td class="WkitReportCellFormat">');
+            stringList.push('');
+            stringList.push('</td>');
+            stringList.push('<td class="WkitReportCellFormat">');
+            stringList.push('Ave.');
+            stringList.push('</td>');
+            for (let column of columns){
+                if (preset[column] === 'None') continue;
+                stringList.push('<td class="WkitReportCellFormat">');
+                stringList.push(accumulator[column].average);
+                stringList.push('</td>');
+            };
+            stringList.push('</tr>');
+
+            // doing the max row
+            stringList.push('<tr>');
+            stringList.push('<td class="WkitReportCellFormat">');
+            stringList.push('');
+            stringList.push('</td>');
+            stringList.push('<td class="WkitReportCellFormat">');
+            stringList.push('');
+            stringList.push('</td>');
+            stringList.push('<td class="WkitReportCellFormat">');
+            stringList.push('Max.');
+            stringList.push('</td>');
+            for (let column of columns){
+                if (preset[column] === 'None') continue;
+                stringList.push('<td class="WkitReportCellFormat">');
+                stringList.push(accumulator[column].max);
+                stringList.push('</td>');
+            };
+            return;
+        };
+
+        function writeTitleLine(stringList){
+            stringList.push('<tr>');
+            stringList.push('<th class="WkitStickyHeader WkitReportCellFormat">');
+            stringList.push(reportKey.title);
+            stringList.push('</th>');
+            stringList.push('<th class="WkitStickyHeader WkitReportCellFormat">');
+            stringList.push('Items');
+            stringList.push('</th>');
+            stringList.push('<th class="WkitStickyHeader WkitReportCellFormat">');
+            stringList.push('');
+            stringList.push('</th>');
+            for (let column of columns){
+                if (preset[column] === 'None') continue;
+                stringList.push('<th class="WkitStickyHeader WkitReportCellFormat">');
+                stringList.push(metadata[preset[column]].title);
+                stringList.push('</th>');
+            };
+            stringList.push('</tr>');
+            return;
+        };
+    };
+
     // ===========================================================
     // End of functions to produce and display the content of the screen
     //------------------------------------------------------------
@@ -8372,12 +9984,6 @@
     function fillClipboard(){
         document.getElementById("WkitWordExport").blur();
         quiz.exportBackup = quiz.items;
-        /*if (quiz.settings.repeatWordCloud != 'No Repeat'){
-            // make sure the repeat field endpoint is available in the items
-            dataReload('wordCloud');
-        } else {
-            performWordCloud();
-        };*/
          performWordCloud();
      };
 
@@ -8558,7 +10164,13 @@
                                     } else {
                                         cellEntry = '<a href="'+cellEntry+'">'+indentification+'</a>';
                                     };
-                                };//contextSentences.separateJP
+                                } else if (URLclickable === 'blank') {
+                                    if (quotes === 'Always'){
+                                        cellEntry = "<a href='"+cellEntry+"' target='_blank'>"+indentification+"</a>";
+                                    } else {
+                                        cellEntry = '<a href="'+cellEntry+'" target="_blank">'+indentification+'</a>';
+                                    };
+                                };
                             };
                             if (freeFormText){
                                 cellEntry = '"'+cellEntry.replace(/["]/g, '""').replace(/<.*?>/g ,'')+'"';
@@ -8803,6 +10415,1431 @@
     // ===========================================================
     // Built-in filters
     //------------------------------------------------------------
+
+    // -----------------------------------------------------------
+    // BEGIN Kanjidic2 and Traditional radicals
+
+    function registerKanjidic2Filters(){
+        waitForItemDataRegistry()
+            .then(wkof.wait_state('Wkit_trad_rad', 'ready'))
+            .then(function(){registerExtensiveSearchFilter()})
+            .then(function(){registerAdvancedSearchFilter()})
+            .then(function(){registerRelatedSearchFilter()})
+            .then(function(){return Promise.resolve()})
+    };
+
+    // constants for searches
+
+    const all = '*';
+    const none = '!*'
+
+    // detailed path parsing to make sure it is a real path and not something else -- much needed to keep eval safe to use
+    // there is no alternative to eval in this context
+    // function set_value() and get_value is borrowed from wkof Settings module -- must be under MIT license
+    function set_value(path, value) {
+        var depth=0, new_path='', param, c;
+        for (var idx = 0; idx < path.length; idx++) {
+            c = path[idx];
+            if (c === '[') {
+                if (depth++ === 0) {
+                    new_path += '[';
+                    param = '';
+                } else {
+                    param += '[';
+                }
+            } else if (c === ']') {
+                if (--depth === 0) {
+                    new_path += JSON.stringify(eval(param)) + ']';
+                } else {
+                    param += ']';
+                }
+            } else {
+                if (c === '@') c = 'base.';
+                if (depth === 0)
+                    new_path += c;
+                else
+                    param += c;
+            };
+        };
+        eval(new_path + '=value');
+    };
+
+    function get_value(path) {
+        var depth=0, new_path='', param, c;
+        for (var idx = 0; idx < path.length; idx++) {
+            c = path[idx];
+            if (c === '[') {
+                if (depth++ === 0) {
+                    new_path += '[';
+                    param = '';
+                } else {
+                    param += '[';
+                };
+            } else if (c === ']') {
+                if (--depth === 0) {
+                    new_path += JSON.stringify(eval(param)) + ']';
+                } else {
+                    param += ']';
+                };
+            } else {
+                if (c === '@') c = 'base.';
+                if (depth === 0)
+                    new_path += c;
+                else
+                    param += c;
+            };
+        };
+        return eval(new_path);
+    };
+
+    // Unicode for Japanese characters
+    // reference https://stackoverflow.com/questions/15033196/using-javascript-to-check-whether-a-string-contains-japanese-characters-includi
+    //
+    // regexes for splitting stings into words, one to get composed words that may have ' and - and one for subwords separated by ' or -
+    const breakTheWords = /[^\-'a-zA-Z0-9\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf\u3400-\u4dbf]/;
+    const breakTheSubwords = /[\-']/;
+    const noHtml = /<[^>]*>/g;
+
+    function katakana2hiragana(string){
+        const baseHiragana = 12352 // start of unicode hiragana block
+        const endHiragana = 12447 // end of unicode hiragana block
+        const baseKatakana = 12448 // start of unicode katakana block
+        const endKatakana = 12543 // end of unicode katakana block
+        const delta = baseKatakana - baseHiragana;
+        let result = []
+        for (let idx in string){
+            let x = string.charCodeAt(idx);
+            if (x > baseKatakana && x <= endKatakana) x -= delta;
+            x = String.fromCodePoint(x)
+            result.push(x);
+        };
+        return result.join('');
+    };
+
+    function reportExtensiveSearchResult(item, match, place){
+        item.report = 'Search term '+match+' matches at '+place;
+    };
+
+    // BEGIN Extensive Search
+    let extensiveSearchHover_tip = 'Search for terms in meanings, readings and kanji.\nKanjidic2 meaning and readings are searched.\nYou may use latin, kana and kanji.';
+
+    function registerExtensiveSearchFilter() {
+
+        const registration = {
+            type: 'text',
+            label: 'Extensive Search',
+            default: '',
+            filter_func: extensiveSearchFilter,
+            filter_value_map: prepareExtensiveFilterValue,
+            prepare: prepareKanjidic2,
+            set_options: function(options) { options.subjects = true;},
+            hover_tip: extensiveSearchHover_tip,
+        };
+
+        const extensiveSearchFilterName = 'advSearchFilters_extensiveSearch';
+
+        wkof.ItemData.registry.sources.wk_items.filters[extensiveSearchFilterName] = $.extend({}, registration);
+        wkof.ItemData.registry.sources.wk_items.filters[extensiveSearchFilterName].alternate_sources = ['trad_rad'];
+        wkof.ItemData.registry.sources.trad_rad.filters[extensiveSearchFilterName] = $.extend({}, registration);
+        wkof.ItemData.registry.sources.trad_rad.filters[extensiveSearchFilterName].main_source = 'wk_items';
+    };
+
+    function prepareKanjidic2(filterValue){
+        dataRequired.kanjidic2 = true;
+        dataRequired.traditionalRadicals = true;
+        return loadMissingData();
+    };
+
+    function prepareExtensiveFilterValue(filterValue){
+        return split_list(filterValue);
+    };
+
+    function extensiveSearchFilter(filterValue, item){
+        if (item.data === undefined) {
+            return false;
+        };
+        let itemType = item.object;
+
+        for (var searchTerm of filterValue){
+            if (item.data.characters !== null && item.data.characters.indexOf(searchTerm) >= 0) {reportExtensiveSearchResult(item, searchTerm, 'characters'); return true;};
+            if (itemType === 'radical' && item.data.slug.indexOf(searchTerm.replace(' ', '-')) >= 0){reportExtensiveSearchResult(item, searchTerm, 'characters'); return true;};
+
+            for (var meaning of item.data.meanings){
+                let term = meaning.meaning.toLowerCase();
+                if (term.indexOf(searchTerm) >= 0) {reportExtensiveSearchResult(item, searchTerm, 'meanings'); return true;};
+            };
+
+            if (itemType !== 'radical'){
+                for (let reading of item.data.readings){
+                    if (reading.reading.indexOf(searchTerm) >= 0) {reportExtensiveSearchResult(item, searchTerm, 'readings'); return true;};
+                };
+            };
+
+            if (itemType === 'kanji' && item.data.characters in kanjidic2Data){
+                for (let meaning of kanjidic2Data[item.data.characters].meanings){
+                    let term = meaning.toLowerCase();
+                    if (term.indexOf(searchTerm) >= 0) {reportExtensiveSearchResult(item, searchTerm, 'kanjidic2 meaning'); return true;};
+                };
+
+                for (let onyomi of kanjidic2Data[item.data.characters].onyomi){
+                    let term = katakana2hiragana(onyomi);
+                    if (term.indexOf(searchTerm) >= 0) {reportExtensiveSearchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
+                };
+
+                for (let kunyomi of kanjidic2Data[item.data.characters].kunyomi){
+                    let term = kunyomi
+                    if (term.indexOf(searchTerm) >= 0) {reportExtensiveSearchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
+                };
+
+                for (let nanori of kanjidic2Data[item.data.characters].nanori){
+                    let term = nanori
+                    if (term.indexOf(searchTerm) >= 0) {reportExtensiveSearchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
+                };
+            };
+        };
+        return false;
+    };
+
+    // END Extensive Search
+
+    // BEGIN Advanced Search
+
+    let advancedSearchHover_tip = 'Search for terms in multiple locations of your choice.\nYou may use latin, kana and kanji.\nMultiple search options permit to tailor your search.';
+
+    function registerAdvancedSearchFilter() {
+
+        const registration = {
+            type: 'button',
+            label: 'Advanced Search',
+            default: advancedSearchDefaults,
+            callable_dialog: true,
+            on_click: advancedSearchDialog,
+            filter_func: advancedSearchFilter,
+            filter_value_map: prepareFilterValue,
+            prepare: prepareAdvancedSearch,
+            set_options: function(options) { options.subjects = true; options.study_materials = true; },
+            hover_tip: advancedSearchHover_tip,
+        };
+
+        const advancedSearchFilterName = 'advSearchFilters_advancedSearch';
+
+        wkof.ItemData.registry.sources.wk_items.filters[advancedSearchFilterName] = $.extend({}, registration);
+        wkof.ItemData.registry.sources.wk_items.filters[advancedSearchFilterName].alternate_sources = ['trad_rad'];
+        wkof.ItemData.registry.sources.trad_rad.filters[advancedSearchFilterName] = $.extend({}, registration);
+        wkof.ItemData.registry.sources.trad_rad.filters[advancedSearchFilterName].main_source = 'wk_items';
+
+    };
+
+
+    let advancedSearchDefaults = {itemType: {radical: true, kanji: true, vocabulary: true, trad_rad: true,},
+                                  exactMatch: {characters: true, meanings: false, readings: true,
+                                               allow: false, block: false,
+                                               mMnemonics: false, mHints: false, rMnemonics: false, rHints: false, contextSentences: false,
+                                               mNotes: false, rNotes: false, synonyms: false,
+                                               Kanjidic2_Meaning: false, Kanjidic2_Onyomi: false,
+                                               Kanjidic2_Kunyomi: false, Kanjidic2_Nanori: false},
+                                  acceptedAnswer: true,
+                                  searchIn: {characters: true, meanings: true, readings: true, onyomi: true, kunyomi: true, nanori: true,
+                                             pos: false, allow: false, block: false,
+                                             mMnemonics: false, mHints: false, rMnemonics: false, rHints: false, contextSentences: false,
+                                             mNotes: false, rNotes: false, synonyms: false,
+                                             Kanjidic2_Meaning: false, Kanjidic2_Onyomi: false,
+                                             Kanjidic2_Kunyomi: false, Kanjidic2_Nanori: false},
+                                  keisei: {phonetic: false, nonPhonetic: false, compound: false,
+                                           notCompound: false, obscure: false, notInDB: false},
+                                  searchTerms: ''};
+
+
+    function advancedSearchDialog(name, config, on_change){
+        let $originalDialog = $('#wkof_ds').find('[role="dialog"]');
+        let areaId = 'advSearchFilters_advSearch';
+        let scriptId = config.script_id || $originalDialog.attr("aria-describedby").slice(6);
+        let path;
+        if (config.path){
+            path = config.path.replaceAll('@', 'wkof.settings["'+scriptId+'"].');
+        } else if (scriptId === 'ss_quiz') {
+
+            // Self Study Quiz doesn't define the path but we know what it is provided we find the source
+            let row = $(this.delegateTarget);
+            let panel = row.closest('[role="tabpanel"]');
+            let source = panel.attr('id').match(/^ss_quiz_pg_(.*)$/)[1];
+            path = 'wkof.settings.ss_quiz.ipresets[wkof.settings.ss_quiz.active_ipreset].content.'+source+'.filters.advSearchFilters_advancedSearch.value'
+
+            // initialize in case it is not already initialized
+            let v = $.extend(true, {}, get_value(path));
+            set_value(path, v)
+        } else {
+            throw 'config.path is not defined';
+        };
+
+        let value = $.extend(true, {}, advancedSearchDefaults, get_value(path));
+        set_value(path, value)
+        wkof.settings.advSearchFilters = wkof.settings.advSearchFilters || {};
+        wkof.settings.advSearchFilters.advSearch = $.extend(true, {}, advancedSearchDefaults, get_value(path));
+
+        let html = '<textarea id="'+areaId+'" rows="2"></textarea>';
+        let searchTermHovertip = ''+
+            'List your search terms separated by commas. Latin, hiragana and kanji accepted\n\n'+
+            '*  selects items where "Search In" information is PRESENT *and* NON EMPTY.\n'+
+            '!* selects items where "Search In" information is ABSENT *or* EMPTY.\n\n'+
+            'Valid parts of speech are:\n'+
+            'adjective adverb conjunction counter expression godan verb  ichican verb\n'+
+            'interjection intransitive verb noun numeral prefix pronoun proper noun suffix\n'+
+            'transitive verb い adjective な adjective の adjective する verb';
+
+        let dialogConfig = {
+            script_id: 'advSearchFilters',
+            title: 'Advanced Search',
+            on_save: on_save,
+            on_cancel: on_cancel,
+            on_close: on_close,
+            no_bkgd: true,
+            settings: {itemType: {type: 'list', multi: true, label: 'Item Type', path: '@advSearch.itemType',
+                                  hover_tip: 'The type of items that must match the search terms.',
+                                  default: {radical: true, kanji: true, vocabulary: true, trad_rad: true},
+                                  content: {radical: 'Radical', kanji: 'Kanji', vocabulary: 'Vocabulary', trad_rad:'Traditional Radical'},},
+                       exactMatch: {type: 'list', multi: true, label: 'Searches With Exact Match', size: 5, path: '@advSearch.exactMatch',
+                                    hover_tip: 'Selected searches requires the whole word matches.\nSubstring match is the default\nPart of Speech always use exact match.\n\nYou must select the search in Search In\nfor this parameter to take effect.',
+                                    default: {characters: true, meanings: false, readings: true,
+                                              allow: false, block: false,
+                                              mMnemonics: false, mHints: false, rMnemonics: false, rHints: false, contextSentences: false,
+                                              mNotes: false, rNotes: false, synonyms: false,
+                                              Kanjidic2_Meaning: false, Kanjidic2_Onyomi: false,
+                                              Kanjidic2_Kunyomi: false, Kanjidic2_Nanori: false},
+                                    content: {characters: 'Characters', meanings: 'Meanings', readings: 'Readings',
+                                              allow: 'Allow List', block: 'Block list',
+                                              mMnemonics: 'Meaning mnemonics', mHints: 'Meaning hints',
+                                              rMnemonics: 'Reading mnemonics', rHints: 'Reading hints',
+                                              contextSentences: 'Context Sentences',
+                                              mNotes: 'Meaning notes', rNotes: 'Reading notes', synonyms: 'User synonyms',
+                                              Kanjidic2_Meaning: 'Kanjidict2 Meaning', Kanjidic2_Onyomi: 'Kanjidict2 Onyomi',
+                                              Kanjidic2_Kunyomi: 'Kanjidict2 Kunyomi', Kanjidic2_Nanori: 'Kanjidict2 Nanori'},},
+                       acceptedAnswer: {type: 'checkbox', label: 'Only Accepted Answers', default: true, path: '@advSearch.acceptedAnswer',
+                                        hover_tip: 'Match only meanings and readings marked\nas accepted answers by Wanikani.\nUnchecked, matches both accepted\nand unaccepted answers.',},
+                       searchIn: {type: 'list', multi: true, label: 'Search In', size: 6, path: '@advSearch.searchIn',
+                                  hover_tip: 'Where to search to find a search term match.\nAny reading applies to both kanji and vocabulary.\nOther readings apply only to kanji.',
+                                  default: {characters: true, meanings: true, readings: true,
+                                            onyomi: true, kunyomi: true, nanori: true,
+                                            pos: false, allow: false, block: false,
+                                            mMnemonics: false, mHints: false, rMnemonics: false, rHints: false, contextSentences: false,
+                                            mNotes: false, rNotes: false, synonyms: false,
+                                            Kanjidic2_Meaning: false, Kanjidic2_Onyomi: false,
+                                            Kanjidic2_Kunyomi: false, Kanjidic2_Nanori: false},
+                                  content: {characters: 'Characters', meanings: 'Meanings', readings: 'Any Reading',
+                                            onyomi: 'Readings Onyomi', kunyomi: 'Readings Kunyomi', nanori: 'Readings Nanori',
+                                            pos: 'Part of Speech', allow: 'Allow List', block: 'Block List',
+                                            mMnemonics: 'Meaning Mnemonics', mHints: 'Meaning Hints',
+                                            rMnemonics: 'Reading Mnemonics', rHints: 'Reading Hints',
+                                            contextSentences: 'Context Sentences',
+                                            mNotes: 'Meaning Notes', rNotes: 'Reading Notes', synonyms: 'User Synonyms',
+                                            Kanjidic2_Meaning: 'Kanjidict2 Meaning', Kanjidic2_Onyomi: 'Kanjidict2 Onyomi',
+                                            Kanjidic2_Kunyomi: 'Kanjidict2 Kunyomi', Kanjidic2_Nanori: 'Kanjidict2 Nanori',},},
+                       keisei: {type: 'list', multi: true, label: 'Search Keisei Database', size: 4, path: '@advSearch.keisei',
+                                hover_tip: 'Selected items must have one of the selected Keisei Semantic-Phonetic properties.\n\nThis search criterion is not used if no property is selected.',
+                                default: {phonetic: false, nonPhonetic: false, compound: false,
+                                          notCompound: false, obscure: false, notInDB: false},
+                                content: {phonetic: 'Is a Phonetic Mark', nonPhonetic: 'Is Not a Phonetic Mark',
+                                          compound: 'Is a Phonetic Compound',
+                                          notCompound: 'Not a Phonetic Compound', obscure: 'Obscure or Contested Origin',
+                                          notInDB: 'Not in Keisei Database'},},
+                       divider: {type: 'divider'},
+                       searchTerms: {type: 'html', label: 'Search Terms',
+                                     html: html,},
+                      },
+        };
+
+        let dialog = new wkof.Settings(dialogConfig);
+        dialog.open();
+
+        // ui issue: do not let the calling dialog be visible
+        let originalDisplay = $originalDialog.css('display');
+        $originalDialog.css('display', 'none');
+
+        // work around some framework limitations regarding html types
+        let $searchTerms = $('#'+areaId);
+        $searchTerms.val(wkof.settings.advSearchFilters.advSearch.searchTerms);
+        $searchTerms.change(textareaChanged);
+        let $label = $searchTerms.closest('form').children('.left');
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        $label.attr('title', searchTermHovertip);
+
+        function on_close(){
+            $originalDialog.css('display', originalDisplay);
+            if (typeof config.on_close === 'function') config.on_close();
+        };
+
+        function on_save(){
+            set_value(path, get_value('wkof.settings.advSearchFilters.advSearch'))
+            if (typeof config.on_save === 'function') config.on_save();
+        };
+
+        function on_cancel(){
+            if (typeof config.on_cancel === 'function') config.on_cancel();
+        };
+
+        function textareaChanged(e){
+            wkof.settings.advSearchFilters.advSearch.searchTerms = $searchTerms.val();
+        };
+
+    };
+
+    function prepareAdvancedSearch(filterValueOriginal){
+        let searchIn = filterValueOriginal.searchIn;
+        dataRequired.kanjidic2 = (searchIn.Kanjidic2_Meaning || searchIn.Kanjidic2_Onyomi || searchIn.Kanjidic2_Kunyomi || searchIn.Kanjidic2_Nanori);
+        let keisei = filterValueOriginal.keisei;
+        dataRequired.keisei = (keisei.phonetic || keisei.nonPhonetic || keisei.compound || keisei.notCompound || keisei.obscure || keisei.notInDB);
+        dataRequired.traditionalRadicals = true;
+        return loadMissingData();
+    };
+
+    function prepareFilterValue(filterValueOriginal){
+        // Don't modify the original because it is a pointer to the filter settings - modifying it will accumulate trash in the settings
+        var filterValue = $.extend({}, filterValueOriginal);
+        filterValue.hasSearchIn = Object.values(filterValue.searchIn).reduce(((acc,cur) => acc || cur), false);
+        filterValue.searchIn.keisei = Object.values(filterValue.keisei).reduce(((acc, cur) => acc || cur), false);
+        filterValue.searchTermsArray = split_list(filterValue.searchTerms);
+        return filterValue;
+    };
+
+    function advancedSearchFilter(filterValue, item) {
+        if (item.data === undefined) {
+            return false;
+        };
+        if (!filterValue.itemType[item.object]) return false;
+
+        let searchIn = filterValue.searchIn;
+        let exactMatch = filterValue.exactMatch;
+        let keisei = filterValue.keisei;
+        let hasSearchIn = filterValue.hasSearchIn;
+        let acceptedAnswer = filterValue.acceptedAnswer;
+        let itemType = item.object;
+
+        for (var searchTerm of filterValue.searchTermsArray){
+
+            // must match keisei if searched in AND match ANY ONE of the other searched in locations
+            if (searchIn.keisei){
+                let result = false;
+                if (itemType === 'radical'){
+                    if (searchTerm !== none) {
+                        if (keiseiDB.checkPhonetic(keiseiDB.mapWKRadicalToPhon(item.data.slug))) {
+                            if (keisei.phonetic) result = true;
+                        } else {
+                            if (keisei.nonPhonetic) result = true;
+                        };
+                    };
+                } else if (itemType === 'kanji'){
+                    if (searchTerm !== none) {
+                        let kan = item.data.slug;
+                        if (!keiseiDB.checkKanji(kan)){
+                            if (keisei.notInDB) result = true;
+                        } else if (!keiseiDB.checkPhonetic(kan) && (keiseiDB.getKType(kan) !== keiseiDB.KTypeEnum.comp_phonetic)){
+                            let typeKan = keiseiDB.getKType(kan);
+                            if (keisei.nonPhonetic || keisei.notCompound) {
+                                result = true;
+                            } if (!(typeKan in Object.values(keiseiDB.KTypeEnum))) {
+                                if (keisei.notInDB) result = true;
+                            } else if (typeKan === keiseiDB.KTypeEnum.unknown) {
+                                if (keisei.obscure) result = true;
+                            };
+                        } else {
+                            if (keiseiDB.checkPhonetic(kan)) {
+                                if (keisei.phonetic || keisei.notCompound) result = true;
+                            } else if ((keisei.compound || (keisei.nonPhonetic))){
+                                result = true;
+                            };
+                        };
+                    };
+                };
+                if (!result) return false;
+                if (!hasSearchIn) return result; // if no other location is searched in we are done with the result
+            };
+
+            if (searchIn.characters){
+                if (searchTerm === all) {reportSearchResult(item, searchTerm, 'characters'); return true;};
+                if (searchTerm !== none) {
+                    if (exactMatch.characters){
+                        if (item.data.characters !== null && item.data.characters === searchTerm) {reportSearchResult(item, searchTerm, 'characters'); return true;};
+                        if (itemType === 'radical' && item.data.slug === searchTerm.replace(' ', '-')) {reportSearchResult(item, searchTerm, 'characters'); return true;};
+                    } else {
+                        if (item.data.characters !== null && item.data.characters.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'characters'); return true;};
+                        if (itemType === 'radical' && item.data.slug.indexOf(searchTerm.replace(' ', '-')) >= 0){reportSearchResult(item, searchTerm, 'characters'); return true;};
+                    };
+                };
+            };
+
+            if (searchIn.meanings) {
+                if (searchTerm === all)  {reportSearchResult(item, searchTerm, 'meanings'); return true;};
+                if (searchTerm !== none) {
+                    for (var meaning of item.data.meanings){
+                        if (acceptedAnswer && !meaning.accepted_answer) continue;
+                        let term = meaning.meaning.toLowerCase();
+                        if (exactMatch.meanings){
+                            if (searchTerm === term) {reportSearchResult(item, searchTerm, 'meanings'); return true;};
+                            let words = term.split(' ').filter(function(name) {return (name.length > 0);});
+                            for (let word of words) {
+                                if (searchTerm === word) {reportSearchResult(item, searchTerm, 'meanings'); return true;};
+                            };
+                        } else {
+                            if (term.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'meanings'); return true;};
+                        };
+                    };
+                };
+            };
+
+            if (searchIn.readings){
+                if (itemType !== 'radical'){
+                    if (searchTerm === all) {reportSearchResult(item, searchTerm, 'readings'); return true;};
+                    if (exactMatch.readings){
+                        for (let reading of item.data.readings){
+                            if (acceptedAnswer && !reading.accepted_answer) continue;
+                            if (reading.reading === searchTerm && reading.accepted_answer) {reportSearchResult(item, searchTerm, 'readings'); return true;};
+                        };
+                    } else {
+                        for (let reading of item.data.readings){
+                            if (acceptedAnswer && !reading.accepted_answer) continue;
+                            if (reading.reading.indexOf(searchTerm) >= 0 && reading.accepted_answer) {reportSearchResult(item, searchTerm, 'readings'); return true;};
+                        };
+                    };
+                } else {
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'readings');}
+                };
+            };
+
+            if (searchIn.onyomi || searchIn.kunyomi || searchIn.nanori){
+                if (itemType === 'kanji') {
+                    let notSeen = {onyomi: true, kunyomi: true, nanori: true};
+                    let seen = {onyomi: false, kunyomi: false, nanori: false};
+                    if (exactMatch.readings){
+                        for (let reading of item.data.readings){
+                            if (acceptedAnswer && !reading.accepted_answer) continue;
+                            notSeen[reading.type] = false;
+                            seen[reading.type] = true;
+                            if (reading.reading === searchTerm && searchIn[reading.type]) {reportSearchResult(item, searchTerm, reading.type); return true;};
+                        };
+                    } else {
+                        for (let reading of item.data.readings){
+                            if (acceptedAnswer && !reading.accepted_answer) continue;
+                            notSeen[reading.type] = false;
+                            seen[reading.type] = true;
+                            if (reading.reading.indexOf(searchTerm) >= 0 && searchIn[reading.type]) {reportSearchResult(item, searchTerm, reading.type); return true;};
+                        };
+                    };
+                    if (searchTerm === none){
+                        if (searchIn.onyomi && notSeen.onyomi) {reportSearchResult(item, searchTerm, 'onyomi'); return true;};
+                        if (searchIn.kunyomi && notSeen.kunyomi) {reportSearchResult(item, searchTerm, 'kunyomi'); return true;};
+                        if (searchIn.nanori && notSeen.nanori) {reportSearchResult(item, searchTerm, 'nanori'); return true;};
+                    };
+                    if (searchTerm === all){
+                        if (searchIn.onyomi && seen.onyomi) {reportSearchResult(item, searchTerm, 'onyomi'); return true;};
+                        if (searchIn.kunyomi && seen.kunyomi) {reportSearchResult(item, searchTerm, 'kunyomi'); return true;};
+                        if (searchIn.nanori && seen.nanori) {reportSearchResult(item, searchTerm, 'nanori'); return true;};
+                    };
+                } else {
+                    let reading;
+                    if (searchIn.nanori) reading = 'nanori';
+                    if (searchIn.kunyomi) reading = 'kunyomi';
+                    if (searchIn.onyomi) reading = 'onyomi';
+                    if (searchTerm === none)  {reportSearchResult(item, searchTerm, reading); return true;};
+                };
+            };
+
+            if (searchIn.pos){
+                if (itemType === 'vocabulary'){
+                    if (searchTerm === all) {reportSearchResult(item, searchTerm, 'part of speech'); return true;};
+                    for (let pos of item.data.parts_of_speech){
+                        if (searchTerm === pos) {reportSearchResult(item, searchTerm, 'part of speech'); return true;};
+                        let words = pos.split(' ').filter(function(name) {return (name.length > 0);});
+                        for (let word of words) {
+                            if (searchTerm === word) {reportSearchResult(item, searchTerm, 'part of speech'); return true;};
+                        };
+                    };
+                } else {
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'part of speech'); return true;};
+                };
+            };
+
+            if (searchIn.allow || searchIn.block) {
+                if (itemType !== 'trad_rad'){
+                    let seenAllow = false;
+                    let seenBlock = false;
+                    for (let list of item.data.auxiliary_meanings){
+                        if (searchIn.allow && list.type === 'whitelist'){
+                            if (searchTerm === all) {reportSearchResult(item, searchTerm, 'allow list'); return true;};
+                            seenAllow = true;
+                            if (exactMatch.allow){
+                                if (searchTerm === list.meaning.toLowerCase()) {reportSearchResult(item, searchTerm, 'allow list'); return true;};
+                                let words = list.meaning.toLowerCase().split(' ').filter(function(name) {return (name.length > 0);});
+                                for (let word of words) {
+                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'allow list'); return true;};
+                                };
+                            } else {
+                                if (list.meaning.toLowerCase().indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'allow list'); return true;};
+                            };
+                        } else if(searchIn.block && list.type === 'blacklist') {
+                            if (searchTerm === all) {reportSearchResult(item, searchTerm, 'block list'); return true;};
+                            seenBlock = true;
+                            if (exactMatch.block){
+                                if (searchTerm === list.meaning.toLowerCase()) {reportSearchResult(item, searchTerm, 'block list'); return true;};
+                                let words = list.meaning.toLowerCase().split(' ').filter(function(name) {return (name.length > 0);});
+                                for (let word of words) {
+                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'block list'); return true;};
+                                };
+                            } else {
+                                if (list.meaning.toLowerCase().indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'block list'); return true;};
+                            };
+                        };
+                    };
+                    if (searchTerm === none){
+                        if (searchIn.allow && !seenAllow) {reportSearchResult(item, searchTerm, 'allow list'); return true;};
+                        if (searchIn.block && !seenBlock) {reportSearchResult(item, searchTerm, 'block list'); return true;};
+                    };
+                } else {
+                    if (searchTerm === none){
+                        if (searchIn.allow) {reportSearchResult(item, searchTerm, 'allow list'); return true;};
+                        if (searchIn.block) {reportSearchResult(item, searchTerm, 'block list'); return true;};
+                    };
+                };
+            };
+
+            if (searchIn.mMnemonics) {
+                if (item.data.meaning_mnemonic){
+                    if (searchTerm === all) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                    let mnemonic = item.data.meaning_mnemonic.toLowerCase().replace(noHtml, ' ');
+                    if (searchTerm === "onyomi" && mnemonic.indexOf("on'yomi") >= 0) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                    if (searchTerm === "kunyomi" && mnemonic.indexOf("kun'yomi") >= 0) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                    if (exactMatch.mMnemonics){
+                        let words = mnemonic.toLowerCase().split(breakTheWords).filter(function(name) {return (name.length > 0);});
+                        for (let word of words) {
+                            if (searchTerm === word) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                            let subwords = word.split(breakTheSubwords);
+                            if (subwords.length !== 1){
+                                for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                            };
+                        };
+                    } else {
+                        if (mnemonic.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                    };
+                } else {
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                };
+            };
+
+            if (searchIn.mHints){
+                if (item.data.meaning_hint){
+                    if (searchTerm === all) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
+                    let hint = item.data.meaning_hint.toLowerCase().replace(noHtml, ' ');
+                    if (searchTerm === "onyomi" && hint.indexOf("on'yomi") >= 0) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
+                    if (searchTerm === "kunyomi" && hint.indexOf("kun'yomi") >= 0) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
+                    if (exactMatch.mHints){
+                        let words = hint.split(breakTheWords).filter(function(name) {return (name.length > 0);});
+                        for (let word of words) {
+                            if (searchTerm === word) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
+                            let subwords = word.split(breakTheSubwords);
+                            if (subwords.length !== 1){
+                                for (let subword of subwords) if (searchTerm === subwords) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
+                            }
+                        };
+                    } else {
+                        if (hint.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
+                    };
+                } else {
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
+                };
+            };
+
+            if (searchIn.rMnemonics) {
+                if (item.data.reading_mnemonic){
+                    if (searchTerm === all) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                    let mnemonic = item.data.reading_mnemonic.toLowerCase().replace(noHtml, ' ');
+                    if (searchTerm === "onyomi" && mnemonic.indexOf("on'yomi") >= 0) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                    if (searchTerm === "kunyomi" && mnemonic.indexOf("kun'yomi") >= 0) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                    if (exactMatch.rMnemonics){
+                        let words = mnemonic.split(breakTheWords).filter(function(name) {return (name.length > 0);});
+                        for (let word of words) {
+                            if (searchTerm === word) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                            let subwords = word.split(breakTheSubwords);
+                            if (subwords.length !== 1){
+                                for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                            }
+                        };
+                    } else {
+                        if (mnemonic.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                    };
+                } else {
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                };
+            };
+
+            if (searchIn.rHints) {
+                if (item.data.reading_hint){
+                    if (searchTerm === all) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
+                    let hint = item.data.reading_hint.toLowerCase().replace(noHtml, ' ');
+                    if (searchTerm === "onyomi" && hint.indexOf("on'yomi") >= 0) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
+                    if (searchTerm === "kunyomi" && hint.indexOf("kun'yomi") >= 0) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
+                    if (exactMatch.rHints){
+                        let words = hint.split(breakTheWords).filter(function(name) {return (name.length > 0);});
+                        for (let word of words) {
+                            if (searchTerm === word) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
+                            let subwords = word.split(breakTheSubwords);
+                            if (subwords.length !== 1){
+                                for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
+                            }
+                        };
+                    } else {
+                        if (hint.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
+                    };
+                } else {
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
+                };
+            };
+
+            if (searchIn.contextSentences){
+                if (item.object === 'vocabulary'){
+                    if (item.data.context_sentences.length !== 0){
+                        if (searchTerm === all) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                        for (let sentences of item.data.context_sentences){
+                            let ja = sentences.ja;
+                            let en = sentences.en;
+                            if (exactMatch.contextSentences){
+                                let words = ja.toLowerCase().split(breakTheWords).filter(function(name) {return (name.length > 0);});
+                                for (let word of words) {
+                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                                };
+                                words = en.toLowerCase().split(breakTheWords).filter(function(name) {return (name.length > 0);});
+                                for (let word of words) {
+                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                                    let subwords = word.split(breakTheSubwords);
+                                    if (subwords.length !== 1){
+                                        for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                                    };
+                                };
+                            } else {
+                                if (ja.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                                if (en.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                            };
+                        };
+                    } else {
+                        if (searchTerm === none) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                    };
+                } else {
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                };
+            };
+
+            if (searchIn.mNotes){
+                if (item.study_materials){
+                    if (item.study_materials.meaning_note){
+                        if (searchTerm === all) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                        let note = item.study_materials.meaning_note.toLowerCase().replace(noHtml, ' ');
+                        if (searchTerm === "onyomi" && note.indexOf("on'yomi") >= 0) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                        if (searchTerm === "kunyomi" && note.indexOf("kun'yomi") >= 0) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                        if (exactMatch.mNotes){
+                            let words = note.split(breakTheWords).filter(function(name) {return (name.length > 0);});
+                            for (let word of words) {
+                                if (searchTerm === word) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                                let subwords = word.split(breakTheSubwords);
+                                if (subwords.length !== 1){
+                                    for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                                };
+                            };
+                        } else {
+                            if (note.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                        };
+                    } else {
+                        if (searchTerm === none) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                    };
+                } else {
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                };
+            };
+
+            if (searchIn.rNotes){
+                if (item.study_materials){
+                    if (item.study_materials.reading_note){
+                        if (searchTerm === all) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                        let note = item.study_materials.reading_note.toLowerCase().replace(noHtml, ' ');
+                        if (searchTerm === "onyomi" && note.indexOf("on'yomi") >= 0) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                        if (searchTerm === "kunyomi" && note.indexOf("kun'yomi") >= 0) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                        if (exactMatch.rNotes){
+                            let words = note.split(breakTheWords).filter(function(name) {return (name.length > 0);});
+                            for (let word of words) {
+                                if (searchTerm === word) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                                let subwords = word.split(breakTheSubwords);
+                                if (subwords.length !== 1){
+                                    for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                                }
+                            };
+                        } else {
+                            if (note.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                        };
+                    } else {
+                        if (searchTerm === none) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                    };
+                } else {
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                };
+            };
+
+            if (searchIn.synonyms){
+                if (item.study_materials){
+                    let synonyms = item.study_materials.meaning_synonyms;
+                    if (synonyms.length === 0){
+                        if (searchTerm === none) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                    } else {
+                        if (searchTerm === all) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                        for (let synonym of synonyms){
+                            synonym = synonym.toLowerCase();
+                            if (searchTerm === synonym) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                            if (exactMatch.synonyms){
+                                let words = synonym.split(breakTheWords).filter(function(name) {return (name.length > 0);});
+                                for (var word of words) {
+                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                                };
+                                let subwords = word.split(breakTheSubwords);
+                                if (subwords.length !== 1){
+                                    for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                                }
+                            } else {
+                                if (synonym.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                            };
+                        };
+                    };
+                } else {
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                };
+            };
+
+            if (searchIn.Kanjidic2_Meaning) {
+                if (item.object !== 'kanji'){
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'kanjidic2 meaning'); return true;};
+                } else {
+                    if (searchTerm === all) {
+                        if (item.data.characters in kanjidic2Data && kanjidic2Data[item.data.characters].meanings.length !== 0){
+                            reportSearchResult(item, searchTerm, 'kanjidic2 meaning');
+                            return true;
+                        };
+                    } else if (searchTerm === none) {
+                        if (!(item.data.characters in kanjidic2Data) || kanjidic2Data[item.data.characters].meanings.length === 0){
+                            reportSearchResult(item, searchTerm, 'kanjidic2 meaning');
+                            return true;
+                        };
+                    } else if (item.data.characters in kanjidic2Data){
+                        for (let meaning of kanjidic2Data[item.data.characters].meanings){
+                            let term = meaning.toLowerCase();
+                            if (exactMatch.Kanjidic2_Meaning){
+                                if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 meaning'); return true;};
+                                let words = term.split(' ').filter(function(name) {return (name.length > 0);});
+                                for (let word of words) {
+                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'kanjidic2 meaning'); return true;};
+                                };
+                            } else {
+                                if (term.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'kanjidic2 meaning'); return true;};
+                            };
+                        };
+                    };
+                };
+            };
+
+            if (searchIn.Kanjidic2_Onyomi) {
+                if (item.object !== 'kanji'){
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
+                } else {
+                    if (searchTerm === all) {
+                        if (item.data.characters in kanjidic2Data && kanjidic2Data[item.data.characters].onyomi.length !== 0){
+                            reportSearchResult(item, searchTerm, 'kanjidic2 onyomi');
+                            return true;
+                        };
+                    } else if (searchTerm === none) {
+                        if (!(item.data.characters in kanjidic2Data) || kanjidic2Data[item.data.characters].onyomi.length === 0){
+                            reportSearchResult(item, searchTerm, 'kanjidic2 onyomi');
+                            return true;
+                        };
+                    } else if (item.data.characters in kanjidic2Data){
+                        for (let onyomi of kanjidic2Data[item.data.characters].onyomi){
+                            let term = katakana2hiragana(onyomi);
+                            if (exactMatch.Kanjidic2_Onyomi){
+                                if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
+                                let words = term.split(' ').filter(function(name) {return (name.length > 0);});
+                                for (let word of words) {
+                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
+                                    if (word.endsWith('-') || word.endsWith('ー') || word.endsWith('ー') || word.endsWith('－') || word.endsWith('‐')){
+                                        term = word.slice(0, -1)
+                                    };
+                                    if (word.startsWith('-') || word.startsWith('ー') || word.startsWith('ー') || word.startsWith('－') || word.startsWith('‐')){
+                                        term = word.slice(1)
+                                    };
+                                    if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
+                                };
+                            } else {
+                                if (term.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
+                            };
+                        };
+                    };
+                };
+            };
+
+            if (searchIn.Kanjidic2_Kunyomi) {
+                if (item.object !== 'kanji'){
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
+                } else {
+                    if (searchTerm === all) {
+                        if (item.data.characters in kanjidic2Data && kanjidic2Data[item.data.characters].kunyomi.length !== 0){
+                            reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi');
+                            return true;
+                        };
+                    } else if (searchTerm === none) {
+                        if (!(item.data.characters in kanjidic2Data) || kanjidic2Data[item.data.characters].kunyomi.length === 0){
+                            reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi');
+                            return true;
+                        };
+                    } else if (item.data.characters in kanjidic2Data){
+                        for (let kunyomi of kanjidic2Data[item.data.characters].kunyomi){
+                            let term = kunyomi
+                            if (exactMatch.Kanjidic2_Kunyomi){
+                                if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
+                                let words = term.split(' ').filter(function(name) {return (name.length > 0);});
+                                for (let word of words) {
+                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
+                                    if (word.endsWith('-') || word.endsWith('ー') || word.endsWith('ー') || word.endsWith('－') || word.endsWith('‐')){
+                                        term = word.slice(0, -1)
+                                    };
+                                    if (word.startsWith('-') || word.startsWith('ー') || word.startsWith('ー') || word.startsWith('－') || word.startsWith('‐')){
+                                        term = word.slice(1)
+                                    };
+                                    if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
+                                };
+                            } else {
+                                if (term.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
+                            };
+                        };
+                    };
+                };
+            };
+
+            if (searchIn.Kanjidic2_Nanori) {
+                if (item.object !== 'kanji'){
+                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
+                } else {
+                    if (searchTerm === all) {
+                        if (item.data.characters in kanjidic2Data && kanjidic2Data[item.data.characters].nanori.length !== 0){
+                            reportSearchResult(item, searchTerm, 'kanjidic2 nanori');
+                            return true;
+                        };
+                    } else if (searchTerm === none) {
+                        if (!(item.data.characters in kanjidic2Data) || kanjidic2Data[item.data.characters].nanori.length === 0){
+                            reportSearchResult(item, searchTerm, 'kanjidic2 nanori');
+                            return true;
+                        };
+                    } else if (item.data.characters in kanjidic2Data){
+                        for (let nanori of kanjidic2Data[item.data.characters].nanori){
+                            let term = nanori
+                            if (exactMatch.Kanjidic2_Nanori){
+                                if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
+                                let words = term.split(' ').filter(function(name) {return (name.length > 0);});
+                                for (let word of words) {
+                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
+                                    if (word.endsWith('-') || word.endsWith('ー') || word.endsWith('ー') || word.endsWith('－') || word.endsWith('‐')){
+                                        term = word.slice(0, -1)
+                                    };
+                                    if (word.startsWith('-') || word.startsWith('ー') || word.startsWith('ー') || word.startsWith('－') || word.startsWith('‐')){
+                                        term = word.slice(1)
+                                    };
+                                    if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
+                                };
+                            } else {
+                                if (term.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
+                            };
+                        };
+                    };
+                };
+            };
+
+
+        };
+
+        return false;
+    };
+
+    // END Advanced Search
+
+    // BEGIN Related Search
+    let relatedSearchHover_tip = 'Find items related to search terms.\n\nRelationships include:\n* Components of items\n* Items where components are used\n* Visually similar kanjis\n* Semantic-phonetic composition relationships';
+
+    function registerRelatedSearchFilter() {
+        const registration = {
+            type: 'button',
+            label: 'Related Search',
+            default: relatedSearch_defaults,
+            callable_dialog: true,
+            on_click: relatedSearchDialog,
+            prepare: prepareRelatedSearch,
+            filter_value_map: prepareRelatedFilterValue,
+            filter_func: relatedSearchFilter,
+            set_options: function(options) { options.subjects = true; },
+            hover_tip: relatedSearchHover_tip,
+        };
+
+        const relatedSearchFilterName = 'advSearchFilters_relatedSearch'
+
+        wkof.ItemData.registry.sources.wk_items.filters[relatedSearchFilterName] = $.extend(true, {}, registration);
+        wkof.ItemData.registry.sources.wk_items.filters[relatedSearchFilterName].alternate_sources = ['trad_rad'];
+        wkof.ItemData.registry.sources.trad_rad.filters[relatedSearchFilterName] = $.extend(true, {}, registration);
+        wkof.ItemData.registry.sources.trad_rad.filters[relatedSearchFilterName].main_source = 'wk_items';
+
+    };
+
+    var relatedIndexesDone = false;
+    var componentIndexKan = {};
+    var componentIndexVoc = {};
+    var usedInIndexRad = {};
+    var usedInIndexKan = {};
+    var WKvisuallySimilarIndex = {};
+    function prepareIndex(){
+        for (var item of quiz.allItems){
+            if (item.object === 'kanji'){
+                componentIndexKan[item.data.slug] = item.data.component_subject_ids;
+                usedInIndexKan[item.data.slug] = item.data.amalgamation_subject_ids;
+                WKvisuallySimilarIndex[item.data.slug] = item.data.visually_similar_subject_ids;
+            };
+            if (item.object === 'radical'){
+                usedInIndexRad[item.data.slug] = item.data.amalgamation_subject_ids;
+                if (item.data.characters !== null) usedInIndexRad[item.data.characters] = item.data.amalgamation_subject_ids;
+            };
+            if (item.object !== 'vocabulary'){
+                componentIndexVoc[item.data.slug] = item.data.amalgamation_subject_ids;
+            };
+        };
+    };
+
+
+    let relatedSearch_defaults = {returns: {matchedItem: true, components: false, usedIn: true,
+                                            WKvisuallySimilar: false, LYvisuallySimilar: false, NiaiVisuallySimilar: false, NiaiAlternate: 0.3,
+                                            phonetic: false, nonPhonetic: false, keiseiRelated: false,
+                                            tradRadInKanji: false, kanjiwithTradRad: false},
+                                  similarityTreshold: 0,
+                                  searchTerms: '',
+                                  itemType: {radical: true, kanji: true, vocabulary: true, trad_rad: true,},
+                                 };
+
+    function relatedSearchDialog(name, config, on_change){
+        let $originalDialog = $('#wkof_ds').find('[role="dialog"]');
+        let areaId = 'advSearchFilters_relSearch';
+        let scriptId = config.script_id || $originalDialog.attr("aria-describedby").slice(6);
+        let path;
+        if (config.path){
+            path = config.path.replaceAll('@', 'wkof.settings["'+scriptId+'"].');
+        } else if (scriptId === 'ss_quiz') {
+
+            // Self Study Quiz doesn't define the path but we know what it is provided we find the source
+            let row = $(this.delegateTarget);
+            let panel = row.closest('[role="tabpanel"]');
+            let source = panel.attr('id').match(/^ss_quiz_pg_(.*)$/)[1];
+            path = 'wkof.settings.ss_quiz.ipresets[wkof.settings.ss_quiz.active_ipreset].content.'+source+'.filters.advSearchFilters_relatedSearch.value'
+
+            // initialize in case it is not already initialized
+            let v = $.extend(true, {}, get_value(path));
+            set_value(path, v)
+        } else {
+            throw 'config.path is not defined';
+        };
+
+        let value = $.extend(true, {}, relatedSearch_defaults, get_value(path));
+        set_value(path, value);
+        wkof.settings.advSearchFilters = wkof.settings.advSearchFilters || {};
+        wkof.settings.advSearchFilters.relSearch = $.extend(true, {}, relatedSearch_defaults, get_value(path));
+
+        let html = '<textarea id="'+areaId+'" rows="3"></textarea>';
+        let searchTermHovertip = ''+
+            'List your search terms separated by commas. Latin, kana and kanji accepted.\n'+
+            'Your search terms must match the characters for the item exactly.\n'+
+            'English name of radicals and traditional radicals are accepted.';
+
+        let dialogConfig = {
+            script_id: 'advSearchFilters',
+            title: 'Related Search',
+            on_save: on_save,
+            on_close: on_close,
+            no_bkgd: true,
+            settings: {returns: {type: 'list', multi: true, label: 'Items Returned By The Search', size: 4, path: '@relSearch.returns',
+                                 hover_tip: 'Choose which items are being searched.\nWK Visially similar means according to Wanikani data.\nLY Visually similar means according to Lars Yencken data.',
+                                 default: {matchedItem: true, components: false, usedIn: true,
+                                           WKvisuallySimilar: false, LYvisuallySimilar: false, NiaiVisuallySimilar: false, NiaiAlternate: 0.3,
+                                           phonetic: false, nonPhonetic: false, keiseiRelated: false,
+                                           tradRadInKanji: false, kanjiwithTradRad: false},
+                                 content: {matchedItem: 'Matched Items', components: 'Components of Matched Items', usedIn: 'Items Where Matches Are Used',
+                                           WKvisuallySimilar: 'WK Visually Similar To Matches', LYvisuallySimilar: 'LY Visually Similar To Matches',
+                                           NiaiVisuallySimilar: 'Niai Visually Similar To Matches',
+                                           phonetic: 'Keisei Phonetic Compounds', nonPhonetic: 'Non Phonetic Compounds',
+                                           keiseiRelated: 'Related Phonetic Marks',
+                                           tradRadInKanji: 'Traditional Radicals in Kanji', kanjiwithTradRad: 'Kanji Using Traditional Radicals'},},
+                       LYsimilarityTreshold: {type: 'number', label: 'LY Similarity Threshold', min: 0.0, max: 1.0, default: 0, path: '@relSearch.LYsimilarityTreshold',
+                                              hover_tip: 'A number between 0 and 1 for the degree\nof similaity of LY Visually Similar Kanjis.',},
+                       NiaiSimilarityTreshold: {type: 'number', label: 'Niai Similarity Threshold', min: 0.0, max: 1.0, default: 0, path: '@relSearch.NiaiSimilarityTreshold',
+                                                hover_tip: 'A number between 0 and 1 for the degree\nof similaity of LY Visually Similar Kanjis.',},
+                       NiaiAlternate: {type:'checkbox',label:'Use Niai Alternate Sources',hover_tip:'Add alternate sources to Niai visually similar\ndata to the main sources.\nThis will return more similar kanji.',
+                                       path: '@relSearch.NiaiAlternate', default:0.3, min: 0.0, max: 1.0,
+                                      },
+                       divider: {type: 'divider'},
+                       searchTerms: {type: 'html', label: 'Search terms', hover_tip: searchTermHovertip, path: '@relSearch.searchTerms',
+                                     html: html,},
+                       itemType: {type: 'list', multi: true, label: 'Item Type of Search Terms', path: '@relSearch.itemType',
+                                  hover_tip: 'Further specify the search terms to be of the given types.',
+                                  default: {radical: true, kanji: true, vocabulary: true, trad_rad: true},
+                                  content: {radical: 'Radical', kanji: 'Kanji', vocabulary: 'Vocabulary', trad_rad: 'Traditional Radical'},},
+                      },
+        };
+
+        let dialog = new wkof.Settings(dialogConfig);
+        dialog.open();
+
+        // ui issue: do not let the calling dialog be visible
+        let originalDisplay = $originalDialog.css('display');
+        $originalDialog.css('display', 'none');
+
+        // work around some framework limitations regarding html types
+        let $searchTerms = $('#'+areaId);
+        $searchTerms.val(wkof.settings.advSearchFilters.relSearch.searchTerms);
+        $searchTerms.change(textareaChanged);
+        let $label = $searchTerms.closest('form').children('.left');
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        $label.attr('title', searchTermHovertip);
+
+        function on_close(){
+            $originalDialog.css('display', originalDisplay);
+            if (typeof config.on_close === 'function') config.on_close();
+        };
+
+        function on_save(){
+            set_value(path, get_value('wkof.settings.advSearchFilters.relSearch'));
+            if (typeof config.on_save === 'function') config.on_save();
+        };
+
+        function on_cancel(){
+            if (typeof config.on_cancel === 'function') config.on_cancel();
+        };
+
+        function textareaChanged(e){
+            wkof.settings.advSearchFilters.relSearch.searchTerms = $searchTerms.val();
+        };
+    };
+
+    var keiseiCompoundIndex = {}
+    var keiseiNonCompoundIndex = {}
+    var keiseiRelatedMarksIndex = {}
+
+    function prepareKeiseiIndexes(){
+        let phonetic = KeiseiDB.prototype.phonetic_db;
+        for (let kanji in componentIndexKan){
+            if ((typeof KeiseiDB.prototype.phonetic_db[kanji]) === 'object'){
+                keiseiCompoundIndex[kanji] = phonetic[kanji].compounds;
+                keiseiNonCompoundIndex[kanji] = phonetic[kanji].non_compounds;
+                keiseiRelatedMarksIndex[kanji] = phonetic[kanji].xrefs;
+            };
+        };
+        for (let radical in usedInIndexRad){
+            if ((typeof KeiseiDB.prototype.phonetic_db[radical]) === 'object'){
+                keiseiCompoundIndex[radical] = phonetic[radical].compounds;
+                keiseiNonCompoundIndex[radical] = phonetic[radical].non_compounds;
+                keiseiRelatedMarksIndex[radical] = phonetic[radical].xrefs;
+            };
+        };
+    };
+
+    var kanjiwithTradRadbyName = {};
+    var tradRadInKanji = {};
+    function prepareTradRadIndex(){
+        for (let item of traditionalRadicalsItems){
+            for (let mm of item.data.meanings){
+                let meaning = mm.meaning;
+                if (typeof kanjiwithTradRadbyName[meaning] !== 'object') kanjiwithTradRadbyName[meaning] = [];
+                kanjiwithTradRadbyName[meaning] = kanjiwithTradRadbyName[meaning].concat(item.data.kanji);
+            };
+            for (let kanji of item.data.kanji){
+                if (typeof tradRadInKanji[kanji] !== 'object') tradRadInKanji[kanji] = [];
+                tradRadInKanji[kanji].push(item.data.characters);
+            };
+        };
+    };
+
+    function prepareRelatedSearch(filterValue){
+        if (!relatedIndexesDone){
+            prepareIndex();
+            relatedIndexesDone = true;
+        };
+        let returns = filterValue.returns;
+        dataRequired.traditionalRadicals = true;
+        dataRequired.items = returns.components || returns.usedIn || returns.WKvisuallySimilar || returns.NiaiVisuallySimilar;
+        dataRequired.larsYencken = returns.LYvisuallySimilar || (returns.NiaiVisuallySimilar && filterValue.NiaiAlternate);
+        dataRequired.niai = returns.NiaiVisuallySimilar;
+        dataRequired.keisei = (returns.phonetic || returns.nonPhonetic || returns.keiseiRelated);
+        return loadMissingData()
+                    .then(function(){prepareKeiseiIndexes();
+                                     prepareTradRadIndex();
+                                     prepareRelatedFilterValueMap(filterValue);
+                                    });
+
+        function prepareRelatedFilterValueMap(filterValue){
+            let validItemTypes = filterValue.itemType;
+            for (let searchTerm of filterValue.searchTermsArray){
+                let idx = filterValue.searchData[searchTerm];
+                idx.components = {};
+                if (searchTerm in componentIndexKan && validItemTypes.kanji) idx.components.radical = componentIndexKan[searchTerm];
+                if (searchTerm in componentIndexVoc && validItemTypes.vocabulary) idx.components.kanji = componentIndexVoc[searchTerm];
+                idx.usedIn = {};
+                if (searchTerm in usedInIndexRad && validItemTypes.radical) idx.usedIn.kanji = usedInIndexRad[searchTerm];
+                if (searchTerm in usedInIndexKan && validItemTypes.kanji) idx.usedIn.vocabulary = usedInIndexKan[searchTerm];
+                idx.WKvisuallySimilar = {};
+                if (searchTerm in WKvisuallySimilarIndex && validItemTypes.kanji) idx.WKvisuallySimilar.kanji = WKvisuallySimilarIndex[searchTerm];
+                idx.keiseiCompounds = {};
+                if (returns.phonetic && searchTerm in keiseiCompoundIndex && (validItemTypes.kanji || validItemTypes.radical)){
+                    idx.keiseiCompounds.radical = keiseiCompoundIndex[searchTerm];
+                    idx.keiseiCompounds.kanji = keiseiCompoundIndex[searchTerm];
+                };
+                idx.keiseiNonCompounds = {};
+                if (returns.nonPhonetic && searchTerm in keiseiNonCompoundIndex && (validItemTypes.kanji || validItemTypes.radical)){
+                    idx.keiseiNonCompounds.radical = keiseiNonCompoundIndex[searchTerm];
+                    idx.keiseiNonCompounds.kanji = keiseiNonCompoundIndex[searchTerm];
+                };
+                idx.keiseiRelated = {};
+                if (returns.keiseiRelated && searchTerm in keiseiRelatedMarksIndex && (validItemTypes.kanji || validItemTypes.radical)){
+                    idx.keiseiRelated.radical = keiseiRelatedMarksIndex[searchTerm];
+                    idx.keiseiRelated.kanji = keiseiRelatedMarksIndex[searchTerm];
+                };
+                idx.LYvisuallySimilar = {};
+                if (returns.LYvisuallySimilar && searchTerm in visuallySimilarData && validItemTypes.kanji){
+                    idx.LYvisuallySimilar.kanji = [];
+                    let threshold = filterValue.LYsimilarityTreshold;
+                    for (let value of visuallySimilarData[searchTerm]){
+                        if (value.score >= threshold && (value.kan in componentIndexKan)) idx.LYvisuallySimilar.kanji.push(value.kan);
+                    };
+                };
+                idx.NiaiVisuallySimilar = {};
+                if (returns.NiaiVisuallySimilar && validItemTypes.kanji){
+                    idx.NiaiVisuallySimilar.kanji = makeKanjiListNiai(searchTerm);
+                };
+                idx = filterValue.searchData[searchTerm];
+                idx.tradRadInKanji = {};
+                if (searchTerm in tradRadInKanji && validItemTypes.kanji){
+                    idx.tradRadInKanji.trad_rad = tradRadInKanji[searchTerm];
+                };
+                idx.kanjiwithTradRad = {};
+                if (searchTerm in traditionalRadicals && validItemTypes.trad_rad){
+                    idx.kanjiwithTradRad.kanji = traditionalRadicals[searchTerm].data.kanji;
+                };
+                if (searchTerm in kanjiwithTradRadbyName && validItemTypes.trad_rad){
+                    idx.kanjiwithTradRad.kanji = kanjiwithTradRadbyName[searchTerm];
+                };
+            };
+        };
+
+        function makeKanjiListNiai(kanji){
+            const sources = [
+                {"id": "noto_db",        "base_score": 0.1},
+                {"id": "keisei_db",      "base_score": 0.65},
+            ];
+            const alt_sources = [
+                {"id": "old_script_db",  "base_score": 0.4},
+                {"id": "yl_radical_db",  "base_score": -0.2},
+                {"id": "stroke_dist_db", "base_score": -0.2},
+            ];
+            let selectedSources, score, old_score, similarData;
+            let alternate = filterValue.NiaiAlternate;
+            if (alternate){
+                selectedSources = [...alt_sources, ...sources];
+            } else {
+                selectedSources = sources;
+            };
+            let similar_kanji = {};
+            for (let source of selectedSources ){
+                let threshold = filterValue.NiaiSimilarityTreshold;
+
+                switch (source.id){
+                    case 'noto_db': // has scores
+                        if (!(kanji in wk_niai_noto_db)) continue;
+                        similarData = wk_niai_noto_db[kanji];
+                        break;
+                    case 'keisei_db': // no scores
+                        if (!(kanji in from_keisei_db)) continue;
+                        similarData = from_keisei_db[kanji];
+                        break;
+                    case 'old_script_db': // no scores
+                        if (!(kanji in old_script_db)) continue;
+                        similarData = old_script_db[kanji];
+                        break;
+                    case 'yl_radical_db':; // has scores
+                        if (!(kanji in yl_radical_db)) continue;
+                        similarData = yl_radical_db[kanji];
+                        break;
+                    case 'stroke_dist_db': // has scrores
+                        if (!(kanji in visuallySimilarData)) continue;
+                        similarData = visuallySimilarData[kanji];
+                        break;
+                };
+
+                switch (source.id){
+                    case 'noto_db': // has scores
+                    case 'yl_radical_db': // has scores
+                    case 'stroke_dist_db': // has scrores
+                        for (let similar of similarData){
+                            score = similar.score + source.base_score;
+                            old_score = (similar.kan in similar_kanji ? similar_kanji[similar.kan].score :  0.0);
+                            if ((score > threshold || (score > 0.0 && old_score > 0.0)) && (typeof componentIndexKan[similar.kan]) === 'object'){
+                                similar_kanji[similar.kan] = {kan: similar.kan, score: score};
+                            } else if (score < 0) {
+                                delete similar_kanji[similar.kan];
+                            };
+                        };
+                        break;
+                    case 'keisei_db': // no scores
+                    case 'old_script_db': // no scores
+                        score = source.base_score;
+                        for (let similar of similarData){
+                            //old_score = (similar in similar_kanji ? similar_kanji[similar].score :  0.0);
+                            if ((typeof componentIndexKan[similar]) === 'object'){
+                                similar_kanji[similar] = {kan: similar, score: score};
+                            } else if (score < 0) {
+                                delete similar_kanji[similar];
+                            };
+                        };
+                        break;
+                };
+            };
+            let acc = Object.values(similar_kanji);
+            acc = acc.map((a) => a.kan)
+            return acc;
+        };
+
+    };
+
+    function prepareRelatedFilterValue(filterValueOriginal){
+        // Don't modify the original because it is a pointer to the filter settings - modifying it will accumulate trash in the settings
+        var filterValue = $.extend({}, filterValueOriginal);
+        filterValue.searchTermsArray = split_list(filterValue.searchTerms);
+        filterValue.searchData = {};
+        for (let searchTerm of filterValue.searchTermsArray) filterValue.searchData[searchTerm] = {};
+        return filterValue;
+    };
+
+    function reportRelatedResult(item, itemType, match, place){
+        item.report = 'Relates to '+itemType+' '+match+' as '+place;
+    };
+
+    function relatedSearchFilter(filterValue, item) {
+        if (item.data === undefined) {
+            return false;
+        };
+
+        let compMapType = {radical: 'kanji', kanji: 'vocabulary'};
+        let usedMapType = {vocabulary: 'kanji', kanji: 'radical'};
+        let itemType = item.object;
+        let returns = filterValue.returns;
+        let charKey = (item.data.characters !== null ? item.data.characters : item.data.slug);
+
+        for (var searchTerm of filterValue.searchTermsArray) {
+            let result = false;
+            let searchData = filterValue.searchData[searchTerm];
+
+            if (returns.matchedItem){
+                if (filterValue.itemType[itemType]) {
+                    if (item.data.characters !== null && item.data.characters === searchTerm) {
+                        reportRelatedResult(item, itemType, searchTerm, 'being the item.');
+                        return true;
+                    };
+                    if (itemType === 'radical' && item.data.slug === searchTerm.replace(/ /g, '-')) {
+                        reportRelatedResult(item, itemType, searchTerm, 'being the item.');
+                        return true;
+                    };
+                    if (itemType === 'trad_rad') {
+                        for (let meaningData of item.data.meanings){
+                            if (meaningData.meaning === searchTerm){
+                                reportRelatedResult(item, itemType, searchTerm, 'being the item.');
+                                return true;
+                            };
+                        };
+                    };
+                };
+            };
+
+            if (returns.components) {
+                if (itemType in searchData.components && searchData.components[itemType].indexOf(item.id) >= 0) {
+                    reportRelatedResult(item, compMapType[itemType], searchTerm, 'a component.');
+                    return true;
+                };
+            };
+
+            if (returns.WKvisuallySimilar) {
+                if (itemType in searchData.WKvisuallySimilar && searchData.WKvisuallySimilar[itemType].indexOf(item.id) >= 0) {
+                    reportRelatedResult(item, itemType, searchTerm, 'WK visually similar.');
+                    return true;
+                };
+            };
+
+            if (returns.usedIn) {
+                if (itemType in searchData.usedIn && searchData.usedIn[itemType].indexOf(item.id) >= 0) {
+                    reportRelatedResult(item, usedMapType[itemType], searchTerm, 'an item where it is used.');
+                    return true;
+                };
+            };
+
+            if (returns.phonetic) {
+                if (itemType in searchData.keiseiCompounds && searchData.keiseiCompounds[itemType].indexOf(charKey) >= 0) {
+                    reportRelatedResult(item,　itemType, searchTerm, 'a keisei phonetic compound.');
+                    return true;
+                };
+            };
+
+            if (returns.nonPhonetic) {
+                if (itemType in searchData.keiseiNonCompounds && searchData.keiseiNonCompounds[itemType].indexOf(charKey) >= 0) {
+                    reportRelatedResult(item, itemType, searchTerm, 'a non phonetic compound.');
+                    return true;
+                };
+            };
+
+            if (returns.keiseiRelated) {
+                if (itemType in searchData.keiseiRelated && searchData.keiseiRelated[itemType].indexOf(charKey) >= 0) {
+                    reportRelatedResult(item, itemType, searchTerm, 'a related phonetic mark.');
+                    return true;
+                };
+            };
+
+            if (returns.LYvisuallySimilar) {
+                if (itemType in searchData.LYvisuallySimilar && searchData.LYvisuallySimilar[itemType].indexOf(charKey) >= 0) {
+                    reportRelatedResult(item, itemType, searchTerm, 'a visually similar kanji according to Lars Yencken.');
+                    return true;
+                };
+            };
+
+            if (returns.NiaiVisuallySimilar) {
+                if (itemType in searchData.NiaiVisuallySimilar && searchData.NiaiVisuallySimilar[itemType].indexOf(charKey) >= 0) {
+                    reportRelatedResult(item, itemType, searchTerm, 'a visually similar kanji according to Niai.');
+                    return true;
+                };
+            };
+
+            if (returns.tradRadInKanji) {
+                if (itemType in searchData.tradRadInKanji && searchData.tradRadInKanji[itemType].indexOf(charKey) >= 0) {
+                    reportRelatedResult(item, 'kanji', searchTerm, 'a component of the kanji.');
+                    return true;
+                };
+            };
+
+            if (returns.kanjiwithTradRad) {
+                if (itemType in searchData.kanjiwithTradRad && searchData.kanjiwithTradRad[itemType].indexOf(charKey) >= 0) {
+                    reportRelatedResult(item, 'traditional radical', searchTerm, 'a kanji where it is used.'); return true;
+                };
+            };
+
+        };
+
+        return false;
+    };
+
+    // END Related Search
+
+    // -----------------------------------------------------------
+    // END Kanjidic2 and Traditional radicals
 
     // BEGIN Search
 
@@ -9096,6 +12133,22 @@
     // initialization and startup
     //------------------------------------------------------------
 
+    //------------------------------
+    // Menu
+
+    function install_menu() {
+        wkof.Menu.insert_script_link({
+            script_id: scriptId,
+            name: scriptId,
+            submenu:   'Settings',
+            title:     'Item Inspector',
+            on_click:  open_quiz_settings
+        });
+    }
+
+    //-----------------------------------
+    // Top bar and widgets
+
     function insertContainer(){
         /* build containers for the table elements */
         const helpURL = 'https://community.wanikani.com/t/userscript-wanikani-item-inspector/44564';
@@ -9117,6 +12170,7 @@
             '<button id="WkitDateOrdering" type="button" class="WkitButton WkitButtonleft icon-sort-by-attributes" title="Toggles the ordering of items by date and time.\nEnables navigation over time ranges.\nPermits to be quized on items selected by date.\nClick again to return to whole table,"></button>' +
             '<div class="WkitSpacer"><span>x</span></div>'+
             '<select id="WkitFilterSelector" class="WkitSelector" title="Choose the temporary filter you want to apply"></select>'+
+            '<select id="WkitViewSelector" class="WkitSelector" title="Choose the view or report you want to apply"></select>'+
             '</div>' +
             '<p class="WkitTitle"><b>Wanikani Item Inspector</b></p>' +
             '<div class="WkitControlRight">'+
@@ -9148,8 +12202,10 @@
 
     function setButtonsVisibility(){
         var settings = quiz.settings;
-        var widgetsData = {englishMode: '#WkitToogleLanguage', audioMode: '#WkitToogleAudio', randomSelection: '#WkitRandomSelection', dateOrdering: '#WkitDateOrdering',
-                           exportCSV: '#WkitExport', itemExport: '#WkitWordExport', selfStudy: '#WkitQuizSelection', temporaryFilters: '#WkitFilterSelector',};
+        var widgetsData = {englishMode: '#WkitToogleLanguage', audioMode: '#WkitToogleAudio', leechTraining: '#WkitLeechTraining',
+                           randomSelection: '#WkitRandomSelection', dateOrdering: '#WkitDateOrdering',
+                           temporaryFilters: '#WkitFilterSelector', viewsReports: '#WkitViewSelector',
+                           exportCSV: '#WkitExport', itemExport: '#WkitWordExport', selfStudy: '#WkitQuizSelection',};
         for (var feature in widgetsData){
             if (settings.enableFeatures[feature] === true){
                 $(widgetsData[feature]).css('display', 'inline');
@@ -9162,7 +12218,7 @@
         } else {
             $('#WkitQuizTable').css('display', 'none');
         };
-        if (settings.enableFeatures.temporaryFilters === false){
+        if (settings.enableFeatures.temporaryFilters === false && settings.enableFeatures.viewsReports === false){
             $('.WkitTitle').css('display', 'inline');
         } else {
             $('.WkitTitle').css('display', 'none');
@@ -9181,7 +12237,7 @@
         dropdown.html(tableList);
         $('#WkitTableSelector').prop('selectedIndex',activeTable);
 
-        // Populate the other dropdown with the temporary filters
+        // Populate the dropdown with the temporary filters
         tableList = '';
         let activeFilter = quiz.settings.active_fpreset;
         var fpresets = quiz.settings.fpresets;
@@ -9191,6 +12247,17 @@
         dropdown = $('#WkitFilterSelector');
         dropdown.html(tableList);
         $('#WkitFilterSelector').prop('selectedIndex',activeFilter);
+
+        // Populate the dropdown with the views and reports
+        tableList = '';
+        let activeview = quiz.settings.active_vpreset;
+        var vpresets = quiz.settings.vpresets;
+        for (table of vpresets) {
+            tableList += '<option>' + table.name.replace(/</g,'&lt;').replace(/>/g,'&gt;') +'</option>'
+        };
+        dropdown = $('#WkitViewSelector');
+        dropdown.html(tableList);
+        $('#WkitViewSelector').prop('selectedIndex',activeFilter);
     };
 
     function formatControlBar (){
@@ -9210,6 +12277,7 @@
         $('#WkitToogleAudio').click(toggleAudio);
         $('#WkitLeechTraining').click(toggleLeechTrainingEmulation);
         $('#WkitRandomSelection').click(toggleRandomSelection);
+        $('#WkitViewSelector').change(selectView);
         $('#WkitDateOrdering').click(toggleDateOrdering);
         $('#WkitQuizTable').click(quizOnWholeTable);
         $('#WkitQuizSelection').click(quizOnSelection);
@@ -9217,7 +12285,7 @@
         $("#WkitExport").click(exportTable);
         $("#WkitSettings").click(open_quiz_settings);
 
-        // handy little trick to permit to select twice the same option on a dropdown
+        // handy little trick to permit to select more than once the same option on a dropdown
         var $select = $('#WkitFilterSelector'); // configured for the temporary filter selector
 
         $select.click(function(){
@@ -9242,31 +12310,44 @@
         // end of clicking twice the same dropdown
     };
 
-    // -------------------------------------------------------------------------------------
+    // ====================================================================================
     // Functions for loading scripts and data files, managing the cache while we are at it
     // -------------------------------------------------------------------------------------
 
     //------------------------------------------------------------------------------
     // To reduce latency non Wanikani data is loaded on demand.
     // Variables dataRequired and dataLoaded track which data is required and loaded
-    // Functions to determine requirements and loading data are here
-    // Function dataReload is the central point to call them
-    // Any function that may need incremental data should call dataReload
 
-    var dataRequired = {larsYencken: false, niai: false, keisei: false, strokeOrder: false};
-    var dataLoaded = {larsYencken: false, niai: false, keisei: false, strokeOrder: false};
+    var dataRequired = {larsYencken: false, niai: false, keisei: false, strokeOrder: false, kanjidic2: false, traditionalRadicals: false, };
+    var dataLoaded = {larsYencken: false, niai: false, keisei: false, strokeOrder: false, kanjidic2: false, traditionalRadicals: false, };
+
+    var kanjidic2Used = {Kanjidic2_Meaning: true, Kanjidic2_Onyomi: true, Kanjidic2_Kunyomi: true, Kanjidic2_Nanori: true, Stroke_Count: true};
 
     function determineDataRequiredTable() {
-        let preset = wkof.settings[scriptId].tablePresets[wkof.settings[scriptId].active_ipreset];
-        if (preset.showKanji === 'Stroke Order') dataRequired.strokeOrder = true;
-        if (preset.showKanji === 'Keisei' || preset.showRadical === 'Keisei') dataRequired.keisei = true;
-        for (let info of standardInfo){
+        let preset, displayedInfo
+        if (wkof.settings[scriptId].active_vpreset === 0){
+            preset = wkof.settings[scriptId].tablePresets[wkof.settings[scriptId].active_ipreset];
+            displayedInfo = standardInfo;
+            if (preset.showKanji === 'Stroke Order') dataRequired.strokeOrder = true;
+            if (preset.showKanji === 'Keisei' || preset.showRadical === 'Keisei') dataRequired.keisei = true;
+        } else {
+            preset = wkof.settings[scriptId].vpresets[wkof.settings[scriptId].active_vpreset];
+            displayedInfo = preset.type === 'view' ? viewInfo : reportInfo;
+            if (preset.vshowKanji === 'Stroke Order') dataRequired.strokeOrder = true;
+            if (preset.vshowKanji === 'Keisei' || preset.vshowRadical === 'Keisei') dataRequired.keisei = true;
+        };
+        for (let info of displayedInfo){
             if (preset[info] === 'Lars_Yencken') dataRequired.larsYencken = true;
             if (preset[info] === 'Niai') {
                 dataRequired.niai = true;
                 dataRequired.larsYencken = true;
             };
+            if (kanjidic2Used[preset[info]]) dataRequired.kanjidic2 = true;
+            if (preset[info] === 'trad_rad') dataRequired.traditionalRadicals = true;
         };
+
+        let ipreset = wkof.settings[scriptId].ipresets[wkof.settings[scriptId].active_ipreset];
+        if (ipreset.content.wk_items.sources.trad_rad) dataRequired.traditionalRadicals = true;
     };
 
     function determineDataRequiredExport() {
@@ -9277,6 +12358,11 @@
                 dataRequired.niai = true;
                 dataRequired.larsYencken = true;
             };
+            if (kanjidic2Used[preset[info]]) dataRequired.kanjidic2 = true;
+            if (preset[info] === 'trad_rad') dataRequired.traditionalRadicals = true;
+
+        let ipreset = wkof.settings[scriptId].ipresets[wkof.settings[scriptId].active_ipreset];
+        if (ipreset.content.wk_items.sources.trad_rad) dataRequired.traditionalRadicals = true;
         };
     };
 
@@ -9294,6 +12380,12 @@
         if (dataRequired.strokeOrder && !dataLoaded.strokeOrder) {
             promiseList.push(get_stroke_order_file().then(function(){dataLoaded.strokeOrder = true;}));
         };
+        if (dataRequired.kanjidic2 && !dataLoaded.kanjidic2) {
+            promiseList.push(loadKanjidic2().then(function(){dataLoaded.kanjidic2 = true;}));
+        };
+        if (dataRequired.traditionalRadicals && !dataLoaded.traditionalRadicals) {
+            promiseList.push(loadTraditionalRadicals().then(function(){dataLoaded.traditionalRadicals = true;}));
+        };
         return Promise.all(promiseList);
     };
 
@@ -9306,17 +12398,19 @@
     };
 
     function loadItemsFiltersAndDb(){
-         var supportWait_state = {dateFilters: 'dateFilters', statsFilters: 'statsFilters', searchFilters: 'searchFilters', itemList: 'item_list_filter', partOfSpeech: 'pos_filter',
-                                 joyoJpltFrequency: 'JJFFilters', visSim: 'VSKFilter'};
+         var supportWait_state = {dateFilters: 'dateFilters', statsFilters: 'statsFilters', searchFilters: 'searchFilters', kanjidic2_trad_rad: 'advSearchFilters',
+                                  itemList: 'item_list_filter', blockList: 'blacklist_filter', partOfSpeech: 'pos_filter',
+                                  joyoJpltFrequency: 'JJFFilters', visSim: 'VSKFilter'};
 
-         return loadAllItemsFiltersAndDb()
+         return loadAllItemsFiltersAndDb();
 
         // settings defaults are not initialized when loadFilters is called - We need to manually check for undefined
         function loadAllItemsFiltersAndDb(){
             let promiseList = [];
             let settings = wkof.settings[scriptId];
 
-            promiseList.push(fetch_all_items().then(loadSvgForRadicals));
+            promiseList.push(fetch_all_items())
+            promiseList.push(loadSvgForRadicals())
             promiseList.push(initLastSelectionRecorded());
 
             for (let filter in optionalFilters){
@@ -9328,13 +12422,15 @@
             };
 
             // load included filters if not included with user selected filter scripts
+            promiseList.push(registerTraditionalRadicals());
             if (settings.optionalFilters === undefined || !settings.optionalFilters.dateFilters) promiseList.push(registerDateFilters());
             if (settings.optionalFilters === undefined || !settings.optionalFilters.statsFilters) promiseList.push(registerStatisticsFilters());
             if (settings.optionalFilters === undefined || !settings.optionalFilters.searchFilters) promiseList.push(registerSearchFilters());
+            if (settings.optionalFilters === undefined || !settings.optionalFilters.kanjidic2_trad_rad) promiseList.push(registerKanjidic2Filters());
             if (settings.optionalFilters === undefined || !settings.optionalFilters.joyoJpltFrequency) promiseList.push(registerJLPTFilters());
             promiseList.push(registerItemInspectorFilter());
 
-            return Promise.all(promiseList);
+            return Promise.all(promiseList)
         };
 
     };
@@ -9364,6 +12460,8 @@
         deleteNiaiCache();
         deleteVisuallySimilarCache();
         deleteStokeOrderCache();
+        kanjidic2_cacheDelete();
+        trad_rad_cacheDelete();
         wkof.file_cache.delete(Wkit_SVGforRadicals);
         wkof.file_cache.delete(lodash_file);
         wkof.file_cache.delete(lzma_file);
@@ -9403,7 +12501,7 @@
 
         //
         // If the size of the two text instances is the same, the font does not exist because it is being rendered
-        // using the default sans-serif font
+        // using the default monospace font
         //
         if (newSize === baselineSize) {
             return false;
@@ -9412,11 +12510,9 @@
         };
     };
 
-    var notSelfStudyQuiz = false;
     function check_Self_Study_Quiz(){
         let settings = wkof.settings[scriptId];
         if (settings.enableFeatures !== undefined && settings.enableFeatures.selfStudy === false) {
-            notSelfStudyQuiz = true;
             return;
         };
         if ($('#selfstudyquiz_script_link a').length === 0) {
@@ -9425,8 +12521,6 @@
             if (response) {
                 window.location.href = 'https://community.wanikani.com/t/userscript-self-study-quiz/13191';
             };
-        } else {
-            notSelfStudyQuiz = true;
         };
     };
 
@@ -9444,28 +12538,22 @@
         };
     };
 
-    var accessAllowed = true;
     function testPrerequisites(){
         script_name = 'Wanikani Item Inspector';
-
-        if (userData.subscription.max_level_granted !== 60) {
-            accessAllowed = false;
-            alert(script_name + ' requires an active subscription to access the data.');
-            return;
-        };
-
 
         check_additional_filters();
         check_Self_Study_Quiz();
 
-        if ((!doesFontExist('KanjiStrokeOrders')) && quiz.settings.tablePresets.reduce(((acc, val)=>(val.showStrokeOrder || acc)), false)) {
+        let tableUseStrokeOrder = quiz.settings.tablePresets.reduce(((acc, val)=>(val.showStrokeOrder || acc)), false);
+        let viewUseStrokeOrder = quiz.settings.vpresets.reduce(((acc, val)=>(val.vshowStrokeOrder || acc)), false);
+        if ((!doesFontExist('KanjiStrokeOrders')) && (tableUseStrokeOrder || viewUseStrokeOrder)) {
             response = confirm(script_name + ' requires  Kanji Stroke Order Font.\nWithout this font the Kanji Stroke Order popups\nwill not show the stroke order.\n\n Click "OK" to be forwarded to installation instructions.');
             if (response) {
                 window.location.href = 'https://www.nihilist.org.uk/';
             };
         };
 
-        const currentQuestionNumber = 2;
+        const currentQuestionNumber = 4;
         const asked = wkof.settings[scriptId].questionAsked || 0;
         if (asked < currentQuestionNumber && lackDefaults()) {
             response = confirm(script_name + ' determined you are missing defaults tables and/or temporary filters.\n\n Click "OK" to have these missing features added to your configuration.');
@@ -9490,7 +12578,7 @@
         ageCache().then(function(){return wkof.set_state(Wkit_navigation, 'Ready')});
         init_settings();
         testPrerequisites();
-        if (hasAdditionalFilters && accessAllowed){
+        if (hasAdditionalFilters){
             setup_quiz_settings();
             install_css();
             table_css();
@@ -9504,21 +12592,16 @@
         };
     };
 
-    var userData; // Then contents of the user endpoint
-
     wkof.include('ItemData, Menu, Settings');
 
     // parallelism to reduce startup latency, especially if network transfer are involved
     // There is not much to gain because this is mostly disk access on the same disk
     // but every little gain counts.
     Promise.all([loadPrerequisiteScripts(),
-                 wkof.ready('Settings').then(function(){return wkof.Settings.load(scriptId)}),
-                 wkof.ready('Apiv2')
-                       .then(function(){return wkof.Apiv2.get_endpoint('user')})
-                       .then(function(data){userData = data}),
+                 wkof.ready('Settings').then(function(){ return wkof.Settings.load(scriptId)}),
                  wkof.ready('ItemData, Menu'),
                 ])
-        .then(loadItemsFiltersAndDb) // needs prerequisite scripts, ItemData, userData and loaded settings
+        .then(loadItemsFiltersAndDb) // must be after prerequisite scripts, ItemData, and loaded settings
         .then(initSequence)
 
 })();
