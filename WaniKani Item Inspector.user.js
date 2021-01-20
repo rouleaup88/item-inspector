@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.16.0
+// @version       1.16.1
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -3232,8 +3232,16 @@
                 somethingNotFound = somethingNotFound || !found;
                 if (found !== true) settings.fpresets.push($.extend(true, {}, {name: name, content: ipre_defaults}, tableData));
             };
+            for (tableData of vpresets_defaults){
+                let name = tableData.name;
+                let found = false;
+                settings.vpresets.forEach((config) => {if (config.name === name) found = true;});
+                somethingNotFound = somethingNotFound || !found;
+                if (found !== true) settings.vpresets.push($.extend(true, {}, vpreset_defaults, tableData));
+            };
             refresh_ipresets();
             refresh_fpresets();
+            refresh_vpresets();
             if (somethingNotFound){
                 alert('Your missing defaults have been restored.');
             } else {
@@ -3253,6 +3261,12 @@
                 let found = false;
                 let name = tableData.name;
                 settings.fpresets.forEach((config) => {if (config.name === name) found = true;});
+                if (!found) return true;
+            };
+            for (tableData of vpresets_defaults){
+                let found = false;
+                let name = tableData.name;
+                settings.vpresets.forEach((config) => {if (config.name === name) found = true;});
                 if (!found) return true;
             };
             return false;
