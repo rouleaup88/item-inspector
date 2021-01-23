@@ -107,8 +107,10 @@ Datetime Parsing and Validation Functions.js<br>
 WaniKani Open Framework Date Filters.user.js<br>
 WaniKani Open Framework Search Filters.user<br>
 WaniKani Open Framework Statistics Filters.user<br>
-<br><br>
-The jisho.org stroke order image are available under the Creative Commons Attribution-Share Alike 3.0 license. https://creativecommons.org/licenses/by-sa/3.0/legalcode
+<br><br><br>
+The WK_radicals.json.compressed file is available under the Creative Commons Attribution-Share Alike 4.0 license. https://creativecommons.org/licenses/by-sa/4.0/
+
+The jisho.org stroke order image is available under the Creative Commons Attribution-Share Alike 3.0 license. https://creativecommons.org/licenses/by-sa/3.0/legalcode
 
 Lars Yencken Visual Similarity data is freely available under the Creative Commons Attribution 3.0 Unported license.
 
