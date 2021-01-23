@@ -3,9 +3,10 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.16.1
+// @version       1.17.0
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
+// @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
 // @run-at        document-end
 // @grant         none
@@ -27,6 +28,22 @@
 // These restrictions are required because we can't legally change the license for someone else's code and database without their permission.
 // Not even if we modify their code.
 //
+// ------------------------------
+// The text of the MIT License is:
+//
+// Copyright 2020+, Paul Rouleau
+// Copyright 2018+, Robin Findley
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ===============================================================
 
     /* globals wkof, $, ss_quiz, _, LZMA, advSearchFilters */
@@ -50,6 +67,9 @@
 
     // SVG images for the radicals without characters - just giving the key for storing an object in wkof cache
     const Wkit_SVGforRadicals = 'Wkit_SVGforRadicals';
+
+    // Stroke count for Wanikani radicals
+    const Wkit_StrokeCountforRadicals = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/WK_radicals.json.compressed';
 
     // Traditional radicals items
     const traditionaRadicalsFile = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/trad_rad.json.compressed';
@@ -2745,7 +2765,7 @@
                                                   content:{'male': 'Male, Kenichi','female': 'Female, Kyoko', 'random': 'Random',},
                                                  },
                                     themeColor: {type:'dropdown',label:'Colors in Breeze Dark Theme',
-                                                 hover_tip:'Whether Breeze Dark colors or\nWanikani vanilla colors are used\nfor items in Breeze Dark theme.\n\nThe Color Blind Option sets a darker font\nwith Breeze Dark native colors.\nThis let the user use custom Breeze Dark\ncolors they can distinguish.\n\nThis setting is ignored when Bree Dark is not used ',
+                                                 hover_tip:'Whether Breeze Dark colors or\nWanikani vanilla colors are used\nfor items in Breeze Dark theme.\n\nThe Color Blind Option sets a darker font\nwith Breeze Dark native colors.\nThis let the user use custom Breeze Dark\ncolors they can distinguish.\n\nThis setting is ignored when Breeze Dark is not used ',
                                                  default:'Breeze_Dark', content:{'Breeze_Dark': 'Breeze Dark Colors', 'Vanilla': 'WK Vanilla Colors',
                                                                                  'Color_Blind': 'Color Blind Option',},
                                                  },
@@ -3389,11 +3409,6 @@
         populate_presets($('#Item_Inspector_source'), settings.ipresets, settings.active_ipreset);
 
         setTableDefault();
-        setThemeClasses(null, null);
-        initCurrentItem();
-        setNumberOfLines();
-        populateDropdown();
-        setButtonsVisibility();
         if (old_position != quiz.settings.position){
             if (document.getElementById("WkitTopBar")){
                 $('#WkitTopBar').empty();
@@ -3402,6 +3417,11 @@
                 eventHandlers();
             };
         };
+        setThemeClasses(null, null);
+        initCurrentItem();
+        setNumberOfLines();
+        populateDropdown();
+        setButtonsVisibility();
 
         quiz.settings.audioMode = false;
         formatControlBar();
@@ -3973,7 +3993,17 @@
     //============================================================================
     // Begin code lifted from wkof core module and adapted to transfer binary data
 
-	function split_list(str) {return str.replace(/^\s+|\s*(,)\s*|\s+$/g, '$1').split(',').filter(function(name) {return (name.length > 0);});};
+    function split_list(str) {return str.replace(/、/g,',')
+        .replace(/[\s ]+/g,' ')
+        .replace(/！/g, '!')
+        .replace(/＊/g, '*')
+        .trim()
+        .replace(/ *, */g, ',')
+        .replace(/ *， */g, ',')
+        .toLowerCase()
+        .split(',')
+        .filter(function(name) {return (name.length > 0);});
+     };
 	function promise(){var a,b,c=new Promise(function(d,e){a=d;b=e;});c.resolve=a;c.reject=b;return c;};
 
     //------------------------------
@@ -4105,6 +4135,36 @@
 
     function kanjidic2_cacheDelete(){
         return wkof.file_cache.delete(kanjidic2File);
+    };
+
+    // ----------------------------------------------------------------------
+    // Stroke Count for Wanikani radicals
+    // ----------------------------------------------------------------------
+
+    var WkStrokeCountData;
+    function loadStrokeCount(){
+        // check if advSearchFilters script has already loaded the data
+        if (typeof (advSearchFilters) === 'object' && (WkStrokeCountData in advSearchFilters)){
+            WkStrokeCountData = advSearchFilters.WkStrokeCountData;
+            return Promise.resolve();
+        };
+        return load_file(Wkit_StrokeCountforRadicals, true, {responseType: "arraybuffer"})
+             .then(function(data){lzmaDecompressAndProcessWkStrokeCount(data)})
+    };
+
+    function lzmaDecompressAndProcessWkStrokeCount(data){
+        let inStream = new LZMA.iStream(data);
+        let outStream = LZMA.decompressFile(inStream);
+        let string = streamToString(outStream);
+        WkStrokeCountData = JSON.parse(string);
+        // publish data to advSearchFilters script
+        if (typeof advSearchFilters === 'object'){
+            advSearchFilters.WkStrokeCountData =  WkStrokeCountData;
+        };
+    };
+
+    function WkStrokeCount_cacheDelete(){
+        return wkof.file_cache.delete(Wkit_StrokeCountforRadicals);
     };
 
     // ----------------------------------------------------------------------
@@ -5313,23 +5373,24 @@
                                    'reportValue': makeFrequencyReportValue,
                                    'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(num / 500) * 500).toString(): 'Unavailable')}),
                                   },
-                    'Stroke_Count': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'trad_rad'}), 'label': 'Stroke&nbsp;Count',
-                                   'tableEntry':  makeStrokeCountData || "Unavailable",
-                                   'tableEntryMarker':  makeStrokeCountData || "Unavailable",
-                                   'tooltipEntry':  makeStrokeCountData,
-                                   'sortkey': ((item) => ((item.object === 'kanji' || item.object === 'trad_rad') ? makeStrokeCountData(item) : infinity)),
-                                   'sortOrder': 'Ascending',
-                                   'sortkey2':  ((item) => {return item.data.level}),
-                                   'sortOrder2': 'Ascending',
-                                   'title': 'Stroke Count',
-                                   'labelExport': 'Stroke Count: ',
-                                   'needQuotes': false,
-                                   'freeFormText': false,
-                                   'export': makeStrokeCountData || "Unavailable",
-                                   'isDate': false, 'isList': true,
-                                   'reportValue': ((item) => {return Number(makeStrokeCountData(item)) || "Unavailable"}),
-                                   'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
-                                   },
+                    'Stroke_Count': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'radical' || item.object === 'trad_rad'}),
+                                     'label': 'Stroke&nbsp;Count',
+                                     'tableEntry':  makeStrokeCountData || "Unavailable",
+                                     'tableEntryMarker':  makeStrokeCountData || "Unavailable",
+                                     'tooltipEntry':  makeStrokeCountData,
+                                     'sortkey': ((item) => ((item.object === 'kanji' || item.object === 'radical' || item.object === 'trad_rad') ? makeStrokeCountData(item) : infinity)),
+                                     'sortOrder': 'Ascending',
+                                     'sortkey2':  ((item) => {return item.data.level}),
+                                     'sortOrder2': 'Ascending',
+                                     'title': 'Stroke Count',
+                                     'labelExport': 'Stroke Count: ',
+                                     'needQuotes': false,
+                                     'freeFormText': false,
+                                     'export': makeStrokeCountData || "Unavailable",
+                                     'isDate': false, 'isList': true,
+                                     'reportValue': ((item) => {return Number(makeStrokeCountData(item)) || "Unavailable"}),
+                                     'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
+                                     },
 
 
                     // -------------------------
@@ -5454,11 +5515,9 @@
     };
 
     function makeStrokeCountData(item){
-        if (item.object !== 'kanji' && item.object !== 'trad_rad'){
-            return 'Unavailable';
-        };
-        if (item.object === 'kanji' && kanjidic2Data[item.data.characters] !== undefined) {return kanjidic2Data[item.data.characters].stroke_count;};
-        if (item.object === 'trad_rad' && item.data.stroke_count !== undefined){return item.data.stroke_count;}
+        if (item.object === 'kanji' && kanjidic2Data[item.data.characters] !== undefined) {return Number(kanjidic2Data[item.data.characters].stroke_count);};
+        if (item.object === 'radical') {return WkStrokeCountData[item.id].stroke_count;};
+        if (item.object === 'trad_rad' && item.data.stroke_count !== undefined){return Number(item.data.stroke_count);}
         return 'Unavailable';
     };
 
@@ -12206,7 +12265,7 @@
             $(position).before(sectionContainer);
         } else {
             $(position).after(sectionContainer);
-        }
+        };
         // insert the top block - must be separate from the sectionContainer to work around a bug
         $('#WkitTopBar').append(topBlock);  // must be appended - someone else may be there due to the bug
         formatControlBar();
@@ -12332,8 +12391,10 @@
     // To reduce latency non Wanikani data is loaded on demand.
     // Variables dataRequired and dataLoaded track which data is required and loaded
 
-    var dataRequired = {larsYencken: false, niai: false, keisei: false, strokeOrder: false, kanjidic2: false, traditionalRadicals: false, };
-    var dataLoaded = {larsYencken: false, niai: false, keisei: false, strokeOrder: false, kanjidic2: false, traditionalRadicals: false, };
+    var dataRequired = {larsYencken: false, niai: false, keisei: false, strokeOrder: false, kanjidic2: false, traditionalRadicals: false,
+                        WkStrokeCountData: false,};
+    var dataLoaded = {larsYencken: false, niai: false, keisei: false, strokeOrder: false, kanjidic2: false, traditionalRadicals: false,
+                      WkStrokeCountData: false, };
 
     var kanjidic2Used = {Kanjidic2_Meaning: true, Kanjidic2_Onyomi: true, Kanjidic2_Kunyomi: true, Kanjidic2_Nanori: true, Stroke_Count: true};
 
@@ -12357,6 +12418,7 @@
                 dataRequired.larsYencken = true;
             };
             if (kanjidic2Used[preset[info]]) dataRequired.kanjidic2 = true;
+            if (preset[info] === 'Stroke_Count') dataRequired.WkStrokeCountData = true;
             if (preset[info] === 'trad_rad') dataRequired.traditionalRadicals = true;
         };
 
@@ -12373,6 +12435,7 @@
                 dataRequired.larsYencken = true;
             };
             if (kanjidic2Used[preset[info]]) dataRequired.kanjidic2 = true;
+            if (preset[info] === 'Stroke_Count') dataRequired.WkStrokeCountData = true;
             if (preset[info] === 'trad_rad') dataRequired.traditionalRadicals = true;
 
         let ipreset = wkof.settings[scriptId].ipresets[wkof.settings[scriptId].active_ipreset];
@@ -12396,6 +12459,9 @@
         };
         if (dataRequired.kanjidic2 && !dataLoaded.kanjidic2) {
             promiseList.push(loadKanjidic2().then(function(){dataLoaded.kanjidic2 = true;}));
+        };
+        if (dataRequired.WkStrokeCountData && !dataLoaded.WkStrokeCountData) {
+            promiseList.push(loadStrokeCount().then(function(){dataLoaded.WkStrokeCountData = true;}));
         };
         if (dataRequired.traditionalRadicals && !dataLoaded.traditionalRadicals) {
             promiseList.push(loadTraditionalRadicals().then(function(){dataLoaded.traditionalRadicals = true;}));
@@ -12423,8 +12489,9 @@
             let promiseList = [];
             let settings = wkof.settings[scriptId];
 
-            promiseList.push(fetch_all_items())
-            promiseList.push(loadSvgForRadicals())
+            promiseList.push(fetch_all_items());
+            promiseList.push(loadSvgForRadicals());
+            //promiseList.push(loadStrokeCount());
             promiseList.push(initLastSelectionRecorded());
 
             for (let filter in optionalFilters){
@@ -12476,6 +12543,7 @@
         deleteStokeOrderCache();
         kanjidic2_cacheDelete();
         trad_rad_cacheDelete();
+        WkStrokeCount_cacheDelete()
         wkof.file_cache.delete(Wkit_SVGforRadicals);
         wkof.file_cache.delete(lodash_file);
         wkof.file_cache.delete(lzma_file);

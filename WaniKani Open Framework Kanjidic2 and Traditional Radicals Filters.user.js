@@ -3,7 +3,7 @@
 // @namespace     https://www.wanikani.com
 // @description   Kanjidic2 and traditional radicals filters for the WaniKani Open Framework
 // @author        prouleau
-// @version       1.0.0
+// @version       1.1.0
 // @include       https://www.wanikani.com/*
 // @license       GPLV3; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with an exception described in comments
 // @grant         none
@@ -75,6 +75,9 @@ var advSearchFilters = {};
     const lodash_file = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/lodash.min.js';
     const lzma_file = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/lzma.js';
     const lzma_shim_file = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/lzma.shim.js';
+
+    // Stroke count for Wanikani radicals
+    const Wkit_StrokeCountforRadicals = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/WK_radicals.json.compressed';
 
     // Traditional radicals items
     const traditionaRadicalsFile = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/trad_rad.json.compressed';
@@ -172,6 +175,7 @@ var advSearchFilters = {};
         deleteVisuallySimilarCache();
         deleteNiaiCache();
         kanjidic2_cacheDelete();
+        WkStrokeCount_cacheDelete()
         trad_rad_cacheDelete();
         wkof.file_cache.delete(lodash_file);
         wkof.file_cache.delete(lzma_file);
@@ -323,6 +327,11 @@ var advSearchFilters = {};
         return loadMissingData();
     };
 
+    function prepareKanjidic2AndWkRad(filterValue) {
+        dataRequired.WkStrokeCountData = true;
+        return prepareKanjidic2(filterValue);
+    };
+
     // BEGIN Stroke Count GTEQ
 
     let strokeCountGteqHover_tip = 'Kanji and traditional radicals whose stroke count >= value';
@@ -335,7 +344,7 @@ var advSearchFilters = {};
             default: 0,
             filter_func: strokeOrderGteqSearchFilter,
             filter_value_map: (x) => Number(x),
-            prepare: prepareKanjidic2,
+            prepare: prepareKanjidic2AndWkRad,
             set_options: function(options) { options.subjects = true;},
             hover_tip: strokeCountGteqHover_tip,
         };
@@ -355,6 +364,8 @@ var advSearchFilters = {};
 
         if (itemType === 'kanji' && (item.data.slug in kanjidic2Data)) {
             return Number(kanjidic2Data[item.data.slug].stroke_count) >= filterValue;
+        } else if (itemType === 'radical') {
+            return WkStrokeCountData[item.id].stroke_count >= filterValue;
         } else if (itemType === 'trad_rad') {
             if (typeof item.data.stroke_count === 'string'){
                 return Number(item.data.stroke_count) >= filterValue;
@@ -378,7 +389,7 @@ var advSearchFilters = {};
             default: 100,
             filter_func: strokeOrderLteqSearchFilter,
             filter_value_map: (x) => Number(x),
-            prepare: prepareKanjidic2,
+            prepare: prepareKanjidic2AndWkRad,
             set_options: function(options) { options.subjects = true;},
             hover_tip: strokeCountLteqHover_tip,
         };
@@ -398,6 +409,8 @@ var advSearchFilters = {};
 
         if (itemType === 'kanji' && item.data.characters in kanjidic2Data) {
             return Number(kanjidic2Data[item.data.characters].stroke_count) <= filterValue;
+        } else if (itemType === 'radical') {
+            return WkStrokeCountData[item.id].stroke_count <= filterValue;
         } else if (itemType === 'trad_rad') {
             if (typeof item.data.stroke_count === 'string'){
                 return Number(item.data.stroke_count) <= filterValue;
@@ -1655,7 +1668,6 @@ var advSearchFilters = {};
             default: explicitList_defaults,
             callable_dialog: true,
             on_click: explicitListDialog,
-            prepare: prepareKanjidic2,
             filter_value_map: prepareValueExplicitList,
             filter_func: explicitListFilter,
             set_options: function(options) { options.subjects = true; },
@@ -1938,7 +1950,6 @@ var advSearchFilters = {};
             default: explicitBlock_defaults,
             callable_dialog: true,
             on_click: explicitBlockDialog,
-            prepare: prepareKanjidic2,
             filter_value_map: prepareValueExplicitBlock,
             filter_func: explicitBlockFilter,
             set_options: function(options) { options.subjects = true; },
@@ -2945,6 +2956,36 @@ var advSearchFilters = {};
     };
 
     // ----------------------------------------------------------------------
+    // Stroke Count for Wanikani radicals
+    // ----------------------------------------------------------------------
+
+    var WkStrokeCountData;
+    function loadStrokeCount(){
+        // check if Item Inspector has already loaded the data
+        if (typeof (advSearchFilters) === 'object' && (WkStrokeCountData in advSearchFilters)){
+            WkStrokeCountData = advSearchFilters.WkStrokeCountData;
+            return Promise.resolve();
+        };
+        return load_file(Wkit_StrokeCountforRadicals, true, {responseType: "arraybuffer"})
+             .then(function(data){lzmaDecompressAndProcessWkStrokeCount(data)})
+    };
+
+    function lzmaDecompressAndProcessWkStrokeCount(data){
+        let inStream = new LZMA.iStream(data);
+        let outStream = LZMA.decompressFile(inStream);
+        let string = streamToString(outStream);
+        WkStrokeCountData = JSON.parse(string);
+        // publish data to Item Inspectort
+        if (typeof advSearchFilters === 'object'){
+            advSearchFilters.WkStrokeCountData =  WkStrokeCountData;
+        };
+    };
+
+    function WkStrokeCount_cacheDelete(){
+        return wkof.file_cache.delete(Wkit_StrokeCountforRadicals);
+    };
+
+    // ----------------------------------------------------------------------
     // A series of functions to add traditional radicals as a source of items
     // ----------------------------------------------------------------------
 
@@ -3026,8 +3067,8 @@ var advSearchFilters = {};
     // To reduce latency non Wanikani data is loaded on demand.
     // Variables dataRequired and dataLoaded track which data is required and loaded
 
-    var dataRequired = {larsYencken: false, niai: false, keisei: false, kanjidic2: false, items: false,};
-    var dataLoaded = {larsYencken: false, niai: false, keisei: false, kanjidic2: false, items: false,};
+    var dataRequired = {larsYencken: false, niai: false, keisei: false, kanjidic2: false, items: false, WkStrokeCountData: false,};
+    var dataLoaded = {larsYencken: false, niai: false, keisei: false, kanjidic2: false, items: false, WkStrokeCountData: false,};
 
     function loadMissingData(){
         let promiseList = [];
@@ -3043,6 +3084,9 @@ var advSearchFilters = {};
         };
         if (dataRequired.kanjidic2 && !dataLoaded.kanjidic2) {
             promiseList.push(loadKanjidic2().then(function(){dataLoaded.kanjidic2 = true;}));
+        };
+        if (dataRequired.WkStrokeCountData && !dataLoaded.WkStrokeCountData) {
+            promiseList.push(loadStrokeCount().then(function(){dataLoaded.WkStrokeCountData = true;}));
         };
         // Items must always be loaded first because they are prerequisites to indexes
         if (!dataLoaded.items) {
