@@ -57,6 +57,14 @@ wikipedia https://en.wikipedia.org/wiki/List_of_kanji_radicals_by_stroke_count
 <br>
 Some stroke count from stroke order font: https://www.nihilist.org.uk/Home
 <br><br><br>
+The following file contains stroke count for Wanikani radicals (lzma compressed)
+<br><br>
+WK_radicals.json.compressed
+<br><br>
+The stroke count data has been manually copied from the stroke count in the Kanji Stroke Order font.
+<br>
+https://www.nihilist.org.uk/Home
+<br><br><br>
 For information about lzma compression in Item Inspector see https://github.com/rouleaup88/Kanji-stroke-order
 <br><br><br>
 The folowing files are utility scripts adapted to be used with the wkof.load_script() function. They issue a wkof.set_state(file_id,'Ready') when they
