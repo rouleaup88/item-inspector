@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.17.0
+// @version       1.18.0
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -962,12 +962,12 @@
 
             #WkitTopBar.WkitLight .WkitItemListed span.kanji {
                   background-image: linear-gradient(0deg,  var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                  background-color:  var(--Wkit-base-kan-color: #00a1f1);
+                  background-color:  var(--Wkit-base-kan-color);
             }
 
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.kanji {
                   background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                  background-color:  var(--Wkit-base-kan-color: #00a1f1);
+                  background-color:  var(--Wkit-base-kan-color);
             }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.kanji,
@@ -1217,7 +1217,7 @@
                   white-space: nowrap;
            }
 
-           /* Styling of elements containing only chracters */
+           /* Styling of elements containing only characters */
 
             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left { color: var(--wkit-text-color-light); }
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left { color: var(--wkit-text-color-dark); }
@@ -1962,6 +1962,306 @@
 
            /* ------------------------------------------------------------------------------ */
            /* End of popups for mnemonics, hints, context sentences, notes and user synonyms */
+
+           /* ---------------- */
+           /* The kanji picker */
+
+           #wkofs_WkitKanjiPicker {
+                  --Wkit-base-rad-color: #00a1f1;
+                  --Wkit-grad-rad-color1: #0af;
+                  --Wkit-grad-rad-color2: #0093dd;
+                  --Wkit-base-kan-color: #f100a1;
+                  --Wkit-grad-kan-color1: #f0a;
+                  --Wkit-grad-kan-color2: #dd0093;
+                  --Wkit-base-trad-color:  #00a800;
+                  --Wkit-grad-trad-color1: #0eaf0e;
+                  --Wkit-grad-trad-color2: #0d9c0d;
+                  --wkit-text-color-light: white;
+                  --wkit-text-color-dark: black;
+                  --wkit-background-light-theme: #e6e6e6;
+                  --wkit-background-dark-theme: #4e4d4d;
+                  --wkit-selected-light-theme: #000000;
+                  --wkit-unselected-all-themes: #000000;
+                  --wkit-selected-dark-theme: red;
+             }
+
+
+           #wkofs_WkitKanjiPicker .WkitKanjiPicker {
+                  display: inline-block;
+                  height: 100px;
+                  width: 100%;
+                  overflow-y: auto;
+           }
+
+           #wkofs_WkitKanjiPicker.WkitLight .WkitKanjiPicker { background-color:var(--wkit-background-light-theme); }
+           #wkofs_WkitKanjiPicker.WkitDark .WkitKanjiPicker { background-color:var(--wkit-background-dark-theme); }
+
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount {
+                  height: 70px;
+           }
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked {
+                  height: 90px;
+           }
+
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount {
+                  display: inline-block;
+                  padding: 3px;
+                  border-style: solid;
+                  min-width: 1.5em;
+                  text-align: center;
+                  text-shadow: none;
+                  color: black;
+           }
+
+           #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_strokeCount .WkitStrokeCount { border-color: var(--wkit-selected-light-theme); }
+           #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_strokeCount .WkitStrokeCount { border-color: var(--wkit-selected-dark-theme); }
+
+
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount.WkitSelected {font-weight: bold;background-color: #c1bee2}
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount:not(.WkitSelected) {font-weight: normal; background-color: #dedcf5;}
+
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount:not(.WkitNotPicked) {border-width: 3px; margin: 1px;}
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount.WkitNotPicked {border-width: 1px; margin: 3px;}
+
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking {
+                  display: inline-block;
+                  height: 176px;
+                  width: 100%;
+                  /*background-color: #e6e6e6;*/
+                  overflow-y: auto;
+           }
+
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical {
+                  display: inline-block;
+                  padding: 3px;
+                  line-height: 1.2em;
+                  /*border-color: black;*/
+                  border-style: solid;
+                  min-width: 1.5em;
+                  font-size: 25px;
+                  text-align: center;
+                  text-shadow: none;
+           }
+
+           #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical {color: var(--wkit-text-color-light);}
+           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors #WkitKanjiPicker_picking .WkitPickableRadical {color: var(--wkit-text-color-dark);}
+           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors #WkitKanjiPicker_picking .WkitPickableRadical {color: var(--inverted-text-color);}
+           #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind #WkitKanjiPicker_picking .WkitPickableRadical {color: var(--wkit-text-color-dark);}
+
+           #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani {background-color: var(--Wkit-base-rad-color);}
+           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani {background-color: var(--Wkit-base-rad-color);}
+           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani {background-color: var(--Wkit-base-rad-color);}
+
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitTraditional {background-color: var(--Wkit-base-trad-color);}
+
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical svg {
+                  width: 1em;
+                  fill: none;
+                  stroke: currentColor;
+                  stroke-width: 70;
+                  stroke-linecap: square;
+                  stroke-miterlimit: 2;
+                  vertical-align: middle;
+           }
+
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNotPicked) {border-width: 3px; margin: 1px;}
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitNotPicked {border-width: 1px; margin: 3px;}
+
+           #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNoyPicked) { border-color: var(--wkit-selected-light-theme); }
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitNotPicked { border-color: var(--wkit-unselected-all-themes); }
+           #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNotPicked) { border-color: var(--wkit-selected-dark-theme); }
+
+
+           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked .WkitKanjiPicked {
+                  display: inline-block;
+                  margin: 3px;
+                  padding: 3px;
+                  line-height: 1.2em;
+                  border-style: solid;
+                  border-width: 1px;
+                  border-color: black;
+                  min-width: 1.5em;
+                  font-size: 25px;
+                  text-align: center;
+                  text-shadow: none;
+           }
+
+           #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picked .WkitKanjiPicked {
+                  background-color: var(--Wkit-base-kan-color);
+                  color: var(--wkit-text-color-light);
+           }
+
+           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors #WkitKanjiPicker_picked .WkitKanjiPicked {
+                  background-color: var(--Wkit-base-kan-color);
+                  color: var(--wkit-text-color-dark);
+           }
+
+           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors #WkitKanjiPicker_picked .WkitKanjiPicked {
+                  background-color: var(--kanji-color);
+                  color: var(-inverted-text-color);
+           }
+
+           #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind #WkitKanjiPicker_picked .WkitKanjiPicked {
+                  background-color: var(--kanji-color);
+                  color: var(--wkit-text-color-dark);
+           }
+
+
+           /* Popups in kanji picker */
+
+          #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickerPopupContent,
+          #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked .WkitPickerPopupContent {
+                 position: absolute;
+                 visibility: hidden;
+                 height: fit-content;
+                 top: 0%;
+                 left: 0%;
+                 font-size: 100%;
+                 width: max-content;
+                 text-align: left;
+                 padding: 2px;
+                 /*transform: translateY(calc(-50% - 5px));*/
+                 transition-property: visibility;
+                 transition-delay: 0.15s;
+                 max-width: 235px;
+                 background-color: #5f1616;
+          }
+
+
+          #wkofs_WkitKanjiPicker .WkitPickerPopupContent span {
+                 margin: 5px;
+          }
+
+          #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical:hover .WkitPickerPopupContent,
+          #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked .WkitKanjiPicked:hover .WkitPickerPopupContent {
+                  visibility: visible;
+                  z-index: 15000;
+                  transition-delay: 0.15s;
+          }
+
+          /* The table in the kanji picker popups */
+
+            #wkofs_WkitKanjiPicker table{
+                  width: 100%;
+                  max-width: 100%;
+                  background-color: transparent;
+                  border-collapse: collapse;
+                  border-spacing: 0;
+            }
+
+            #wkofs_WkitKanjiPicker .right table{
+                  width: 100%;
+                  line-height: 1em;
+            }
+
+            #wkofs_WkitKanjiPicker .right table {
+                  color: var(--wkit-text-color-light);
+            }
+
+            #wkofs_WkitKanjiPicker .right table{
+                  width: 100%;
+                  line-height: 1em;
+                  border-collapse: collapse !important;
+            }
+
+            #wkofs_WkitKanjiPicker.WkitLight .right table {
+                  color: var(--wkit-text-color-light);
+            }
+
+            #wkofs_WkitKanjiPicker.WkitDark:not(.WkitBreeze) .right table {
+                  color: var(--wkit-text-color-dark-theme);
+            }
+
+            #wkofs_WkitKanjiPicker.WkitDark.WkitBreeze .right table {
+                  color: var(--text-color) !important;
+            }
+
+            #wkofs_WkitKanjiPicker .WkitPickerPopupContent .left {
+                  float: unset;
+                  width: unset;
+                  margin: unset;
+           }
+
+           #wkofs_WkitKanjiPicker .left span {
+                  font-size: 35px;
+                  line-height: 40px;
+                  display: block;
+                  align-items: center;
+                  text-align: center;
+                  border-radius: 3px;
+                  padding: 5px;
+           }
+
+           #wkofs_WkitKanjiPicker.WkitLight .left span.radical,
+           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.radical {
+                  background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+                  background-color: var(--Wkit-base-rad-color);
+           }
+
+           #wkofs_WkitKanjiPicker.WkitLight .left span.kanji,
+           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.kanji {
+                  background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
+                  background-color: var(--Wkit-base-kan-color);
+           }
+
+           #wkofs_WkitKanjiPicker.WkitLight .left span.trad_rad,
+           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.trad_rad {
+                  background-image: linear-gradient(0deg, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+                  background-color: var(--Wkit-base-trad-color);
+           }
+
+           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span.radical {
+                  background-color: var(--radical-color);
+           }
+
+           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span.kanji {
+                  background-color: var(--kanji-color);
+           }
+
+           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span.trad_rad {
+                  background-color: var(--Wkit-base-trad-color);
+           }
+
+           #wkofs_WkitKanjiPicker.WkitLight .left span {
+                  color: var(--wkit-text-color-light);
+           }
+
+           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span,
+           #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind .left span {
+                  color: var(--wkit-text-color-dark);
+           }
+
+           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span {
+                  color: var(--inverted-text-color) !important;
+           }
+
+           #wkofs_WkitKanjiPicker .WkitPickerPopupContent .right  {
+                  padding-left: 7px;
+                  padding-right: 7px;
+                  padding-bottom: 7px;
+           }
+
+           #wkofs_WkitKanjiPicker .right table td:first-child {
+                  padding-right: 10px;
+                  font-weight: bold;
+                  width: max-content;
+           }
+
+            #wkofs_WkitKanjiPicker .right table td {
+                 padding-top: 3px;
+                 padding-bottom: 0px;
+                 margin: 0px;
+                 width: 100%;
+                 font-size: 14px;
+                 line-height: 14px;
+           }
+
+
+
+           /* ------------------- */
+           /* End of kanji picker */
+
 
             /* -------------------------------------- */
             /* Utilities that don't fit in a category */
@@ -2769,7 +3069,7 @@
                                                  default:'Breeze_Dark', content:{'Breeze_Dark': 'Breeze Dark Colors', 'Vanilla': 'WK Vanilla Colors',
                                                                                  'Color_Blind': 'Color Blind Option',},
                                                  },
-                                    sect_tbl_cnts3:{type:'section',label:'Feature Selection'},
+                                    sect_tbl_cnts2:{type:'section',label:'Feature Selection'},
                                     restoreMissingDefaults: {type: 'button', label: ' ', text: 'Restore Missing Defaults', on_click: restoreMissingDefaults,
                                                              hover_tip: 'Checks your tables and temporary filters.\nRecreates any defaults that are missing.\n'+
                                                                         'Doesn\'t change existing defaults that\nhave been user modified.'},
@@ -2797,12 +3097,18 @@
                                                            hover_tip: 'Deletes the versions of the filters and data files stored in cache.\n'+
                                                                       'This will force loading new versions afresh.\n'+
                                                                       'You need to refresh your browser for\nthis action to take effect.',},
-                                    sect_tbl_cnts2:{type:'section',label:'Items Export Options'},
+                                    sect_tbl_cnts3:{type:'section',label:'Items Export Options'},
                                     noLatin: {type: 'checkbox', label:'No Latin Characters', default: false, hover_tip:'Radicals with latin characters not exported if set',},
                                     oneItemPerLine: {type: 'checkbox', label:'One Item Per Line', default: false, hover_tip: 'One item per line if set\nAll items in one paragraph otherwise',},
                                     exportLimit: {type: 'number', label:'Export Limit', default: 0, hover_tip: 'Maximum number of items exported\n0 means no limit',},
                                     repeatWordCloud: {type: 'dropdown', label:'Repeat for Word Cloud', default: 'No Repeat', hover_tip: 'Repeat the items according this number',
                                                       content:wordCloudContents,},
+                                    sect_tbl_cnts4:{type:'section',label:'Bug Workarounds'},
+                                    warning: {type: 'html', html:'<p>Use only if you are affected by the bugs, otherwise the bug fix may break your Item Inspector. The bug description is in the workaround hover tip.</p>'},
+                                    div_ctnts5:{type: 'divider'},
+                                    clickTwiceFirefoxMac: {type: 'checkbox', label: 'Random Clicks - Firefox/MacOS', default: false, validate: warnAboutRefresh,
+                                                           hover_tip: 'OS: Mac OS -- Browser: Firefox\nBug: Clicking on temporary filters dropdown\nyields random results. Sometimes the\nclick works, sometimes it doesn\'t.',
+                                                          },
                                 }
                                }
 
@@ -3082,6 +3388,10 @@
             {name:'Related Search', ask: true, content:{wk_items:{enabled:true,filters:{advSearchFilters_relatedSearch:{enabled:true,value:relatedSearch_defaults},},
                                                                     sources:{wk_items: true, trad_rad: true,},},
                                                           trad_rad:{enabled:true,filters:{advSearchFilters_relatedSearch:{enabled:true,value:relatedSearch_defaults},}}},
+            },
+            {name:'Kanji Picker', ask: true, content:{wk_items:{enabled:true,filters:{itemInspectorKanjiPicker:{enabled:true,value:kanjiPickerDefault},},
+                                                                    sources:{wk_items: true, trad_rad: false,},},
+                                                          trad_rad:{enabled:false,filters:{}}},
             },
         ];
 
@@ -3674,6 +3984,7 @@
                               advSearchFilters_advancedSearch: {group: 'search_trad_rad', order: 1000, suborder: 20},
                               advSearchFilters_relatedSearch: {group: 'search_trad_rad', order: 1000, suborder: 30},
 
+                              itemInspectorKanjiPicker: {group: 'item_trad_rad', order: 1100, suborder: 10},
                               advSearchFilters_strokeCountGteq: {group: 'item_trad_rad', order: 1100, suborder: 20},
                               advSearchFilters_strokeCountLteq: {group: 'item_trad_rad', order: 1100, suborder: 30},
                               advSearchFilters_explicitList: {group: 'item_trad_rad', order: 1100, suborder: 40},
@@ -3771,7 +4082,7 @@
                 pg_fcontent['grp_'+src_name+'_ffilters'] = {type:'group', label:group_labels.basics.label, content:flt_fcontent};
                 for (var flt_name in src.filters) {
                     var flt = src.filters[flt_name];
-                    if (flt.no_ui  || flt.type === undefined) continue;  // no_ui or one of Kumirei's typeless filters
+                    if ((flt.no_ui  || flt.type === undefined) && !(flt.item_inspector_only === true) ) continue;  // no_ui or one of Kumirei's typeless filters
                     if (typeof wkof.ItemData.registry.sources[src_name].filters[flt_name].main_source !== 'undefined') continue;
                     let fltOrder = flt_ordering[flt_name] || dflt_ordering;
                     fltList.push({name: flt_name, filter: flt, ordering: fltOrder, kind: 'filter'});
@@ -4176,7 +4487,7 @@
     var traditionalRadicalsItems;
     function loadTraditionalRadicals(){
         if (traditionalRadicalsLoaded) return wkof.wait_state('Wkit_trad_rad_load', 'ready');
-        traditionalRadicalsLoaded = true; // must be done first - otherwise this code may be ran twice
+        traditionalRadicalsLoaded = true; // must be done first - otherwise this code may be run twice
         // check if advSearchFilters script has already loaded the data
         if (typeof (advSearchFilters) === 'object' && (traditionalRadicals in advSearchFilters)){
             traditionalRadicals = advSearchFilters.traditionalRadicals;
@@ -4184,7 +4495,7 @@
             return Promise.resolve();
         };
         return load_file(traditionaRadicalsFile, true, {responseType: "arraybuffer"})
-             .then(function(data){lzmaDecompressAndProcessTradRad(data)})
+                 .then(function(data){lzmaDecompressAndProcessTradRad(data)})
     };
 
     function lzmaDecompressAndProcessTradRad(data){
@@ -5501,16 +5812,19 @@
 
     function makeTradRadList(item){
         if (kanjidic2Data[item.data.characters] === undefined) return [];
+        if (kanjidic2Data[item.data.characters].radicals === undefined) return [];
         return kanjidic2Data[item.data.characters].radicals;
     };
 
     function makeItemTradRadList(item){
         if (kanjidic2Data[item.data.characters] === undefined) return [];
+        if (kanjidic2Data[item.data.characters].radicals === undefined) return [];
         return kanjidic2Data[item.data.characters].radicals.map((rad) => traditionalRadicals[rad]);
     };
 
     function makeIdListTradRad(item){
         if (kanjidic2Data[item.data.characters] === undefined) return [];
+        if (kanjidic2Data[item.data.characters].radicals === undefined) return [];
         return kanjidic2Data[item.data.characters].radicals.map((rad) => traditionalRadicals[rad].id);
     };
 
@@ -6266,7 +6580,7 @@
     };
 
     function deleteVisuallySimilarCache(){
-        wkof.file_cache.delete(visuallySimilarFilename);
+        return wkof.file_cache.delete(visuallySimilarFilename);
     }
 
     function makeListVisSimKan(visuallySimilarData, thresholdProvided){
@@ -6379,10 +6693,12 @@
     };
 
     function deleteNiaiCache(){
-        wkof.file_cache.delete(from_keisei_db_filename);
-        wkof.file_cache.delete(old_script_db_filename);
-        wkof.file_cache.delete(wk_niai_noto_db_filename);
-        wkof.file_cache.delete(yl_radical_db_filename);
+        let promiseList = []
+        promiseList.push(wkof.file_cache.delete(from_keisei_db_filename));
+        promiseList.push(wkof.file_cache.delete(old_script_db_filename));
+        promiseList.push(wkof.file_cache.delete(wk_niai_noto_db_filename));
+        promiseList.push(wkof.file_cache.delete(yl_radical_db_filename));
+        return Promise.all(promiseList);
     };
 
     function hasNiaiData(kanji, includesAlternate){
@@ -7564,9 +7880,11 @@
    };
 
     function deleteKeiseiCache(){
-        wkof.file_cache.delete(kanji_db);
-        wkof.file_cache.delete(phonetic_db);
-        wkof.file_cache.delete(wk_kanji_db);
+        let promiseList = [];
+        promiseList.push(wkof.file_cache.delete(kanji_db));
+        promiseList.push(wkof.file_cache.delete(phonetic_db));
+        promiseList.push(wkof.file_cache.delete(wk_kanji_db));
+        return Promise.all(promiseList);
     }
 
     // Functions to display Keisei semantic-phonetic information in popups
@@ -7761,7 +8079,7 @@
     };
 
     function deleteStokeOrderCache(){
-        wkof.file_cache.delete(strokeOrderFileName);
+        return wkof.file_cache.delete(strokeOrderFileName);
     }
 
     // converts the stream to a javascript string
@@ -10490,6 +10808,355 @@
     //------------------------------------------------------------
 
     // -----------------------------------------------------------
+    // BEGIN kanji picker
+
+    function registerKanjiPickerFilters(){
+        waitForItemDataRegistry()
+            .then(wkof.wait_state('Wkit_trad_rad', 'ready'))
+            .then(function(){registerPickerFilter()})
+            .then(function(){return Promise.resolve()})
+    };
+
+    let kanjiPickerHover_tip = 'Find out kanji by picking the component radicals.';
+
+    function registerPickerFilter() {
+
+        const registration = {
+            type: 'button',
+            label: 'Kanji Picker',
+            default: '',
+            callable_dialog: true,
+            no_ui: true,
+            item_inspector_only: true,
+            on_click: kanjiPickerDialog,
+            filter_func: kanjiPickerFilter,
+            filter_value_map: kanjiPickerFilterValueMap,
+            set_options: function(options) { options.subjects = true;},
+            hover_tip: kanjiPickerHover_tip,
+        };
+
+        const kanjiPickerFilterName = 'itemInspectorKanjiPicker';
+
+        wkof.ItemData.registry.sources.wk_items.filters[kanjiPickerFilterName] = $.extend({}, registration);
+        wkof.ItemData.registry.sources.wk_items.filters[kanjiPickerFilterName].alternate_sources = ['trad_rad'];
+        wkof.ItemData.registry.sources.trad_rad.filters[kanjiPickerFilterName] = $.extend({}, registration);
+        wkof.ItemData.registry.sources.trad_rad.filters[kanjiPickerFilterName].main_source = 'wk_items';
+    };
+
+    const kanjiPickerDefault = {radType: 'wanikani', strokeCount: {}, picking: {}, picked: []};
+
+    function kanjiPickerDialog(name, config, on_change){
+        let $originalDialog = $('#wkof_ds').find('[role="dialog"]');
+        let path;
+        if (config.path){
+            path = config.path.replaceAll('@', 'wkof.settings["'+scriptId+'"].');
+        } else {
+            throw 'config.path is not defined';
+        };
+
+        wkof.settings.WkitKanjiPicker = $.extend(true, {}, kanjiPickerDefault, get_value(path));
+
+        let strokeCountId = 'WkitKanjiPicker_strokeCount';
+        let strokeCountHtml = '<div id="'+strokeCountId+'" class="WkitKanjiPicker"></div>';
+        let strokeCountHoverTip = 'Choose the stroke count for the radicals you want to pick.\n\n'+
+                                  'Darker background indicates the currently selected count.\n'+
+                                  'Thick border indicates where some kanji is selected.';
+
+        let pickingId = 'WkitKanjiPicker_picking';
+        let pickingHtml = '<div id="'+pickingId+'" class="WkitKanjiPicker"></div>';
+        let pickingHoverTip = 'Chose the radicals components of the kanji.\nThe kanji will match ALL selected radicals';
+
+        let pickedId = 'WkitKanjiPicker_picked';
+        let pickedHtml = '<div id="'+pickedId+'" class="WkitKanjiPicker"></div>';
+        let pickedHoverTip = 'The chosen kanji will be shown here.';
+
+        let dialogConfig = {
+            script_id: 'WkitKanjiPicker',
+            title: 'Kanji Picker',
+            pre_open: pre_open,
+            on_save: on_save,
+            on_cancel: on_cancel,
+            on_close: on_close,
+            no_bkgd: true,
+            settings: {clear: {type: 'button', label: 'Clear the Settings', on_click: setting_reset,
+                               hover_tip: 'Erase all picker settings to a blank state.',
+                              },
+                       radType: {type: 'dropdown', label: 'Radical Type', default: 'wanikani', on_change: setting_reset,
+                                 hover_tip: 'Choose the type of radicals used for picking the kanji',
+                                 content: {wanikani: 'Wanikani', trad_rad: 'Traditional Radicals'},
+                                },
+                       pickerDivider1: {type: 'divider',},
+                       strokeCount: {type: 'html', html: strokeCountHtml, label: 'Stroke Count'},
+                       picking: {type: 'html', html: pickingHtml, label: 'Radicals'},
+                       picked: {type: 'html', html: pickedHtml, label: 'Kanji',},
+                      },
+        };
+
+        let dialog = new wkof.Settings(dialogConfig);
+        dialog.open();
+
+        // ui issue: do not let the calling dialog be visible
+        let originalDisplay = $originalDialog.css('display');
+        $originalDialog.css('display', 'none');
+
+        // work around some framework limitations regarding html types
+        let $div = $('#'+strokeCountId);
+        let $label = $div.closest('form').children('.left');
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        $label.eq(0).attr('title', strokeCountHoverTip);
+        $label.eq(1).attr('title', pickingHoverTip);
+        $label.eq(2).attr('title', pickedHoverTip);
+
+        dataRequired.WkStrokeCountData = true;
+        dataRequired.traditionalRadicals = true;
+        loadMissingData()
+            .then(function(){let settings = wkof.settings.WkitKanjiPicker;
+                             if (typeof settings.count === 'undefined') {
+                                 setting_reset();
+                             } else {
+                                 initPicker();
+                             }})
+
+        function pre_open(dialog) {
+            let $dialog = $(dialog);
+            let $main = $('#WkitTopBar');
+            if ($main.hasClass('WkitLight')) $dialog.addClass('WkitLight');
+            if ($main.hasClass('WkitDark')) $dialog.addClass('WkitDark');
+            if ($main.hasClass('WkitVanillaColors')) $dialog.addClass('WkitVanillaColors');
+            if ($main.hasClass('WkitBreezeColors')) $dialog.addClass('WkitBreezeColors');
+            if ($main.hasClass('WkitAzure')) $dialog.addClass('WkitAzure');
+            if ($main.hasClass('WkitBreeze')) $dialog.addClass('WkitBreeze');
+            if ($main.hasClass('WkitColorBlind')) $dialog.addClass('WkitColorBlind');
+        };
+
+        function on_close(){
+            $originalDialog.css('display', originalDisplay);
+            if (typeof config.on_close === 'function') config.on_close();
+        };
+
+        function on_save(){
+            set_value(path, get_value('wkof.settings.WkitKanjiPicker'))
+            if (typeof config.on_save === 'function') config.on_save();
+        };
+
+        function on_cancel(){
+            if (typeof config.on_cancel === 'function') config.on_cancel();
+        };
+
+    };
+
+    function setting_reset() {
+        let settings = wkof.settings.WkitKanjiPicker;
+        settings.count = -1;
+        settings.strokeCount = {};
+        settings.picking = {};
+        settings.picked = [];
+        $('#WkitKanjiPicker_strokeCount').empty();
+        $('#WkitKanjiPicker_picking').empty();
+        $('#WkitKanjiPicker_picked').empty();
+        let strokeCountList = [];
+        var radicalsSelected = {};
+        if (settings.radType === 'wanikani') {
+            for (let idx in subjectIndexRad){
+                let id = subjectIndexRad[idx].id;
+                let strokeCount = WkStrokeCountData[id].stroke_count;
+                if (strokeCountList.indexOf(strokeCount) < 0) strokeCountList.push(strokeCount);
+                if (!(strokeCount in radicalsSelected)) radicalsSelected[strokeCount] = {};
+                radicalsSelected[strokeCount][id] = false;
+            };
+        } else {
+            for (let idx in traditionalRadicals){
+                let id = traditionalRadicals[idx].id;
+                let strokeCount = Number(traditionalRadicals[idx].data.stroke_count);
+                if (strokeCountList.indexOf(strokeCount) < 0) strokeCountList.push(strokeCount);
+                if (!(strokeCount in radicalsSelected)) radicalsSelected[strokeCount] = {};
+                radicalsSelected[strokeCount][id] = false;
+            };
+        };
+        strokeCountList.sort((a, b) => a - b);
+        settings.picking = radicalsSelected;
+        let stringList = [];
+        for (let count of strokeCountList){
+            settings.strokeCount[count] = false;
+            stringList.push('<div class="WkitStrokeCount WkitNotPicked" strokecount="');
+            stringList.push(count.toString());
+            stringList.push('">');
+            stringList.push(count.toString());
+            stringList.push('</div>');
+        };
+        for (let c of strokeCountList) settings.strokeCount[c] = false;
+        let html = stringList.join('');
+        $('#WkitKanjiPicker_strokeCount').html(html);
+        $('.WkitStrokeCount').on('click', strokeCountSelected);
+    };
+
+    function initPicker() {
+        let settings = wkof.settings.WkitKanjiPicker;
+        setStrokeCount();
+        setPickedRadicals(settings.count);
+        setPickerWithKanji(settings.picked);
+    };
+
+    function strokeCountSelected(e) {
+        let settings = wkof.settings.WkitKanjiPicker;
+        let elem = $(e.currentTarget);
+        let count = Number(elem.html());
+        settings.count = count;
+        let valuesList = Object.values(settings.picking[count]);
+        settings.strokeCount[count] = valuesList.reduce(( (acc, val) => acc || val), false);
+        setStrokeCount();
+        setPickedRadicals(count);
+    };
+
+    function radicalSelected(e){
+        let settings = wkof.settings.WkitKanjiPicker;
+        let elem = $(e.currentTarget);
+        let radId = Number(elem.attr('radicalid'));
+        let strokeCount;
+        if (settings.radType === 'wanikani') {
+            strokeCount = WkStrokeCountData[radId].stroke_count;
+        } else {
+            strokeCount = Number(subjectIndex[radId].data.stroke_count);
+        };
+        settings.picking[strokeCount][radId] = !settings.picking[strokeCount][radId];
+        let valuesList = Object.values(settings.picking[strokeCount]);
+        settings.strokeCount[strokeCount] = valuesList.reduce(( (acc, val) => acc || val), false);
+        setStrokeCount();
+        setPickedRadicals(strokeCount);
+        let kanjiList = findPickerKanjiList();
+        settings.picked = kanjiList;
+        setPickerWithKanji(kanjiList);
+    };
+
+    function findPickerKanjiList(){
+        let settings = wkof.settings.WkitKanjiPicker;
+        let radList = [];
+        for (let radObjectList of Object.values(settings.picking)){
+            for (let rad in radObjectList){
+                if (radObjectList[rad]) radList.push(rad);
+            };
+        };
+        let kanjiList = [];
+        if (settings.radType === 'wanikani') {
+            if (radList.length > 0) kanjiList = Object.values(subjectIndexKan).map((item) => item.id);
+            let acc = [];
+            for (let rad of radList){
+                let kList = subjectIndexRad[rad].data.amalgamation_subject_ids;
+                for (let id of kList){
+                    if (kanjiList.indexOf(id) >= 0) acc.push(id);
+                };
+                kanjiList = acc;
+                acc = [];
+            };
+        } else {
+            if (radList.length > 0) kanjiList = Object.values(subjectIndexKan).map((item) => item.id);
+            let acc = [];
+            for (let rad of radList){
+                let kList = subjectIndex[rad].data.kanji.map((kan) => kanjiIndex[kan].id);
+                for (let id of kList){
+                    if (kanjiList.indexOf(id) >= 0) acc.push(id);
+                };
+                kanjiList = acc;
+                acc = [];
+            };
+        };
+        return kanjiList;
+    };
+
+    function setStrokeCount() {
+        let settings = wkof.settings.WkitKanjiPicker;
+        let strokeCountList = Object.keys(settings.strokeCount);
+        let stringList = [];
+        for (let count of strokeCountList){
+            stringList.push('<div class="WkitStrokeCount');
+            let countNum = Number(count);
+            if (settings.count === countNum) stringList.push(' WkitSelected');
+            if (!settings.strokeCount[countNum]) stringList.push(' WkitNotPicked');
+            stringList.push('" strokecount="');
+            stringList.push(count.toString());
+            stringList.push('">');
+            stringList.push(count.toString());
+            stringList.push('</div>');
+        };
+        let html = stringList.join('');
+        $('#WkitKanjiPicker_strokeCount').html(html);
+        $('.WkitStrokeCount').on('click', strokeCountSelected);
+    };
+
+    function setPickedRadicals(count) {
+        let settings = wkof.settings.WkitKanjiPicker;
+        let stringList = [];
+        let rads = settings.picking[count];
+        let radKeys = Object.keys(rads);
+        settings.strokeCount[count] = false;
+        if (settings.radType === 'wanikani') {
+            for (let idx in radKeys){
+                let item = subjectIndexRad[radKeys[idx]];
+                let char = (item.data.characters === null ? svgForRadicals[item.id] : item.data.characters);
+                stringList.push('<div class="WkitPickableRadical WkitWanikani');
+                if (!settings.picking[count][item.id]) {
+                    stringList.push(' WkitNotPicked');
+                } else {
+                    settings.strokeCount[count] = true;
+                };
+                stringList.push('" radicalid="');
+                stringList.push(radKeys[idx]);
+                stringList.push('">');
+                stringList.push(char);
+                stringList.push('<div class="WkitPickerPopupContent radical">');
+                makePopupForIcon(item.id, stringList)
+                stringList.push('</div>');
+                stringList.push('</div>');
+            };
+        } else {
+            for (let idx in radKeys){
+                let item = subjectIndex[radKeys[idx]];
+                stringList.push('<div class="WkitPickableRadical WkitTraditional');
+                if (!settings.picking[count][radKeys[idx]]) {
+                    stringList.push(' WkitNotPicked');
+                } else {
+                    settings.strokeCount[count] = true;
+                };
+                stringList.push('" radicalid="');
+                stringList.push(radKeys[idx]);
+                stringList.push('">');
+                stringList.push(item.data.characters);
+                stringList.push('<div class="WkitPickerPopupContent radical">');
+                makePopupForIcon(item.id, stringList)
+                stringList.push('</div>');
+                stringList.push('</div>');
+            };
+        };
+        let html = stringList.join('');
+        $('#WkitKanjiPicker_picking').html(html);
+        $('.WkitPickableRadical').on('click', radicalSelected);
+    };
+
+    function setPickerWithKanji(kanjiList) {
+        let stringList = []
+        for (let id of kanjiList) {
+            stringList.push('<div class="WkitKanjiPicked">');
+            stringList.push(subjectIndexKan[id].data.characters);
+            stringList.push('<div class="WkitPickerPopupContent kanji">');
+            makePopupForIcon(id, stringList)
+            stringList.push('</div>');
+            stringList.push('</div>');
+        };
+        let html = stringList.join('');
+        $('#WkitKanjiPicker_picked').html(html);
+    };
+
+    function kanjiPickerFilterValueMap(filterValue) {
+        return filterValue.picked;
+    };
+
+    function kanjiPickerFilter(filterValue, item) {
+        if (item.object !== 'kanji') return false;
+        return filterValue.indexOf(item.id) >= 0;
+    };
+
+    // -----------------------------------------------------------
     // BEGIN Kanjidic2 and Traditional radicals
 
     function registerKanjidic2Filters(){
@@ -12361,15 +13028,30 @@
         // handy little trick to permit to select more than once the same option on a dropdown
         var $select = $('#WkitFilterSelector'); // configured for the temporary filter selector
 
-        $select.click(function(){
-            var $this = $(this);
-            if ($this.hasClass('open')) {
-                selectTemporaryFilter();
-                $this.removeClass('open');
-            }else {
-                $this.addClass('open');
-            };
-        })
+        if (quiz.settings.clickTwiceFirefoxMac){
+            // Works around a bug that affects Firefox on Mac where the click handler is intermitent.
+            // The workaround doesn't work on Chrome because On Chrome the mousedown handler is intermittent.
+            // I don't test for browser/OS because I can't test this kind of code, no access to the devices required
+            $select.mousedown(function(){
+                var $this = $(this);
+                if ($this.hasClass('open')) {
+                    selectTemporaryFilter();
+                    $this.removeClass('open');
+                } else {
+                    $this.addClass('open');
+                };
+            });
+        } else {
+            $select.click(function(){
+                var $this = $(this);
+                if ($this.hasClass('open')) {
+                    selectTemporaryFilter();
+                    $this.removeClass('open');
+                } else {
+                    $this.addClass('open');
+                };
+            });
+        };
 
         $select.blur(function(){
             $(this).removeClass('open');
@@ -12380,7 +13062,7 @@
                 $select.removeClass('open');
             }
         });
-        // end of clicking twice the same dropdown
+        // end of selecting twice the same dropdown option
     };
 
     // ====================================================================================
@@ -12396,7 +13078,8 @@
     var dataLoaded = {larsYencken: false, niai: false, keisei: false, strokeOrder: false, kanjidic2: false, traditionalRadicals: false,
                       WkStrokeCountData: false, };
 
-    var kanjidic2Used = {Kanjidic2_Meaning: true, Kanjidic2_Onyomi: true, Kanjidic2_Kunyomi: true, Kanjidic2_Nanori: true, Stroke_Count: true};
+    var kanjidic2Used = {Kanjidic2_Meaning: true, Kanjidic2_Onyomi: true, Kanjidic2_Kunyomi: true, Kanjidic2_Nanori: true,
+                         Stroke_Count: true, trad_rad: true};
 
     function determineDataRequiredTable() {
         let preset, displayedInfo
@@ -12482,7 +13165,8 @@
                                   itemList: 'item_list_filter', blockList: 'blacklist_filter', partOfSpeech: 'pos_filter',
                                   joyoJpltFrequency: 'JJFFilters', visSim: 'VSKFilter'};
 
-         return loadAllItemsFiltersAndDb();
+         return  forceCacheDeleteIfNeeded()
+                     .then(function(){return loadAllItemsFiltersAndDb()});
 
         // settings defaults are not initialized when loadFilters is called - We need to manually check for undefined
         function loadAllItemsFiltersAndDb(){
@@ -12491,7 +13175,6 @@
 
             promiseList.push(fetch_all_items());
             promiseList.push(loadSvgForRadicals());
-            //promiseList.push(loadStrokeCount());
             promiseList.push(initLastSelectionRecorded());
 
             for (let filter in optionalFilters){
@@ -12510,8 +13193,24 @@
             if (settings.optionalFilters === undefined || !settings.optionalFilters.kanjidic2_trad_rad) promiseList.push(registerKanjidic2Filters());
             if (settings.optionalFilters === undefined || !settings.optionalFilters.joyoJpltFrequency) promiseList.push(registerJLPTFilters());
             promiseList.push(registerItemInspectorFilter());
+            promiseList.push(registerKanjiPickerFilters());
 
             return Promise.all(promiseList)
+        };
+
+        function forceCacheDeleteIfNeeded(){
+            // increment currentQuestionNumber to force a deletion of all Item Inspector cached items
+            const currentQuestionNumber = 1;
+            const asked = wkof.settings[scriptId].cacheDeleteNumber || 0;
+            if (asked < currentQuestionNumber) {
+                return deleteFilesFromCache()
+                            .then(function(){wkof.settings[scriptId].cacheDeleteNumber = currentQuestionNumber;})
+                            .then(function(){wkof.set_state(Wkit_navigation, 'Pending')})
+                            .then(function(){return wkof.Settings.save(scriptId)})
+                            .then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
+            } else {
+                return Promise.resolve();
+            };
         };
 
     };
@@ -12536,18 +13235,20 @@
     };
 
     function deleteFilesFromCache(){
-        for (let filter in optionalFilters) wkof.file_cache.delete(optionalFilters[filter]);
-        deleteKeiseiCache();
-        deleteNiaiCache();
-        deleteVisuallySimilarCache();
-        deleteStokeOrderCache();
-        kanjidic2_cacheDelete();
-        trad_rad_cacheDelete();
-        WkStrokeCount_cacheDelete()
-        wkof.file_cache.delete(Wkit_SVGforRadicals);
-        wkof.file_cache.delete(lodash_file);
-        wkof.file_cache.delete(lzma_file);
-        wkof.file_cache.delete(lzma_shim_file);
+        let promiseList = []
+        for (let filter in optionalFilters) promiseList.push(wkof.file_cache.delete(optionalFilters[filter]));
+        promiseList.push(deleteKeiseiCache());
+        promiseList.push(deleteNiaiCache());
+        promiseList.push(deleteVisuallySimilarCache());
+        promiseList.push(deleteStokeOrderCache());
+        promiseList.push(kanjidic2_cacheDelete());
+        promiseList.push(trad_rad_cacheDelete());
+        promiseList.push(WkStrokeCount_cacheDelete());
+        promiseList.push(wkof.file_cache.delete(Wkit_SVGforRadicals));
+        promiseList.push(wkof.file_cache.delete(lodash_file));
+        promiseList.push(wkof.file_cache.delete(lzma_file));
+        promiseList.push(wkof.file_cache.delete(lzma_shim_file));
+        return Promise.all(promiseList);
     };
 
     //------------------------------------------
@@ -12635,7 +13336,8 @@
             };
         };
 
-        const currentQuestionNumber = 4;
+        // Increment currentQuestionNumber to force a new determination of missing defaults
+        const currentQuestionNumber = 5;
         const asked = wkof.settings[scriptId].questionAsked || 0;
         if (asked < currentQuestionNumber && lackDefaults()) {
             response = confirm(script_name + ' determined you are missing defaults tables and/or temporary filters.\n\n Click "OK" to have these missing features added to your configuration.');
@@ -12647,7 +13349,8 @@
                 .then(function(){wkof.set_state(Wkit_navigation, 'Pending')})
                 .then(function(){return wkof.Settings.save(scriptId)})
                 .then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
-       };
+        };
+
     };
 
     //------------------------------------------
@@ -12680,7 +13383,7 @@
     // There is not much to gain because this is mostly disk access on the same disk
     // but every little gain counts.
     Promise.all([loadPrerequisiteScripts(),
-                 wkof.ready('Settings').then(function(){ return wkof.Settings.load(scriptId)}),
+                 wkof.ready('Settings').then(function(){return wkof.Settings.load(scriptId)}),
                  wkof.ready('ItemData, Menu'),
                 ])
         .then(loadItemsFiltersAndDb) // must be after prerequisite scripts, ItemData, and loaded settings
