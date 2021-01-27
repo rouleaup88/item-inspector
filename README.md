@@ -65,6 +65,10 @@ The stroke count data has been manually copied from the stroke count in the Kanj
 <br>
 https://www.nihilist.org.uk/Home
 <br><br><br>
+The following file contains an extract of Jonathan Waller JPLT data for vocabulary
+<br><br>
+JLPT_vocab.json.compressed
+<br><br><br>
 For information about lzma compression in Item Inspector see https://github.com/rouleaup88/Kanji-stroke-order
 <br><br><br>
 The folowing files are utility scripts adapted to be used with the wkof.load_script() function. They issue a wkof.set_state(file_id,'Ready') when they
@@ -131,4 +135,10 @@ This file is available under Creative Commons Attribution-ShareAlike Licence (V3
 Complete licensing information for Kanjidic2 and kradfile-u is <a href="http://www.edrdg.org/edrdg/newlic.html">avalable here</a>.
 
 The link to the original kradfile-u doesn’t work anymore. You can get this file <a href="https://github.com/jmettraux/kensaku/blob/master/data/kradfile-u">here</a>.
-
+<br><br><br>
+Jonathan Waller's JPLT data is available under the Creative Commons "BY" license. See here.
+<p>
+ http://www.tanos.co.uk/jlpt/sharing/
+ <br><br>
+ Presumably J. Waller meant this license: https://creativecommons.org/licenses/by/4.0/
+ <br>
