@@ -69,11 +69,11 @@ The following file contains an extract of Jonathan Waller JPLT data for vocabula
 <br><br>
 JLPT_vocab.json.compressed
 <br><br><br>
-For information about lzma compression in Item Inspector see https://github.com/rouleaup88/Kanji-stroke-order
-<br><br><br>
 The foloowing file contains rendaku information for Wanikani vocabulary items:
 <br><br>
 rendaku_information.user.js
+<br><br><br>
+For information about lzma compression in Item Inspector see https://github.com/rouleaup88/Kanji-stroke-order
 <br><br><br>
 The folowing files are utility scripts adapted to be used with the wkof.load_script() function. They issue a wkof.set_state(file_id,'Ready') when they
 are done executing. You may wait for them to be ready with the corresponding wkof.wait_state(file_id, 'Ready") call.
@@ -146,7 +146,7 @@ Jonathan Waller's JPLT data is available under the Creative Commons "BY" license
  <br><br>
  Presumably J. Waller meant this license: https://creativecommons.org/licenses/by/4.0/
  <br>
- 
+ <br><br>
  This file contains data from jameshippisley and is available inder GPL V3 or later
  
  rendaku_information_data.json.compressed
