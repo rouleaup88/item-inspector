@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.19.0
+// @version       1.20.0
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -19,6 +19,8 @@
 // --- for Keisei Semantic-Phonetic Composition
 // --- for Niai Visual Similarity Data
 //
+// It also include GPLV3 data for rendaku from @jameshippisley which is another reason to place Item inspector under GPLV3 or later.
+//
 // Code borrowed from Self Study Quiz and WKOF is licensed under MIT --- http://opensource.org/licenses/MIT
 //
 // You may use Item Inspector code under either the GPLV3 or MIT license with these restrictions.
@@ -31,7 +33,7 @@
 // ------------------------------
 // The text of the MIT License is:
 //
-// Copyright 2020+, Paul Rouleau
+// Copyright 2020+, Paul Rouleau for the Item Inspector modifications.
 // Copyright 2018+, Robin Findley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
@@ -73,6 +75,9 @@
 
     // Stroke count for Wanikani radicals
     const Wkit_StrokeCountforRadicals = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/WK_radicals.json.compressed';
+
+    // Rendaku information for Wanikani vocabulary
+    const Wkit_rendaku_filename = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/rendaku_information_data.json.compressed';
 
     // Traditional radicals items
     const traditionaRadicalsFile = 'https://raw.githubusercontent.com/rouleaup88/item-inspector/main/trad_rad.json.compressed';
@@ -1167,6 +1172,7 @@
                   text-align: center;
                   border-radius: 3px;
                   padding: 5px;
+                  margin: 5px;
            }
 
            #WkitTopBar .right  {
@@ -1618,6 +1624,10 @@
                  color: var(--wkit-text-color-dark);
            }
 
+           #WkitTopBar .WkitFirstPitchInfo {
+                  text-align: center;
+           }
+
            #WkitTopBar .WkitPitchInfoReading {
                   margin-top: 3px;
                   font-weight: bolder;
@@ -1661,7 +1671,57 @@
 
            #WkitTopBar .svgPitchDiagram{ stroke: currentcolor; fill: currentcolor; }
 
-           /*=== End of pitch information ===*/
+           /*=== End of  Pitch information  ===*/
+
+           /*=== Begin of rendaku information ===*/
+
+           #WkitTopBar .WkitRendakuPopup {
+                 display: none;
+                 visibility: hidden;
+                 white-space: normal;
+                 position: absolute;
+                 left: 10px;
+                 top: 75px;
+                 background-color: var(--wkit-backgound-explain);
+                 border-radius: 5px;
+                 width: calc(100% - 47px);
+                 padding: 8px;
+                 z-index: 100;
+           }
+
+           #WkitTopBar .WkitStrokeOrderHover:not(.WkitCharactersPitch) .WkitRendakuPopup {
+                 top: 58px;
+           }
+
+           #WkitTopBar .WkitPitchInfo .WkitRendakuPopup span,
+           #WkitTopBar .WkitStrokeOrderHover .WkitRendakuPopup span,
+           #WkitTopBar .WkitCharactersPitch .WkitRendakuPopup span {
+                 display: inline;
+                 font-size: 16px;
+                 line-height: 1.2em;
+           }
+
+           #WkitTopBar.WkitLight .WkitPitchInfo .WkitRendakuPopup span,
+           #WkitTopBar.WkitLight .WkitStrokeOrderHover .WkitRendakuPopup span,
+           #WkitTopBar.WkitLight .WkitCharactersPitch .WkitRendakuPopup span {
+                 color: var(--wkit-text-color-light) !important;
+           }
+
+           #WkitTopBar.WkitDark .WkitPitchInfo .WkitRendakuPopup span,
+           #WkitTopBar.WkitDark .WkitStrokeOrderHover .WkitRendakuPopup span,
+           #WkitTopBar.WkitDark .WkitCharactersPitch .WkitRendakuPopup span {
+                 color: var(--wkit-text-color-dark-theme) !important;
+           }
+
+           #WkitTopBar .WkitCharactersPitch:hover .WkitRendakuPopup,
+           #WkitTopBar .WkitStrokeOrderHover:hover .WkitRendakuPopup,
+           #WkitTopBar .WkitPitchInfo:hover .WkitRendakuPopup {
+                 display: block;
+                 visibility: visible;
+           }
+
+           /*=== End of rendaku information ===*/
+
 
            /*=== Kanji stroke order svg images ===*/
 
@@ -1730,6 +1790,7 @@
                  height: max-content;
            }
 
+           #WkitTopBar .WkitPitchInfo:hover .WkitStrokeOrderPopup,
            #WkitTopBar .WkitStrokeOrderHover:hover .WkitStrokeOrderPopup {
                  visibility: visible;
                  transition-delay: 0.25s;
@@ -2849,6 +2910,10 @@
                                      showVocabulary: {type: 'dropdown', label:'Vocabulary Visual Information', hover_tip:'The visual information for vocabulary popups.',
                                                    path:'@tablePresets[@active_ipreset].showVocabulary', default: 'Pitch Info',
                                                    content: {'Item': 'Item Only', 'Pitch Info': 'Pitch Info'}},
+                                     showRendaku: {type: 'dropdown', label:'Where Rendaku Will Popup',
+                                                   hover_tip:'Where a mouse over will make rendaku information popup.\nStroke order will popup the other place',
+                                                   path:'@tablePresets[@active_ipreset].showRendaku', default: 'Pitch Info',
+                                                   content: {'None': 'No Rendaku Popup', 'Item': 'Item Characters', 'Pitch Info': 'Pitch Info'}},
                                      sect_tbl_settings:{type:'section',label:'Other Settings'},
                                      enlargingTooltip: {type: 'checkbox', label:'Popup for Enlarged Items', hover_tip:'Adds a popup in tables at the right of the item to show an enlarged version of the item',
                                                         path:'@tablePresets[@active_ipreset].enlargingTooltip', default: false, },
@@ -2969,6 +3034,10 @@
                                      vshowVocabulary: {type: 'dropdown', label:'Vocabulary Visual Information', hover_tip:'The visual information for vocabulary popups.',
                                                    path:'@vpresets[@active_vpreset].vshowVocabulary', default: 'Pitch Info',
                                                    content: {'Item': 'Item Only', 'Pitch Info': 'Pitch Info'}},
+                                     vshowRendaku: {type: 'dropdown', label:'Where Rendaku Will Popup',
+                                                    hover_tip:'Where a mouse over will make rendaku information popup.\nStroke order will popup the other place',
+                                                    path:'@vpresets[@active_vpreset].vshowRendaku', default: 'Pitch Info',
+                                                    content: {'None': 'No Rendaku Popup', 'Item': 'Item Characters', 'Pitch Info': 'Pitch Info'}},
                                      sect_view_settings:{type:'section',label:'Other Settings'},
                                      venlargingTooltip: {type: 'checkbox', label:'Popup for Enlarged Items', hover_tip:'Adds a popup in tables at the right of the item to show an enlarged version of the item',
                                                         path:'@vpresets[@active_vpreset].venlargingTooltip', default: false, },
@@ -3306,38 +3375,46 @@
         let tablePresetsDefault = [
             {name:'Leeches', tableContents:{currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
                                             tooltip1:"Meaning_Full",tooltip2:"Reading_Full",enlargingTooltip:true,
-                                            showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+                                            showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                            showRendaku: 'Pitch Info',}},
             {name:'Failed Last Review', tableContents:{currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
                                                        tooltip1:"Meaning_Full",tooltip2:"Reading_Full",enlargingTooltip:true,
-                                                       showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+                                                       showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                                       showRendaku: 'Pitch Info',}},
             {name:'Current Level SRS', tableContents:{currentItem:0,table_data:"Srs",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
                                                       tooltip1:"Review_Date",tooltip2:"Review_Wait",
-                                                      showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+                                                      showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                                      showRendaku: 'Pitch Info',}},
             {name:'Previous Level SRS', tableContents:{currentItem:0,table_data:"Srs",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
                                                        tooltip1:"Review_Date",tooltip2:"Review_Wait",
-                                                       showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+                                                       showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                                       showRendaku: 'Pitch Info',}},
             {name:'Burned Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
                                                  tooltip1:"Meaning_Full",tooltip2:"Reading_Full",enlargingTooltip:true,
-                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                                 showRendaku: 'Pitch Info',}},
             {name:'All Learned Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                 tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
-                                                 tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
-                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+                                                      tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
+                                                      tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
+                                                      showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                                      showRendaku: 'Pitch Info',}},
             {name:'All Wanikani Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                 tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
-                                                 tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
-                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+                                                       tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
+                                                       tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
+                                                       showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                                       showRendaku: 'Pitch Info',}},
             {name:'All Wanikani Items and Traditional Radicals',
                                                  tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                 tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
-                                                 tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
-                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',}},
+                                                                tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
+                                                                tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
+                                                                showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                                                showRendaku: 'Pitch Info',}},
             ];
 
         table_defaults = {currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
                           tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"None",tooltip4:"None",tooltip5:"None",tooltip6:"None",tooltip7:"None",tooltip8:"None",
                           displayMeaning:false, enlargingTooltip:false, showMarkers:true, showMarkersDate:false, showHours:false, leechStreakLimit:0,
-                          showStrokeOrder:true, showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                          showStrokeOrder:true, showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info', showRendaku: 'Pitch Info',
                           visSimTreshold:0.0, visSimTresholdNiai:0.3, niaiAlternate:false,
                           randomSelection: 0, navigationDate:'Lesson_Date',
                           trainingSelection:0, oncePerReviewPeriod: true, addSimilarItems: true, similarity:'Niai', visSimTresholdLT:0.45, niaiAlternateLT: true,
@@ -3402,7 +3479,7 @@
                                   vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
                                   vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
                                   vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
-                                  vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                                  vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
                                   venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
@@ -3414,7 +3491,7 @@
                                   vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
                                   vtooltip1: 'Level', vtooltip2: 'Srs', vtooltip3: 'Meaning_Current_Streak', vtooltip4: 'Reading_Current_Streak',
                                   vtooltip5: 'Meaning_Incorrect', vtooltip6: 'Reading_Incorrect', vtooltip7: 'Percentage_Incorrect',
-                                  vtooltip8: 'Review_Count', vshowStrokeOrder: false,
+                                  vtooltip8: 'Review_Count', vshowStrokeOrder: false, vshowRendaku: 'Pitch Info',
                                   vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
                                   venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
@@ -3428,6 +3505,7 @@
                                   vtooltip1: 'Srs', vtooltip2: 'Unlock_Date', vtooltip3: 'Lesson_Date', vtooltip4: 'Passed_Date',
                                   vtooltip5: 'Burned_Date', vtooltip6: 'Resurrected_Date', vtooltip7: 'Last_Review_Date', vtooltip8: 'Review_Date',
                                   vshowStrokeOrder: false, vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                                  vshowRendaku: 'Pitch Info',
                                   venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
@@ -3439,7 +3517,7 @@
                                   vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
                                   vtooltip1: 'Components', vtooltip2: 'Vis_Sim_Kanji', vtooltip3: 'Lars_Yencken', vtooltip4: 'Niai',
                                   vtooltip5: 'Used_In', vtooltip6: 'Part_Of_Speech', vtooltip7: 'Allow_List', vtooltip8: 'Block_List',
-                                  vshowStrokeOrder: false, vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                                  vshowStrokeOrder: false, vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
                                   venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
@@ -3451,7 +3529,7 @@
                                   vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
                                   vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
                                   vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
-                                  vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                                  vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
                                   venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
@@ -3464,7 +3542,7 @@
                                   vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
                                   vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
                                   vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
-                                  vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                                  vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
                                   venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Level', rsortOrder1: 'Default',
@@ -3477,7 +3555,7 @@
                                   vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
                                   vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
                                   vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
-                                  vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                                  vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
                                   venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Level', rsortOrder1: 'Default',
@@ -3493,7 +3571,7 @@
                             vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
                             vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
                             vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: true,
-                            vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
+                            vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
                             venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                             vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                             report_key: 'Leech', rsortOrder1: 'Default',
@@ -8143,7 +8221,7 @@
 
     function deleteStokeOrderCache(){
         return wkof.file_cache.delete(strokeOrderFileName);
-    }
+    };
 
     // converts the stream to a javascript string
     // the native stream.toString() methof of the LZMA
@@ -8155,7 +8233,7 @@
             var decoder = new TextDecoder();
             for (let n = 0, nL = buffers.length; n < nL; n++) {
                 charList.push(decoder.decode(buffers[n]));
-            }
+            };
         } else {
             // TextDecoder unsupported - do it but a bit slower
             var conv = String.fromCharCode;
@@ -8170,6 +8248,31 @@
     };
 
     // END Kanji Stroke Order SVG Files
+
+    // BEGIN Rendaku for vocabulary
+
+    // the object that will hold the rendaku onfo
+    var rendakuData;
+
+    // function to be invoked in the startup sequence
+    function get_rendaku_file(){
+        return load_file(Wkit_rendaku_filename, true, {responseType: "arraybuffer"})
+             .then(function(data){lzmaDecompressAndProcessRendaku(data)})
+    };
+
+    function lzmaDecompressAndProcessRendaku(data){
+        let inStream = new LZMA.iStream(data);
+        let outStream = LZMA.decompressFile(inStream);
+        let string = streamToString(outStream);
+        rendakuData = JSON.parse(string);
+    };
+
+    function deleteRendakuCache(){
+        return wkof.file_cache.delete(Wkit_rendaku_filename);
+    };
+
+
+    // END Rendaku for vocabulary
 
     //=================================================
     // End of Other external information not registered in metadata
@@ -9624,7 +9727,8 @@
             case ('vocabulary'):
                 if (showVocabulary === 'Pitch Info'){
                     pitchInfoDiagrams = getPitchInfoDiagram(item);
-                    if (pitchInfoDiagrams.length > 0) visualInfoFormat = 'pitchInfo';
+                    //if (pitchInfoDiagrams.length > 0) visualInfoFormat = 'pitchInfo';
+                    visualInfoFormat = 'pitchInfo';
                 }
                 break;
         }
@@ -9632,8 +9736,9 @@
         switch (visualInfoFormat){
             case 'itemOnly':
                 stringList.push('<div class="left WkitStrokeOrderHover">');
-                if (strokeOrderPopup) pushPopupStrokeOrder();
                 pushCharactersForItem(info, stringList);
+                if (strokeOrderPopup && showRendaku !== 'Item'){pushPopupStrokeOrder()};
+                if (showRendaku === 'Item') {pushRendaku()};
                 stringList.push('</div>');
                 break;
             case 'message':
@@ -9655,15 +9760,22 @@
                 stringList.push('<div class="left WkitPitchInfoContainer">');
                 stringList.push('<div class="WkitPitchInfo">');
                 stringList.push('<div class="WkitFirstPitchInfo">');
-                stringList.push(pitchInfoDiagrams[0].pitchDiagrams);
+                if (pitchInfoDiagrams.length > 0) {
+                    stringList.push(pitchInfoDiagrams[0].pitchDiagrams);
+                } else {
+                    stringList.push('PichInfo not available');
+                }
                 stringList.push('</div>');
                 stringList.push('<div class="WkitPitchInfoReading">');
                 stringList.push(readingsBrief(item));
                 stringList.push('</div>');
+                if (strokeOrderPopup && showRendaku === 'Item'){pushPopupStrokeOrder()};
+                if (showRendaku === 'Pitch Info') {pushRendaku()};
                 stringList.push('</div>');
                 stringList.push('<div class="WkitCharactersPitch WkitStrokeOrderHover">');
-                if (strokeOrderPopup) pushPopupStrokeOrder();
                 pushCharactersForItem(info, stringList);
+                if (strokeOrderPopup && showRendaku !== 'Item'){pushPopupStrokeOrder()};
+                if (showRendaku === 'Item') {pushRendaku()};
                 stringList.push('</div>');
                 stringList.push('</div>');
                 break;
@@ -9740,6 +9852,15 @@
             stringList.push('</div>');
         };
 
+        function pushRendaku(){
+            if (item.object !== 'vocabulary') return;
+            stringList.push('<div class="WkitRendakuPopup">');
+            stringList.push('<span class=WkitRendakuText">');
+            stringList.push(rendakuData[item.data.characters]);
+            stringList.push('</span>');
+            stringList.push('</div>');
+        };
+
         function pushStrokeOrderImage(){
             stringList.push(strokeOrderSvgImages[item.data.characters]);
         };
@@ -9810,6 +9931,7 @@
     var showKanji;
     var showVocabulary;
     var showStrokeOrder;
+    var showRendaku;
     function initTooltipGlobals(){
         toolTipEntries = [];
         iconEntries = [];
@@ -9826,6 +9948,7 @@
             showRadical = presets.showRadical;
             showKanji = presets.showKanji;
             showVocabulary = presets.showVocabulary;
+            showRendaku = presets.showRendaku;
         } else {
             presets = quiz.settings.vpresets[quiz.settings.active_vpreset];
             if (presets.type !== 'view') throw 'Not a view type - should use report display';
@@ -9837,6 +9960,7 @@
             showRadical = presets.vshowRadical;
             showKanji = presets.vshowKanji;
             showVocabulary = presets.vshowVocabulary;
+            showRendaku = presets.vshowRendaku;
         };
         let entriesWithIcons = {'Vis_Sim_Kanji': true, 'Components': true, 'Used_In': true, 'Lars_Yencken': true, 'Niai': true, 'trad_rad': true};
         tableNames.forEach(processName);
@@ -13158,9 +13282,9 @@
     // Variables dataRequired and dataLoaded track which data is required and loaded
 
     var dataRequired = {larsYencken: false, niai: false, keisei: false, strokeOrder: false, kanjidic2: false, traditionalRadicals: false,
-                        WkStrokeCountData: false, wallerJLPTdata: false,};
+                        WkStrokeCountData: false, wallerJLPTdata: false, rendaku: false, };
     var dataLoaded = {larsYencken: false, niai: false, keisei: false, strokeOrder: false, kanjidic2: false, traditionalRadicals: false,
-                      WkStrokeCountData: false, wallerJLPTdata: false, };
+                      WkStrokeCountData: false, wallerJLPTdata: false, rendaku: false, };
 
     var kanjidic2Used = {Kanjidic2_Meaning: true, Kanjidic2_Onyomi: true, Kanjidic2_Kunyomi: true, Kanjidic2_Nanori: true,
                          Stroke_Count: true, trad_rad: true};
@@ -13172,11 +13296,13 @@
             displayedInfo = standardInfo;
             if (preset.showKanji === 'Stroke Order') dataRequired.strokeOrder = true;
             if (preset.showKanji === 'Keisei' || preset.showRadical === 'Keisei') dataRequired.keisei = true;
+            if (preset.showRendaku !== 'None') dataRequired.rendaku = true;
         } else {
             preset = wkof.settings[scriptId].vpresets[wkof.settings[scriptId].active_vpreset];
             displayedInfo = preset.type === 'view' ? viewInfo : reportInfo;
             if (preset.vshowKanji === 'Stroke Order') dataRequired.strokeOrder = true;
             if (preset.vshowKanji === 'Keisei' || preset.vshowRadical === 'Keisei') dataRequired.keisei = true;
+            if (preset.vshowRendaku !== 'None') dataRequired.rendaku = true;
         };
         for (let info of displayedInfo){
             if (preset[info] === 'Lars_Yencken') dataRequired.larsYencken = true;
@@ -13229,6 +13355,9 @@
         };
         if (dataRequired.strokeOrder && !dataLoaded.strokeOrder) {
             promiseList.push(get_stroke_order_file().then(function(){dataLoaded.strokeOrder = true;}));
+        };
+        if (dataRequired.rendaku && !dataLoaded.rendaku) {
+            promiseList.push(get_rendaku_file().then(function(){dataLoaded.rendaku = true;}));
         };
         if (dataRequired.kanjidic2 && !dataLoaded.kanjidic2) {
             promiseList.push(loadKanjidic2().then(function(){dataLoaded.kanjidic2 = true;}));
@@ -13335,6 +13464,7 @@
         promiseList.push(kanjidic2_cacheDelete());
         promiseList.push(trad_rad_cacheDelete());
         promiseList.push(WkStrokeCount_cacheDelete());
+        promiseList.push(deleteRendakuCache());
         promiseList.push(wkof.file_cache.delete(Wkit_SVGforRadicals));
         promiseList.push(wkof.file_cache.delete(lodash_file));
         promiseList.push(wkof.file_cache.delete(lzma_file));
