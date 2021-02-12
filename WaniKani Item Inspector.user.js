@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.20.0
+// @version       1.20.1
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -10604,9 +10604,15 @@
     function exportTable(){
         document.getElementById("WkitExport").blur();
         let currentPreset = quiz.settings.tablePresets[quiz.settings.active_ipreset];
-        let currentColumn = currentPreset[exportedInfo[0]];
-        if (currentColumn === undefined || currentColumn == 'None' ){
-            alert('The first column is not exported.\nPlease configure your export settings.');
+        let configured = false;
+        for (let i = 0; i < exportedInfo.length; i++){
+            let currentColumn = currentPreset[exportedInfo[i]];
+            if (currentColumn !== undefined && currentColumn !== 'None'){
+                configured = true;
+            };
+        };
+        if (!configured) {
+            alert('You need to indicate which information is exported\nin your export settings. These settings are found\nin the export tab for your table settings.');
             return;
         };
 
