@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.20.1
+// @version       1.20.2
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -11735,6 +11735,10 @@
         return filterValue;
     };
 
+    function reportMatchResult(item, searchTerm, matchType){
+        item.report = '"' + searchTerm + '" matches the item in search for "' + matchType + '"';
+    };
+
     function advancedSearchFilter(filterValue, item) {
         if (item.data === undefined) {
             return false;
@@ -11789,32 +11793,32 @@
             };
 
             if (searchIn.characters){
-                if (searchTerm === all) {reportSearchResult(item, searchTerm, 'characters'); return true;};
+                if (searchTerm === all) {reportMatchResult(item, searchTerm, 'characters'); return true;};
                 if (searchTerm !== none) {
                     if (exactMatch.characters){
-                        if (item.data.characters !== null && item.data.characters === searchTerm) {reportSearchResult(item, searchTerm, 'characters'); return true;};
-                        if (itemType === 'radical' && item.data.slug === searchTerm.replace(' ', '-')) {reportSearchResult(item, searchTerm, 'characters'); return true;};
+                        if (item.data.characters !== null && item.data.characters === searchTerm) {reportMatchResult(item, searchTerm, 'characters'); return true;};
+                        if (itemType === 'radical' && item.data.slug === searchTerm.replace(' ', '-')) {reportMatchResult(item, searchTerm, 'characters'); return true;};
                     } else {
-                        if (item.data.characters !== null && item.data.characters.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'characters'); return true;};
-                        if (itemType === 'radical' && item.data.slug.indexOf(searchTerm.replace(' ', '-')) >= 0){reportSearchResult(item, searchTerm, 'characters'); return true;};
+                        if (item.data.characters !== null && item.data.characters.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'characters'); return true;};
+                        if (itemType === 'radical' && item.data.slug.indexOf(searchTerm.replace(' ', '-')) >= 0){reportMatchResult(item, searchTerm, 'characters'); return true;};
                     };
                 };
             };
 
             if (searchIn.meanings) {
-                if (searchTerm === all)  {reportSearchResult(item, searchTerm, 'meanings'); return true;};
+                if (searchTerm === all)  {reportMatchResult(item, searchTerm, 'meanings'); return true;};
                 if (searchTerm !== none) {
                     for (var meaning of item.data.meanings){
                         if (acceptedAnswer && !meaning.accepted_answer) continue;
                         let term = meaning.meaning.toLowerCase();
                         if (exactMatch.meanings){
-                            if (searchTerm === term) {reportSearchResult(item, searchTerm, 'meanings'); return true;};
+                            if (searchTerm === term) {reportMatchResult(item, searchTerm, 'meanings'); return true;};
                             let words = term.split(' ').filter(function(name) {return (name.length > 0);});
                             for (let word of words) {
-                                if (searchTerm === word) {reportSearchResult(item, searchTerm, 'meanings'); return true;};
+                                if (searchTerm === word) {reportMatchResult(item, searchTerm, 'meanings'); return true;};
                             };
                         } else {
-                            if (term.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'meanings'); return true;};
+                            if (term.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'meanings'); return true;};
                         };
                     };
                 };
@@ -11822,20 +11826,20 @@
 
             if (searchIn.readings){
                 if (itemType !== 'radical'){
-                    if (searchTerm === all) {reportSearchResult(item, searchTerm, 'readings'); return true;};
+                    if (searchTerm === all) {reportMatchResult(item, searchTerm, 'readings'); return true;};
                     if (exactMatch.readings){
                         for (let reading of item.data.readings){
                             if (acceptedAnswer && !reading.accepted_answer) continue;
-                            if (reading.reading === searchTerm && reading.accepted_answer) {reportSearchResult(item, searchTerm, 'readings'); return true;};
+                            if (reading.reading === searchTerm && reading.accepted_answer) {reportMatchResult(item, searchTerm, 'readings'); return true;};
                         };
                     } else {
                         for (let reading of item.data.readings){
                             if (acceptedAnswer && !reading.accepted_answer) continue;
-                            if (reading.reading.indexOf(searchTerm) >= 0 && reading.accepted_answer) {reportSearchResult(item, searchTerm, 'readings'); return true;};
+                            if (reading.reading.indexOf(searchTerm) >= 0 && reading.accepted_answer) {reportMatchResult(item, searchTerm, 'readings'); return true;};
                         };
                     };
                 } else {
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'readings');}
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'readings');}
                 };
             };
 
@@ -11848,47 +11852,47 @@
                             if (acceptedAnswer && !reading.accepted_answer) continue;
                             notSeen[reading.type] = false;
                             seen[reading.type] = true;
-                            if (reading.reading === searchTerm && searchIn[reading.type]) {reportSearchResult(item, searchTerm, reading.type); return true;};
+                            if (reading.reading === searchTerm && searchIn[reading.type]) {reportMatchResult(item, searchTerm, reading.type); return true;};
                         };
                     } else {
                         for (let reading of item.data.readings){
                             if (acceptedAnswer && !reading.accepted_answer) continue;
                             notSeen[reading.type] = false;
                             seen[reading.type] = true;
-                            if (reading.reading.indexOf(searchTerm) >= 0 && searchIn[reading.type]) {reportSearchResult(item, searchTerm, reading.type); return true;};
+                            if (reading.reading.indexOf(searchTerm) >= 0 && searchIn[reading.type]) {reportMatchResult(item, searchTerm, reading.type); return true;};
                         };
                     };
                     if (searchTerm === none){
-                        if (searchIn.onyomi && notSeen.onyomi) {reportSearchResult(item, searchTerm, 'onyomi'); return true;};
-                        if (searchIn.kunyomi && notSeen.kunyomi) {reportSearchResult(item, searchTerm, 'kunyomi'); return true;};
-                        if (searchIn.nanori && notSeen.nanori) {reportSearchResult(item, searchTerm, 'nanori'); return true;};
+                        if (searchIn.onyomi && notSeen.onyomi) {reportMatchResult(item, searchTerm, 'onyomi'); return true;};
+                        if (searchIn.kunyomi && notSeen.kunyomi) {reportMatchResult(item, searchTerm, 'kunyomi'); return true;};
+                        if (searchIn.nanori && notSeen.nanori) {reportMatchResult(item, searchTerm, 'nanori'); return true;};
                     };
                     if (searchTerm === all){
-                        if (searchIn.onyomi && seen.onyomi) {reportSearchResult(item, searchTerm, 'onyomi'); return true;};
-                        if (searchIn.kunyomi && seen.kunyomi) {reportSearchResult(item, searchTerm, 'kunyomi'); return true;};
-                        if (searchIn.nanori && seen.nanori) {reportSearchResult(item, searchTerm, 'nanori'); return true;};
+                        if (searchIn.onyomi && seen.onyomi) {reportMatchResult(item, searchTerm, 'onyomi'); return true;};
+                        if (searchIn.kunyomi && seen.kunyomi) {reportMatchResult(item, searchTerm, 'kunyomi'); return true;};
+                        if (searchIn.nanori && seen.nanori) {reportMatchResult(item, searchTerm, 'nanori'); return true;};
                     };
                 } else {
                     let reading;
                     if (searchIn.nanori) reading = 'nanori';
                     if (searchIn.kunyomi) reading = 'kunyomi';
                     if (searchIn.onyomi) reading = 'onyomi';
-                    if (searchTerm === none)  {reportSearchResult(item, searchTerm, reading); return true;};
+                    if (searchTerm === none)  {reportMatchResult(item, searchTerm, reading); return true;};
                 };
             };
 
             if (searchIn.pos){
                 if (itemType === 'vocabulary'){
-                    if (searchTerm === all) {reportSearchResult(item, searchTerm, 'part of speech'); return true;};
+                    if (searchTerm === all) {reportMatchResult(item, searchTerm, 'part of speech'); return true;};
                     for (let pos of item.data.parts_of_speech){
-                        if (searchTerm === pos) {reportSearchResult(item, searchTerm, 'part of speech'); return true;};
+                        if (searchTerm === pos) {reportMatchResult(item, searchTerm, 'part of speech'); return true;};
                         let words = pos.split(' ').filter(function(name) {return (name.length > 0);});
                         for (let word of words) {
-                            if (searchTerm === word) {reportSearchResult(item, searchTerm, 'part of speech'); return true;};
+                            if (searchTerm === word) {reportMatchResult(item, searchTerm, 'part of speech'); return true;};
                         };
                     };
                 } else {
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'part of speech'); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'part of speech'); return true;};
                 };
             };
 
@@ -11898,219 +11902,219 @@
                     let seenBlock = false;
                     for (let list of item.data.auxiliary_meanings){
                         if (searchIn.allow && list.type === 'whitelist'){
-                            if (searchTerm === all) {reportSearchResult(item, searchTerm, 'allow list'); return true;};
+                            if (searchTerm === all) {reportMatchResult(item, searchTerm, 'allow list'); return true;};
                             seenAllow = true;
                             if (exactMatch.allow){
-                                if (searchTerm === list.meaning.toLowerCase()) {reportSearchResult(item, searchTerm, 'allow list'); return true;};
+                                if (searchTerm === list.meaning.toLowerCase()) {reportMatchResult(item, searchTerm, 'allow list'); return true;};
                                 let words = list.meaning.toLowerCase().split(' ').filter(function(name) {return (name.length > 0);});
                                 for (let word of words) {
-                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'allow list'); return true;};
+                                    if (searchTerm === word) {reportMatchResult(item, searchTerm, 'allow list'); return true;};
                                 };
                             } else {
-                                if (list.meaning.toLowerCase().indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'allow list'); return true;};
+                                if (list.meaning.toLowerCase().indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'allow list'); return true;};
                             };
                         } else if(searchIn.block && list.type === 'blacklist') {
-                            if (searchTerm === all) {reportSearchResult(item, searchTerm, 'block list'); return true;};
+                            if (searchTerm === all) {reportMatchResult(item, searchTerm, 'block list'); return true;};
                             seenBlock = true;
                             if (exactMatch.block){
-                                if (searchTerm === list.meaning.toLowerCase()) {reportSearchResult(item, searchTerm, 'block list'); return true;};
+                                if (searchTerm === list.meaning.toLowerCase()) {reportMatchResult(item, searchTerm, 'block list'); return true;};
                                 let words = list.meaning.toLowerCase().split(' ').filter(function(name) {return (name.length > 0);});
                                 for (let word of words) {
-                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'block list'); return true;};
+                                    if (searchTerm === word) {reportMatchResult(item, searchTerm, 'block list'); return true;};
                                 };
                             } else {
-                                if (list.meaning.toLowerCase().indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'block list'); return true;};
+                                if (list.meaning.toLowerCase().indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'block list'); return true;};
                             };
                         };
                     };
                     if (searchTerm === none){
-                        if (searchIn.allow && !seenAllow) {reportSearchResult(item, searchTerm, 'allow list'); return true;};
-                        if (searchIn.block && !seenBlock) {reportSearchResult(item, searchTerm, 'block list'); return true;};
+                        if (searchIn.allow && !seenAllow) {reportMatchResult(item, searchTerm, 'allow list'); return true;};
+                        if (searchIn.block && !seenBlock) {reportMatchResult(item, searchTerm, 'block list'); return true;};
                     };
                 } else {
                     if (searchTerm === none){
-                        if (searchIn.allow) {reportSearchResult(item, searchTerm, 'allow list'); return true;};
-                        if (searchIn.block) {reportSearchResult(item, searchTerm, 'block list'); return true;};
+                        if (searchIn.allow) {reportMatchResult(item, searchTerm, 'allow list'); return true;};
+                        if (searchIn.block) {reportMatchResult(item, searchTerm, 'block list'); return true;};
                     };
                 };
             };
 
             if (searchIn.mMnemonics) {
                 if (item.data.meaning_mnemonic){
-                    if (searchTerm === all) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                    if (searchTerm === all) {reportMatchResult(item, searchTerm, 'meaning mnemonic'); return true;};
                     let mnemonic = item.data.meaning_mnemonic.toLowerCase().replace(noHtml, ' ');
-                    if (searchTerm === "onyomi" && mnemonic.indexOf("on'yomi") >= 0) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
-                    if (searchTerm === "kunyomi" && mnemonic.indexOf("kun'yomi") >= 0) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                    if (searchTerm === "onyomi" && mnemonic.indexOf("on'yomi") >= 0) {reportMatchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                    if (searchTerm === "kunyomi" && mnemonic.indexOf("kun'yomi") >= 0) {reportMatchResult(item, searchTerm, 'meaning mnemonic'); return true;};
                     if (exactMatch.mMnemonics){
                         let words = mnemonic.toLowerCase().split(breakTheWords).filter(function(name) {return (name.length > 0);});
                         for (let word of words) {
-                            if (searchTerm === word) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                            if (searchTerm === word) {reportMatchResult(item, searchTerm, 'meaning mnemonic'); return true;};
                             let subwords = word.split(breakTheSubwords);
                             if (subwords.length !== 1){
-                                for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                                for (let subword of subwords) if (searchTerm === subword) {reportMatchResult(item, searchTerm, 'meaning mnemonic'); return true;};
                             };
                         };
                     } else {
-                        if (mnemonic.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                        if (mnemonic.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'meaning mnemonic'); return true;};
                     };
                 } else {
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'meaning mnemonic'); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'meaning mnemonic'); return true;};
                 };
             };
 
             if (searchIn.mHints){
                 if (item.data.meaning_hint){
-                    if (searchTerm === all) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
+                    if (searchTerm === all) {reportMatchResult(item, searchTerm, 'meaning hint'); return true;};
                     let hint = item.data.meaning_hint.toLowerCase().replace(noHtml, ' ');
-                    if (searchTerm === "onyomi" && hint.indexOf("on'yomi") >= 0) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
-                    if (searchTerm === "kunyomi" && hint.indexOf("kun'yomi") >= 0) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
+                    if (searchTerm === "onyomi" && hint.indexOf("on'yomi") >= 0) {reportMatchResult(item, searchTerm, 'meaning hint'); return true;};
+                    if (searchTerm === "kunyomi" && hint.indexOf("kun'yomi") >= 0) {reportMatchResult(item, searchTerm, 'meaning hint'); return true;};
                     if (exactMatch.mHints){
                         let words = hint.split(breakTheWords).filter(function(name) {return (name.length > 0);});
                         for (let word of words) {
-                            if (searchTerm === word) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
+                            if (searchTerm === word) {reportMatchResult(item, searchTerm, 'meaning hint'); return true;};
                             let subwords = word.split(breakTheSubwords);
                             if (subwords.length !== 1){
-                                for (let subword of subwords) if (searchTerm === subwords) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
+                                for (let subword of subwords) if (searchTerm === subwords) {reportMatchResult(item, searchTerm, 'meaning hint'); return true;};
                             }
                         };
                     } else {
-                        if (hint.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
+                        if (hint.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'meaning hint'); return true;};
                     };
                 } else {
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'meaning hint'); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'meaning hint'); return true;};
                 };
             };
 
             if (searchIn.rMnemonics) {
                 if (item.data.reading_mnemonic){
-                    if (searchTerm === all) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                    if (searchTerm === all) {reportMatchResult(item, searchTerm, 'reading mnemonic'); return true;};
                     let mnemonic = item.data.reading_mnemonic.toLowerCase().replace(noHtml, ' ');
-                    if (searchTerm === "onyomi" && mnemonic.indexOf("on'yomi") >= 0) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
-                    if (searchTerm === "kunyomi" && mnemonic.indexOf("kun'yomi") >= 0) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                    if (searchTerm === "onyomi" && mnemonic.indexOf("on'yomi") >= 0) {reportMatchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                    if (searchTerm === "kunyomi" && mnemonic.indexOf("kun'yomi") >= 0) {reportMatchResult(item, searchTerm, 'reading mnemonic'); return true;};
                     if (exactMatch.rMnemonics){
                         let words = mnemonic.split(breakTheWords).filter(function(name) {return (name.length > 0);});
                         for (let word of words) {
-                            if (searchTerm === word) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                            if (searchTerm === word) {reportMatchResult(item, searchTerm, 'reading mnemonic'); return true;};
                             let subwords = word.split(breakTheSubwords);
                             if (subwords.length !== 1){
-                                for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                                for (let subword of subwords) if (searchTerm === subword) {reportMatchResult(item, searchTerm, 'reading mnemonic'); return true;};
                             }
                         };
                     } else {
-                        if (mnemonic.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                        if (mnemonic.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'reading mnemonic'); return true;};
                     };
                 } else {
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'reading mnemonic'); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'reading mnemonic'); return true;};
                 };
             };
 
             if (searchIn.rHints) {
                 if (item.data.reading_hint){
-                    if (searchTerm === all) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
+                    if (searchTerm === all) {reportMatchResult(item, searchTerm, 'reading hint'); return true;};
                     let hint = item.data.reading_hint.toLowerCase().replace(noHtml, ' ');
-                    if (searchTerm === "onyomi" && hint.indexOf("on'yomi") >= 0) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
-                    if (searchTerm === "kunyomi" && hint.indexOf("kun'yomi") >= 0) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
+                    if (searchTerm === "onyomi" && hint.indexOf("on'yomi") >= 0) {reportMatchResult(item, searchTerm, 'reading hint'); return true;};
+                    if (searchTerm === "kunyomi" && hint.indexOf("kun'yomi") >= 0) {reportMatchResult(item, searchTerm, 'reading hint'); return true;};
                     if (exactMatch.rHints){
                         let words = hint.split(breakTheWords).filter(function(name) {return (name.length > 0);});
                         for (let word of words) {
-                            if (searchTerm === word) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
+                            if (searchTerm === word) {reportMatchResult(item, searchTerm, 'reading hint'); return true;};
                             let subwords = word.split(breakTheSubwords);
                             if (subwords.length !== 1){
-                                for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
+                                for (let subword of subwords) if (searchTerm === subword) {reportMatchResult(item, searchTerm, 'reading hint'); return true;};
                             }
                         };
                     } else {
-                        if (hint.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
+                        if (hint.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'reading hint'); return true;};
                     };
                 } else {
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'reading hint'); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'reading hint'); return true;};
                 };
             };
 
             if (searchIn.contextSentences){
                 if (item.object === 'vocabulary'){
                     if (item.data.context_sentences.length !== 0){
-                        if (searchTerm === all) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                        if (searchTerm === all) {reportMatchResult(item, searchTerm, 'context sentences'); return true;};
                         for (let sentences of item.data.context_sentences){
                             let ja = sentences.ja;
                             let en = sentences.en;
                             if (exactMatch.contextSentences){
                                 let words = ja.toLowerCase().split(breakTheWords).filter(function(name) {return (name.length > 0);});
                                 for (let word of words) {
-                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                                    if (searchTerm === word) {reportMatchResult(item, searchTerm, 'context sentences'); return true;};
                                 };
                                 words = en.toLowerCase().split(breakTheWords).filter(function(name) {return (name.length > 0);});
                                 for (let word of words) {
-                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                                    if (searchTerm === word) {reportMatchResult(item, searchTerm, 'context sentences'); return true;};
                                     let subwords = word.split(breakTheSubwords);
                                     if (subwords.length !== 1){
-                                        for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                                        for (let subword of subwords) if (searchTerm === subword) {reportMatchResult(item, searchTerm, 'context sentences'); return true;};
                                     };
                                 };
                             } else {
-                                if (ja.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
-                                if (en.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                                if (ja.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'context sentences'); return true;};
+                                if (en.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'context sentences'); return true;};
                             };
                         };
                     } else {
-                        if (searchTerm === none) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                        if (searchTerm === none) {reportMatchResult(item, searchTerm, 'context sentences'); return true;};
                     };
                 } else {
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'context sentences'); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'context sentences'); return true;};
                 };
             };
 
             if (searchIn.mNotes){
                 if (item.study_materials){
                     if (item.study_materials.meaning_note){
-                        if (searchTerm === all) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                        if (searchTerm === all) {reportMatchResult(item, searchTerm, 'meaning note'); return true;};
                         let note = item.study_materials.meaning_note.toLowerCase().replace(noHtml, ' ');
-                        if (searchTerm === "onyomi" && note.indexOf("on'yomi") >= 0) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
-                        if (searchTerm === "kunyomi" && note.indexOf("kun'yomi") >= 0) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                        if (searchTerm === "onyomi" && note.indexOf("on'yomi") >= 0) {reportMatchResult(item, searchTerm, 'meaning note'); return true;};
+                        if (searchTerm === "kunyomi" && note.indexOf("kun'yomi") >= 0) {reportMatchResult(item, searchTerm, 'meaning note'); return true;};
                         if (exactMatch.mNotes){
                             let words = note.split(breakTheWords).filter(function(name) {return (name.length > 0);});
                             for (let word of words) {
-                                if (searchTerm === word) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                                if (searchTerm === word) {reportMatchResult(item, searchTerm, 'meaning note'); return true;};
                                 let subwords = word.split(breakTheSubwords);
                                 if (subwords.length !== 1){
-                                    for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                                    for (let subword of subwords) if (searchTerm === subword) {reportMatchResult(item, searchTerm, 'meaning note'); return true;};
                                 };
                             };
                         } else {
-                            if (note.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                            if (note.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'meaning note'); return true;};
                         };
                     } else {
-                        if (searchTerm === none) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                        if (searchTerm === none) {reportMatchResult(item, searchTerm, 'meaning note'); return true;};
                     };
                 } else {
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'meaning note'); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'meaning note'); return true;};
                 };
             };
 
             if (searchIn.rNotes){
                 if (item.study_materials){
                     if (item.study_materials.reading_note){
-                        if (searchTerm === all) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                        if (searchTerm === all) {reportMatchResult(item, searchTerm, 'reading note'); return true;};
                         let note = item.study_materials.reading_note.toLowerCase().replace(noHtml, ' ');
-                        if (searchTerm === "onyomi" && note.indexOf("on'yomi") >= 0) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
-                        if (searchTerm === "kunyomi" && note.indexOf("kun'yomi") >= 0) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                        if (searchTerm === "onyomi" && note.indexOf("on'yomi") >= 0) {reportMatchResult(item, searchTerm, 'reading note'); return true;};
+                        if (searchTerm === "kunyomi" && note.indexOf("kun'yomi") >= 0) {reportMatchResult(item, searchTerm, 'reading note'); return true;};
                         if (exactMatch.rNotes){
                             let words = note.split(breakTheWords).filter(function(name) {return (name.length > 0);});
                             for (let word of words) {
-                                if (searchTerm === word) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                                if (searchTerm === word) {reportMatchResult(item, searchTerm, 'reading note'); return true;};
                                 let subwords = word.split(breakTheSubwords);
                                 if (subwords.length !== 1){
-                                    for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                                    for (let subword of subwords) if (searchTerm === subword) {reportMatchResult(item, searchTerm, 'reading note'); return true;};
                                 }
                             };
                         } else {
-                            if (note.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                            if (note.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'reading note'); return true;};
                         };
                     } else {
-                        if (searchTerm === none) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                        if (searchTerm === none) {reportMatchResult(item, searchTerm, 'reading note'); return true;};
                     };
                 } else {
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'reading note'); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'reading note'); return true;};
                 };
             };
 
@@ -12118,56 +12122,56 @@
                 if (item.study_materials){
                     let synonyms = item.study_materials.meaning_synonyms;
                     if (synonyms.length === 0){
-                        if (searchTerm === none) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                        if (searchTerm === none) {reportMatchResult(item, searchTerm, 'user synonyms'); return true;};
                     } else {
-                        if (searchTerm === all) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                        if (searchTerm === all) {reportMatchResult(item, searchTerm, 'user synonyms'); return true;};
                         for (let synonym of synonyms){
                             synonym = synonym.toLowerCase();
-                            if (searchTerm === synonym) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                            if (searchTerm === synonym) {reportMatchResult(item, searchTerm, 'user synonyms'); return true;};
                             if (exactMatch.synonyms){
                                 let words = synonym.split(breakTheWords).filter(function(name) {return (name.length > 0);});
                                 for (var word of words) {
-                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                                    if (searchTerm === word) {reportMatchResult(item, searchTerm, 'user synonyms'); return true;};
                                 };
                                 let subwords = word.split(breakTheSubwords);
                                 if (subwords.length !== 1){
-                                    for (let subword of subwords) if (searchTerm === subword) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                                    for (let subword of subwords) if (searchTerm === subword) {reportMatchResult(item, searchTerm, 'user synonyms'); return true;};
                                 }
                             } else {
-                                if (synonym.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                                if (synonym.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'user synonyms'); return true;};
                             };
                         };
                     };
                 } else {
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'user synonyms'); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'user synonyms'); return true;};
                 };
             };
 
             if (searchIn.Kanjidic2_Meaning) {
                 if (item.object !== 'kanji'){
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'kanjidic2 meaning'); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'kanjidic2 meaning'); return true;};
                 } else {
                     if (searchTerm === all) {
                         if (item.data.characters in kanjidic2Data && kanjidic2Data[item.data.characters].meanings.length !== 0){
-                            reportSearchResult(item, searchTerm, 'kanjidic2 meaning');
+                            reportMatchResult(item, searchTerm, 'kanjidic2 meaning');
                             return true;
                         };
                     } else if (searchTerm === none) {
                         if (!(item.data.characters in kanjidic2Data) || kanjidic2Data[item.data.characters].meanings.length === 0){
-                            reportSearchResult(item, searchTerm, 'kanjidic2 meaning');
+                            reportMatchResult(item, searchTerm, 'kanjidic2 meaning');
                             return true;
                         };
                     } else if (item.data.characters in kanjidic2Data){
                         for (let meaning of kanjidic2Data[item.data.characters].meanings){
                             let term = meaning.toLowerCase();
                             if (exactMatch.Kanjidic2_Meaning){
-                                if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 meaning'); return true;};
+                                if (searchTerm === term) {reportMatchResult(item, searchTerm, 'kanjidic2 meaning'); return true;};
                                 let words = term.split(' ').filter(function(name) {return (name.length > 0);});
                                 for (let word of words) {
-                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'kanjidic2 meaning'); return true;};
+                                    if (searchTerm === word) {reportMatchResult(item, searchTerm, 'kanjidic2 meaning'); return true;};
                                 };
                             } else {
-                                if (term.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'kanjidic2 meaning'); return true;};
+                                if (term.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'kanjidic2 meaning'); return true;};
                             };
                         };
                     };
@@ -12176,36 +12180,36 @@
 
             if (searchIn.Kanjidic2_Onyomi) {
                 if (item.object !== 'kanji'){
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
                 } else {
                     if (searchTerm === all) {
                         if (item.data.characters in kanjidic2Data && kanjidic2Data[item.data.characters].onyomi.length !== 0){
-                            reportSearchResult(item, searchTerm, 'kanjidic2 onyomi');
+                            reportMatchResult(item, searchTerm, 'kanjidic2 onyomi');
                             return true;
                         };
                     } else if (searchTerm === none) {
                         if (!(item.data.characters in kanjidic2Data) || kanjidic2Data[item.data.characters].onyomi.length === 0){
-                            reportSearchResult(item, searchTerm, 'kanjidic2 onyomi');
+                            reportMatchResult(item, searchTerm, 'kanjidic2 onyomi');
                             return true;
                         };
                     } else if (item.data.characters in kanjidic2Data){
                         for (let onyomi of kanjidic2Data[item.data.characters].onyomi){
                             let term = katakana2hiragana(onyomi);
                             if (exactMatch.Kanjidic2_Onyomi){
-                                if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
+                                if (searchTerm === term) {reportMatchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
                                 let words = term.split(' ').filter(function(name) {return (name.length > 0);});
                                 for (let word of words) {
-                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
+                                    if (searchTerm === word) {reportMatchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
                                     if (word.endsWith('-') || word.endsWith('ー') || word.endsWith('ー') || word.endsWith('－') || word.endsWith('‐')){
                                         term = word.slice(0, -1)
                                     };
                                     if (word.startsWith('-') || word.startsWith('ー') || word.startsWith('ー') || word.startsWith('－') || word.startsWith('‐')){
                                         term = word.slice(1)
                                     };
-                                    if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
+                                    if (searchTerm === term) {reportMatchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
                                 };
                             } else {
-                                if (term.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
+                                if (term.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'kanjidic2 onyomi'); return true;};
                             };
                         };
                     };
@@ -12214,36 +12218,36 @@
 
             if (searchIn.Kanjidic2_Kunyomi) {
                 if (item.object !== 'kanji'){
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
                 } else {
                     if (searchTerm === all) {
                         if (item.data.characters in kanjidic2Data && kanjidic2Data[item.data.characters].kunyomi.length !== 0){
-                            reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi');
+                            reportMatchResult(item, searchTerm, 'kanjidic2 kunyomi');
                             return true;
                         };
                     } else if (searchTerm === none) {
                         if (!(item.data.characters in kanjidic2Data) || kanjidic2Data[item.data.characters].kunyomi.length === 0){
-                            reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi');
+                            reportMatchResult(item, searchTerm, 'kanjidic2 kunyomi');
                             return true;
                         };
                     } else if (item.data.characters in kanjidic2Data){
                         for (let kunyomi of kanjidic2Data[item.data.characters].kunyomi){
                             let term = kunyomi
                             if (exactMatch.Kanjidic2_Kunyomi){
-                                if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
+                                if (searchTerm === term) {reportMatchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
                                 let words = term.split(' ').filter(function(name) {return (name.length > 0);});
                                 for (let word of words) {
-                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
+                                    if (searchTerm === word) {reportMatchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
                                     if (word.endsWith('-') || word.endsWith('ー') || word.endsWith('ー') || word.endsWith('－') || word.endsWith('‐')){
                                         term = word.slice(0, -1)
                                     };
                                     if (word.startsWith('-') || word.startsWith('ー') || word.startsWith('ー') || word.startsWith('－') || word.startsWith('‐')){
                                         term = word.slice(1)
                                     };
-                                    if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
+                                    if (searchTerm === term) {reportMatchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
                                 };
                             } else {
-                                if (term.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
+                                if (term.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'kanjidic2 kunyomi'); return true;};
                             };
                         };
                     };
@@ -12252,36 +12256,36 @@
 
             if (searchIn.Kanjidic2_Nanori) {
                 if (item.object !== 'kanji'){
-                    if (searchTerm === none) {reportSearchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
                 } else {
                     if (searchTerm === all) {
                         if (item.data.characters in kanjidic2Data && kanjidic2Data[item.data.characters].nanori.length !== 0){
-                            reportSearchResult(item, searchTerm, 'kanjidic2 nanori');
+                            reportMatchResult(item, searchTerm, 'kanjidic2 nanori');
                             return true;
                         };
                     } else if (searchTerm === none) {
                         if (!(item.data.characters in kanjidic2Data) || kanjidic2Data[item.data.characters].nanori.length === 0){
-                            reportSearchResult(item, searchTerm, 'kanjidic2 nanori');
+                            reportMatchResult(item, searchTerm, 'kanjidic2 nanori');
                             return true;
                         };
                     } else if (item.data.characters in kanjidic2Data){
                         for (let nanori of kanjidic2Data[item.data.characters].nanori){
                             let term = nanori
                             if (exactMatch.Kanjidic2_Nanori){
-                                if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
+                                if (searchTerm === term) {reportMatchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
                                 let words = term.split(' ').filter(function(name) {return (name.length > 0);});
                                 for (let word of words) {
-                                    if (searchTerm === word) {reportSearchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
+                                    if (searchTerm === word) {reportMatchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
                                     if (word.endsWith('-') || word.endsWith('ー') || word.endsWith('ー') || word.endsWith('－') || word.endsWith('‐')){
                                         term = word.slice(0, -1)
                                     };
                                     if (word.startsWith('-') || word.startsWith('ー') || word.startsWith('ー') || word.startsWith('－') || word.startsWith('‐')){
                                         term = word.slice(1)
                                     };
-                                    if (searchTerm === term) {reportSearchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
+                                    if (searchTerm === term) {reportMatchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
                                 };
                             } else {
-                                if (term.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
+                                if (term.indexOf(searchTerm) >= 0) {reportMatchResult(item, searchTerm, 'kanjidic2 nanori'); return true;};
                             };
                         };
                     };
