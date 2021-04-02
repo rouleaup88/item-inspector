@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.20.2
+// @version       1.20.3
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -4765,6 +4765,7 @@
         } else if (is_trad_rad) {
             items = baseItems.filter(function(item){return item.object === 'trad_rad'});
         };
+        console.log('testing items', items);
 		for (var filter_name in cfg) {
 			var filter_cfg = cfg[filter_name];
 			if (typeof filter_cfg !== 'object' || filter_cfg.value === undefined)
@@ -4799,11 +4800,12 @@
                 for (var j = 0, l = filters.length; l > j; j++) {
                     var filter = filters[j];
                     try {
+                        console.trace();
                         keep = filter.func(filter.filter_value, item);
                         if (filter.invert) keep = !keep;
                         if (!keep) break;
                     } catch(e) {
-                        throw e;
+                        //throw e;
                         keep = false;
                         break;
                     }
