@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.20.4
+// @version       1.20.6
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -9637,7 +9637,9 @@
     var audioCounter = 0;
     function makeItemLink(item, itemData, itemClass, audioOk){
         let stringList = [];
-        if (quiz.settings.audioMode && item.object === 'vocabulary' && audioOk){
+        let hasAudio = false;
+        if (item.object === 'vocabulary' && item.data.pronunciation_audios && item.data.pronunciation_audios.length >= 1) hasAudio = true;
+        if (quiz.settings.audioMode && item.object === 'vocabulary' && audioOk && hasAudio){
             let gender = quiz.settings.audioSource;
             let audioId = 'Wkitaudio'+audioCounter; audioCounter++;
 
@@ -9907,9 +9909,10 @@
 
     function insertTooltip(e){
         let $e = $(e.currentTarget);
+
         // don't generate html that is already there
-        // the ::after element is always there, so the test of emptiness is for one element
-        if ($e.children().children().length !== 1) return;
+        // the ::after element is always there so the test of non emptiness is for greater than one element
+        if ($e.children('.WkitTooltipContent').children().length > 1) return;
         let id = $e.attr('subjectid');
         let item = subjectIndex[parseInt(id)];
         let selected_table = quiz.settings.active_ipreset;
@@ -13518,6 +13521,7 @@
         // using the default monospace font
         //
         if (newSize === baselineSize) {
+            console.log('Item Inspector checking font - not intalled - baseline', baselineSize, " - newSize", newSize);
             return false;
         } else {
             return true;
@@ -13561,6 +13565,15 @@
         let tableUseStrokeOrder = quiz.settings.tablePresets.reduce(((acc, val)=>(val.showStrokeOrder || acc)), false);
         let viewUseStrokeOrder = quiz.settings.vpresets.reduce(((acc, val)=>(val.vshowStrokeOrder || acc)), false);
         if ((!doesFontExist('KanjiStrokeOrders')) && (tableUseStrokeOrder || viewUseStrokeOrder)) {
+            console.log ('Item Inspector checking tables');
+            for (let idx in quiz.settings.tablePresets) {
+                let val = quiz.settings.tablePresets[idx];
+                if (val.showStrokeOrder) console.log("Item Inspector - stroke order set in", quiz.settings.ipresets[idx].name);
+            };
+            console.log ('Item Inspector checking views');
+            for (let val of quiz.settings.vpresets) {
+                if (val.vshowStrokeOrder) console.log("Item Inspector - stroke order set in", val.name);
+            };
             response = confirm(script_name + ' requires  Kanji Stroke Order Font.\nWithout this font the Kanji Stroke Order popups\nwill not show the stroke order.\n\n Click "OK" to be forwarded to installation instructions.');
             if (response) {
                 window.location.href = 'https://www.nihilist.org.uk/';
