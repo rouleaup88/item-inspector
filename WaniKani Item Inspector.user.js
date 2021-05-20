@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.20.6
+// @version       1.20.7
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -4979,10 +4979,10 @@
                               'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100) : 'Not in Wanikani')}),
                              },
                     'Srs': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'SRS ',
-                            'tableEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined ? srsName[item.assignments.srs_stage] : 'Locked') : 'Locked')}),
-                            'tableEntryMarker': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined ? srsName[item.assignments.srs_stage] : 'Locked') : 'Locked')}),
-                            'tooltipEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined ? srsName[item.assignments.srs_stage] : 'Locked') : 'Locked')}),
-                            'sortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined ? item.assignments.srs_stage : 10) : 10)}),
+                            'tableEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.unlocked_at != undefined ? srsName[item.assignments.srs_stage] : 'Locked') : 'Locked')}),
+                            'tableEntryMarker': ((item) => {return (item.assignments != undefined ? (item.assignments.unlocked_at != undefined ? srsName[item.assignments.srs_stage] : 'Locked') : 'Locked')}),
+                            'tooltipEntry': ((item) => {return (item.assignments != undefined ? (item.assignments.unlocked_at != undefined ? srsName[item.assignments.srs_stage] : 'Locked') : 'Locked')}),
+                            'sortkey': ((item) => {return (item.assignments != undefined ? (item.assignments.unlocked_at != undefined ? item.assignments.srs_stage : 10) : 10)}),
                             'sortOrder': 'Ascending',
                             'sortkey2': ((item) => {return (item.assignments != undefined ? (item.assignments.available_at != undefined ? Date.parse(item.assignments.available_at) : theFuture) : theFuture)}),
                             'sortOrder2': 'Ascending',
@@ -4990,9 +4990,9 @@
                             'labelExport': 'SRS: ',
                             'needQuotes': false,
                             'freeFormText': false,
-                            'export': ((item) => {return (item.assignments != undefined ? (item.assignments.srs_stage != undefined ? srsName[item.assignments.srs_stage] : 'Locked') : 'Locked')}),
+                            'export': ((item) => {return (item.assignments != undefined ? (item.assignments.unlocked_at != undefined ? srsName[item.assignments.srs_stage] : 'Locked') : 'Locked')}),
                             'isDate': false, 'isList': false,
-                            'reportValue': ((item) => {return (item.object !== 'trad_rad' ? (item.assignments != undefined && item.assignments.srs_stage != undefined ? item.assignments.srs_stage : -1) : 'Unavailable')}),
+                            'reportValue': ((item) => {return (item.object !== 'trad_rad' ? (item.assignments != undefined && item.assignments.unlocked_at != undefined ? item.assignments.srs_stage : -1) : 'Unavailable')}),
                             'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(num) === -1 ? 'Locked' : srsName[Math.round(num)]) : 'Not in Wanikani')}),
                            },
 
