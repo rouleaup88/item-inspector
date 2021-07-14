@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.20.7
+// @version       1.20.8
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -4958,7 +4958,7 @@
                                         'labelExport': '',
                                         'needQuotes': true,
                                         'freeFormText': false,
-                                        'export': readingByType || "Unavailable",
+                                        'export': readingByTypeExport || "Unavailable",
                                         'isDate': false, 'isList': true,
                                        },
                     'Level': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Level ',
@@ -6478,6 +6478,8 @@
                         '叔母': 'おば: exception',
                         '漬物': 'つけもの, 漬: つけ: kun, 物: もの: kun',
                         '湧水': 'ゆうすい, 湧: しば: on, 水: すい: on, &emsp;わきみず, 湧: ;わき: exception, 水: みず: kun',
+                        '拉麺': 'らー: exception, めん: on',
+                        '素麺': 'そう: exception, めん: on',
                        };
 
     // Readings that may morph into something with a little っ
@@ -6538,6 +6540,7 @@
             let firstTime = true;
             for (let readingData of item.data.readings){
                 if (!readingData.accepted_answer) continue;
+                if (!readingData.primary) continue;
 
                 if (characters in exceptions){
                     readings.push(exceptions[characters]);
@@ -6621,6 +6624,11 @@
             return readings.join(', ');
         };
     };
+
+    function readingByTypeExport(item){
+        return readingByType(item).replaceAll('&emsp;', '| ');
+    };
+
 
     function readingsFull(item){
         // make sure readings are returned in the order WK provides them, but primary comes first
