@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.20.8
+// @version       1.21.2
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -363,6 +363,7 @@
                    vertical-align: middle;
                    border-width: 1px;
                    border-radius: 3px;
+                   border-color: rgb(118, 118, 118);
                    text-align: center;
                    min-width: 30px;
                    width: max-content;
@@ -2419,7 +2420,7 @@
                         'export31','export32','export33','export34','export35','export36','export37','export38','export39','export40',
                         'export41','export42','export43','export44','export45','export46','export47','export48','export49','export50',
                         'export51','export52','export53','export54','export55','export56','export57','export58','export59','export60',
-                        'export61','export62',];
+                        'export61','export62','export63','export64','export65','export66',];
     var wideElements = {'Last_Review_Date':true, 'Review_Date':true, 'Passed_Date':true, 'Burned_Date':true, 'Resurrected_Date':true, 'Lesson_Date':true,
                         'Unlock_Date':true, 'Joyo': true, 'JLPT': true, 'Frequency': true,};
 
@@ -2428,6 +2429,7 @@
         let tableElementContents = {'Meaning_Brief':'Meaning Brief',
                                     'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
                                     'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full',
+                                    'Reading_Onyomi': 'Reading Onyomi', 'Reading_Kunyomi': 'Reading Kunyomi', 'Reading_Nanori': 'Reading Nanori',
                                     'Kanjidic2_Onyomi': 'Kanjidict2 Onyomi', 'Kanjidic2_Kunyomi': 'Kanjidict2 Kunyomi', 'Kanjidic2_Nanori': 'Kanjidict2 Nanori',
                                     'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
                                     'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Meaning_Incorrect_Answers': 'Meaning Incorrect Answers',
@@ -2449,6 +2451,7 @@
         let viewTableElementContents = {'Same': 'Same as Without View' ,'Meaning_Brief':'Meaning Brief',
                                         'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
                                         'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full',
+                                        'Reading_Onyomi': 'Reading Onyomi', 'Reading_Kunyomi': 'Reading Kunyomi', 'Reading_Nanori': 'Reading Nanori',
                                         'Kanjidic2_Onyomi': 'Kanjidict2 Onyomi', 'Kanjidic2_Kunyomi': 'Kanjidict2 Kunyomi', 'Kanjidic2_Nanori': 'Kanjidict2 Nanori',
                                         'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
                                         'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Meaning_Incorrect_Answers': 'Meaning Incorrect Answers',
@@ -2470,6 +2473,7 @@
         let dataElementContents = {'None':'None', 'Item': 'Item Characters', 'Meaning_Brief':'Meaning Brief', 'Meaning_Full':'Meaning Full',
                                    'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
                                    'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full', 'Reading_by_Type': 'Reading by Type (on kun)',
+                                   'Reading_Onyomi': 'Reading Onyomi', 'Reading_Kunyomi': 'Reading Kunyomi', 'Reading_Nanori': 'Reading Nanori',
                                    'Kanjidic2_Onyomi': 'Kanjidict2 Onyomi', 'Kanjidic2_Kunyomi': 'Kanjidict2 Kunyomi', 'Kanjidic2_Nanori': 'Kanjidict2 Nanori',
                                    'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
                                    'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Reading_Correct_Answers': 'Reading Correct Answers',
@@ -2497,6 +2501,7 @@
         let sortElementContents = {'Default':'Default', 'Type':'Item Type (Rad, Kan, Voc)', 'Meaning_Brief':'Meaning Brief', 'Meaning_Full':'Meaning Full',
                                    'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
                                    'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full',
+                                   'Reading_Onyomi': 'Reading Onyomi', 'Reading_Kunyomi': 'Reading Kunyomi', 'Reading_Nanori': 'Reading Nanori',
                                    'Kanjidic2_Onyomi': 'Kanjidict2 Onyomi', 'Kanjidic2_Kunyomi': 'Kanjidict2 Kunyomi', 'Kanjidic2_Nanori': 'Kanjidict2 Nanori',
                                    'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
                                    'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Reading_Correct_Answers': 'Reading Correct Answers',
@@ -2518,6 +2523,7 @@
         let viewSortElementContents = {'Same': 'Same as Without View' ,'Default':'Default', 'Type':'Item Type (Rad, Kan, Voc)',
                                        'Meaning_Brief':'Meaning Brief', 'Meaning_Full':'Meaning Full', 'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
                                        'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full',
+                                       'Reading_Onyomi': 'Reading Onyomi', 'Reading_Kunyomi': 'Reading Kunyomi', 'Reading_Nanori': 'Reading Nanori',
                                        'Kanjidic2_Onyomi': 'Kanjidict2 Onyomi', 'Kanjidic2_Kunyomi': 'Kanjidict2 Kunyomi', 'Kanjidic2_Nanori': 'Kanjidict2 Nanori',
                                        'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
                                        'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Reading_Correct_Answers': 'Reading Correct Answers',
@@ -2551,7 +2557,9 @@
 
         let exportElementContents = {'None': 'Not Exported', 'Item':'Item', 'Type':'Item Type (Rad, Kan, Voc)', 'Export_Date': 'Export Date',
                                      'Meaning_Brief':'Meaning Brief', 'Meaning_Full':'Meaning Full', 'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
-                                     'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full', 'Reading_by_Type': 'Reading by Type (on kun)',
+                                     'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full',
+                                     'Reading_by_Type': 'Reading by Type (on kun)',
+                                     'Reading_Onyomi': 'Reading Onyomi', 'Reading_Kunyomi': 'Reading Kunyomi', 'Reading_Nanori': 'Reading Nanori',
                                      'Kanjidic2_Onyomi': 'Kanjidict2 Onyomi', 'Kanjidic2_Kunyomi': 'Kanjidict2 Kunyomi', 'Kanjidic2_Nanori': 'Kanjidict2 Nanori',
                                      'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
                                      'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Meaning_Incorrect_Answers': 'Meaning Incorrect Answers',
@@ -2837,6 +2845,18 @@
                                    export62: {type:'dropdown',label:'Exported Column no 62',hover_tip:'The 62nd column of exported information', default:'None',
                                               path:'@tablePresets[@active_ipreset].export62', content:exportElementContents,
                                              },
+                                   export63: {type:'dropdown',label:'Exported Column no 63',hover_tip:'The 63rd column of exported information', default:'None',
+                                              path:'@tablePresets[@active_ipreset].export63', content:exportElementContents,
+                                             },
+                                   export64: {type:'dropdown',label:'Exported Column no 64',hover_tip:'The 64th column of exported information', default:'None',
+                                              path:'@tablePresets[@active_ipreset].export64', content:exportElementContents,
+                                             },
+                                   export65: {type:'dropdown',label:'Exported Column no 65',hover_tip:'The 65th column of exported information', default:'None',
+                                              path:'@tablePresets[@active_ipreset].export65', content:exportElementContents,
+                                             },
+                                   export66: {type:'dropdown',label:'Exported Column no 66',hover_tip:'The 66th column of exported information', default:'None',
+                                              path:'@tablePresets[@active_ipreset].export66', content:exportElementContents,
+                                             },
                                },
                               };
 
@@ -2944,7 +2964,7 @@
                                                                'Burned_Date':'Burned Date', 'Resurrected_Date': 'Resurrected Date', 'Unlock_Date': 'Unlock Date',},
                                                },
                                      sect_tbl_leechTraining:{type:'section',label:'Leech Training Emulation'},
-                                     trainingSelection: {type:'number',label:'Size of Training Selection',hover_tip:'The size of a leech training selection of items.\n0 means to fill the screen.',
+                                     trainingSelection: {type:'number',label:'Size of Training Selection',hover_tip:'The size of a leech training selection of items.\n0 means to fill the screen.\nThe similar items are not included in this count.',
                                                        path:'@tablePresets[@active_ipreset].trainingSelection', default:0,},
                                      oncePerReviewPeriod: {type: 'checkbox', label: 'Only Once Before Next Review', default: true,
                                                            hover_tip: 'In a random selection, an item may be\nselected at most once before the next review.',
@@ -4961,6 +4981,45 @@
                                         'export': readingByTypeExport || "Unavailable",
                                         'isDate': false, 'isList': true,
                                        },
+                    'Reading_Onyomi': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Onyomi',
+                                     'tooltipEntry': readingsOnyomi || "Unavailable",
+                                     'sortkey': ((item) => {return 0}),
+                                     'sortOrder': 'Ascending',
+                                     'sortkey2': ((item) => {return 0}),
+                                     'sortOrder2': 'Ascending',
+                                     'title': 'Onyomi',
+                                     'labelExport': '',
+                                     'needQuotes': true,
+                                     'freeFormText': false,
+                                     'export': readingsOnyomi || "Unavailable",
+                                     'isDate': false, 'isList': true,
+                                    },
+                    'Reading_Kunyomi': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Kunyomi',
+                                     'tooltipEntry': readingsKunyomi || "Unavailable",
+                                     'sortkey': ((item) => {return 0}),
+                                     'sortOrder': 'Ascending',
+                                     'sortkey2': ((item) => {return 0}),
+                                     'sortOrder2': 'Ascending',
+                                     'title': 'Kunyomi',
+                                     'labelExport': '',
+                                     'needQuotes': true,
+                                     'freeFormText': false,
+                                     'export': readingsKunyomi || "Unavailable",
+                                     'isDate': false, 'isList': true,
+                                    },
+                    'Reading_Nanori': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Nanori',
+                                     'tooltipEntry': readingsNanori || "Unavailable",
+                                     'sortkey': ((item) => {return 0}),
+                                     'sortOrder': 'Ascending',
+                                     'sortkey2': ((item) => {return 0}),
+                                     'sortOrder2': 'Ascending',
+                                     'title': 'Nanori',
+                                     'labelExport': '',
+                                     'needQuotes': true,
+                                     'freeFormText': false,
+                                     'export': readingsNanori || "Unavailable",
+                                     'isDate': false, 'isList': true,
+                                    },
                     'Level': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Level ',
                               'tableEntry': ((item) => {return item.data.level || "Unavailable"}),
                               'tableEntryMarker': ((item) => {return item.data.level || "Unavailable"}),
@@ -4999,7 +5058,7 @@
                       // ----------------------------
                       // Kanjidic2 data
 
-                    'Kanjidic2_Meaning': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Meaning&nbsp;Kanjidic2 ',
+                    'Kanjidic2_Meaning': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Meaning&nbsp;Kanjidic2',
                                      'tooltipEntry': meaningsKanjidic2 || "Unavailable",
                                      'sortkey': ((item) => {return 0}),
                                      'sortOrder': 'Ascending',
@@ -5012,7 +5071,7 @@
                                      'export': meaningsKanjidic2 || "Unavailable",
                                      'isDate': false, 'isList': true,
                                     },
-                    'Kanjidic2_Onyomi': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Onyomi&nbsp;Kanjidic2',
+                    'Kanjidic2_Onyomi': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Onyomi&nbsp;Kanjidic2 ',
                                      'tooltipEntry': onyomiKanjidic2 || "Unavailable",
                                      'sortkey': ((item) => {return 0}),
                                      'sortOrder': 'Ascending',
@@ -5025,7 +5084,7 @@
                                      'export': onyomiKanjidic2 || "Unavailable",
                                      'isDate': false, 'isList': true,
                                     },
-                    'Kanjidic2_Kunyomi': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Knyomi&nbsp;Kanjidic2 ',
+                    'Kanjidic2_Kunyomi': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Kunyomi&nbsp;Kanjidic2 ',
                                      'tooltipEntry': kunyomiKanjidic2 || "Unavailable",
                                      'sortkey': ((item) => {return 0}),
                                      'sortOrder': 'Ascending',
@@ -5038,7 +5097,7 @@
                                      'export': kunyomiKanjidic2 || "Unavailable",
                                      'isDate': false, 'isList': true,
                                     },
-                    'Kanjidic2_Nanori': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Nanorii&nbsp;Kanjidic2 ',
+                    'Kanjidic2_Nanori': {'exists': ((item) => {return item.object === 'kanji'}), 'label': 'Nanori&nbsp;Kanjidic2 ',
                                      'tooltipEntry': nanoriKanjidic2 || "Unavailable",
                                      'sortkey': ((item) => {return 0}),
                                      'sortOrder': 'Ascending',
@@ -5928,8 +5987,10 @@
     };
 
     function makeStrokeCountData(item){
-        if (item.object === 'kanji' && kanjidic2Data[item.data.characters] !== undefined) {return Number(kanjidic2Data[item.data.characters].stroke_count);};
-        if (item.object === 'radical') {return WkStrokeCountData[item.id].stroke_count;};
+        if (item.object === 'kanji' && kanjidic2Data[item.data.characters] !== undefined) {
+            return Number(kanjidic2Data[item.data.characters].stroke_count);
+        };
+        if (item.object === 'radical') { return WkStrokeCountData[item.id].stroke_count;};
         if (item.object === 'trad_rad' && item.data.stroke_count !== undefined){return Number(item.data.stroke_count);}
         return 'Unavailable';
     };
@@ -6291,7 +6352,7 @@
 
 
     // -----------------------------------------------------------------
-    // data for use with the readingsFull(item, needType=true) algorithm
+    // data for use with the readingByType(item) algorithm
 
     // vocabulary readings that are not processed by the algorithm
     // if multiple readings and at least one of them is an exception , all readings must be listed here
@@ -6480,6 +6541,10 @@
                         '湧水': 'ゆうすい, 湧: しば: on, 水: すい: on, &emsp;わきみず, 湧: ;わき: exception, 水: みず: kun',
                         '拉麺': 'らー: exception, めん: on',
                         '素麺': 'そう: exception, めん: on',
+                        '天王星': 'てん: on, のう: exception, せい: on',
+                        '真似': 'ま: kun, ね: exception',
+                        '物真似': 'もの: kun, ま: kun, ね: exception',
+                        '猿真似': 'さる: kun, ま: kun, ね: exception',
                        };
 
     // Readings that may morph into something with a little っ
@@ -6492,7 +6557,7 @@
                        'にち': 'にっ', 'ねつ': 'ねっ',
                        'はち': 'はっ', 'はつ': 'はっ', 'ふつ': 'ふっ', 'ふく': 'ふっ', 'ばつ': 'ばっ', 'ひつ': 'ひっ', 'ほく': 'ほっ', 'ほつ': 'ほっ',
                        'ぶつ': 'ぶっ', 'べつ': 'べっ', 'ぼつ': 'ぼっ',
-                       'まつ': 'まっ', 'み': 'みっ', 'みつ': 'みっ', 'む': 'むっ',
+                       'まつ': 'まっ', 'み': 'みっ', 'みつ': 'みっ', 'む': 'むっ', 'もち': 'もっ',
                        'や': 'やっ', 'やく': 'やっ', 'よ': 'よっ', 'よく': 'よっ',
                        'りつ': 'りっ', 'れつ': 'れっ',};
 
@@ -6629,6 +6694,41 @@
         return readingByType(item).replaceAll('&emsp;', '| ');
     };
 
+    function readingsOnyomi(item){
+        if (item.object !== 'kanji') return '';
+        if (item.data.readings.length === 0) return '';
+        let readings = [];
+        for (let k = 0; k < item.data.readings.length; k++){
+            if(item.data.readings[k].type === 'onyomi'){
+                readings.push(item.data.readings[k].reading);
+            };
+        };
+        return readings.join(', ');
+    };
+
+    function readingsKunyomi(item){
+        if (item.object !== 'kanji') return '';
+        if (item.data.readings.length === 0) return '';
+        let readings = [];
+        for (let k = 0; k < item.data.readings.length; k++){
+            if(item.data.readings[k].type === 'kunyomi'){
+                readings.push(item.data.readings[k].reading);
+            };
+        };
+        return readings.join(', ');
+    };
+
+    function readingsNanori(item){
+        if (item.object !== 'kanji') return '';
+        if (item.data.readings.length === 0) return '';
+        let readings = [];
+        for (let k = 0; k < item.data.readings.length; k++){
+            if(item.data.readings[k].type === 'nanori'){
+                readings.push(item.data.readings[k].reading);
+            };
+        };
+        return readings.join(', ');
+    };
 
     function readingsFull(item){
         // make sure readings are returned in the order WK provides them, but primary comes first
@@ -6641,25 +6741,27 @@
                     readingsPrimary += ', ' + item.data.readings[k].reading;
                 } else {
                     readingsPrimary = item.data.readings[k].reading;
-                }
+                };
             } else {
                 if (readings.length != 0){
                     readings += ', ' + item.data.readings[k].reading;
                 } else {
                     readings = item.data.readings[k].reading;
-                }
-            }
-        }
+                };
+            };
+        };
         if (readings.length != 0){readingsPrimary = readingsPrimary + ', ' + readings}
         return readingsPrimary;
-    }
+    };
 
     function readingsBrief(item){
         if (item.data.readings.length === 0) return '';
-        var readings = item.data.readings[0].reading;
-        for (var k = 0; k < item.data.readings.length; k++){if (item.data.readings[k].primary){return item.data.readings[k].reading}};
-        return readings;
-    }
+        var safereadings = item.data.readings[0].reading;
+        var readings = [];
+        for (var k = 0; k < item.data.readings.length; k++){if (item.data.readings[k].primary){readings.push(item.data.readings[k].reading)}};
+        if (readings.length > 0){return readings.join(', ')};
+        return safereadings;
+    };
 
     // BEGIN Support of Lars Yencken visually similar kanji
 
@@ -8546,6 +8648,7 @@
                         settings.audioMode = false;
                         formatControlBar();
                         resetTemporaryFilters();
+                        if (!presets.selection) presets.selection = 'None';
                         switch (presets.selection) {
                             case 'None':
                                 presets.selection = 'LeechTraining';
@@ -8585,37 +8688,38 @@
         let settings = quiz.settings;
         let presets = settings.tablePresets[settings.active_ipreset];
         let selected = {};
-        let tempItems = [];
-        let selectedCount = 0;
-        //let now = new Date().getTime();
-        let now = new Date('2020-09-13').getTime();
-        shuffle(quiz.items);
+        let tempItems = {};
+        let now = new Date().getTime();
         if (presets.trainingSelection !== 0){
-            nextCurrentItem = presets.trainingSelection;
-        } else if (settings.listMode){
-            createItemList(quiz.items, true); // find out how many items fit the screen
-        } else {
-            nextCurrentItem = currentItem + nbItems;
+            shuffle(quiz.items);
+            currentItem = 0;
+            nextCurrentItem = Math.min(presets.trainingSelection, quiz.items.length);
+        //} else if (settings.listMode){
+        //    createItemList(quiz.items, true); // find out how many items fit the screen
+        //} else {
+        //    nextCurrentItem = Math.min(currentItem + nbItems, quiz.items.length);
         };
 
-        // It is better get more items than necessary - we will trim them to fit the screen or settings
-        for (let i = currentItem; (i < quiz.items.length) && (selectedCount < nextCurrentItem + 10); i++){
+        let selectedCount = 0;
+        for (let i = currentItem; (i < nextCurrentItem); i++){
             let item = quiz.items[i];
             let reviewDate = (item.assignments ? computeLastReviewDate(item) : theFuture);
             if (!presets.oncePerReviewPeriod || (notSelectedYet(item))) {
-                tempItems.push(item);
+                tempItems[item.id] = item;
                 selected[item.id] = true;
                 selectedCount++
                 lastSelectionRecorded[item.id] = now;
                 if (presets.addSimilarItems) addSimilarItems(item);
             };
         };
-        quiz.items = tempItems;
-        if (settings.listMode && presets.trainingSelection === 0){
-            createItemList(quiz.items, true); // find out how many items fit the screen
+        quiz.items = Object.values(tempItems);
+        shuffle(quiz.items);
+        currentItem = 0;
+        if (settings.listMode){
+            createItemList(quiz.items, true);
+        } else {
+            nextCurrentItem = Math.min(currentItem + nbItems, quiz.items.length);
         };
-        quiz.items = quiz.items.slice(0, nextCurrentItem);
-        //shuffle(quiz.items);
         saveSelectedItems();
         saveLastSelectionRecorded();
 
@@ -8671,8 +8775,8 @@
                     shuffle(visuallySimilar);
                     itemLimitCount = 0;
                     for (let id of visuallySimilar){
-                        if (notSelectedYet(subjectIndexKan[id])){
-                            tempItems.push(subjectIndexKan[id]);
+                        if (!presets.oncePerReviewPeriod || notSelectedYet(subjectIndexKan[id])){
+                            tempItems[id] = subjectIndexKan[id];
                             selected[id] = true;
                             lastSelectionRecorded[id] = now;
                             selectedCount++;
@@ -8733,7 +8837,8 @@
                     itemLimitCount = 0;
                     for (let i in candidates){
                         let candidate = candidates[i];
-                        if (!notSelectedYet(subjectIndexVoc[candidate])) continue;
+                        if (candidate in tempItems) continue;
+                        if (presets.oncePerReviewPeriod && !notSelectedYet(subjectIndexVoc[candidate])) continue;
                         if (subjectIndexVoc[candidate].data.characters.length !== item.data.characters.length) continue;
                         components = [];
                         for (let character of subjectIndexVoc[candidate].data.characters) if (character in kanjiIndex) components.push(kanjiIndex[character].id);
@@ -8752,7 +8857,7 @@
                             isSimilar =isSimilar && isSimilar2;
                         };
                         if (isSimilar){
-                            tempItems.push(subjectIndexVoc[candidate]);
+                            tempItems[candidate] = subjectIndexVoc[candidate];
                             selected[candidate] = true;
                             lastSelectionRecorded[candidate] = now;
                             selectedCount++;
@@ -8802,6 +8907,7 @@
                         settings.audioMode = false;
                         formatControlBar();
                         resetTemporaryFilters();
+                        if (!presets.selection) presets.selection = 'None';
                         switch (presets.selection){
                             case 'None':
                                 presets.selection = 'Random';
@@ -8916,6 +9022,7 @@
                         settings.audioMode = false;
                         formatControlBar();
                         resetTemporaryFilters();
+                        if (!presets.selection) presets.selection = 'None';
                         switch (presets.selection) {
                             case 'None':
                                 presets.selection = 'Date';
@@ -13125,18 +13232,18 @@
         let topBlock = '<div id="WkitControlBar" class="WkitControlBar">' +
             '<div class="WkitHeader">' +
             '<div class="WkitControlLeft">'+
-            '<button id="WkitFirstButton" type="button" class="WkitButton WkitButtonleft icon-fast-backward"></button>' +
+            '<button id="WkitFirstButton" type="button" class="WkitButton WkitButtonleft fa fa-fast-backward"></button>' +
             '<button id="WkitBackwardButton" type="button" class="WkitButton WkitButtonleft" style="padding-right: 8px; padding-bottom: 3px;">&#9668</button>' +
             '<button id="WkitForwardButton" type="button" class="WkitButton WkitButtonleft" style="padding-left: 7px; padding-bottom: 3px;">&#9658</button>' +
-            '<button id="WkitLastButton" type="button" class="WkitButton WkitButtonleft icon-fast-forward"></button>' +
+            '<button id="WkitLastButton" type="button" class="WkitButton WkitButtonleft fa fa-fast-forward"></button>' +
             '<select id="WkitTableSelector" class="WkitSelector" title="Choose the table you want to display"></select>'+
-            '<button id="WkitToogleDisplay" type="button" class="WkitButton WkitButtonleft icon-bullseye" title="Toggles between Tables and Lists of icons"icon-bullseye></button>' +
+            '<button id="WkitToogleDisplay" type="button" class="WkitButton WkitButtonleft fa fa-bullseye" title="Toggles between Tables and Lists of icons"icon-bullseye></button>' +
             '<button id="WkitToogleLanguage" type="button" class="WkitButton WkitButtonleft" title="Toggles the current page between English and Japanese\nPages other than the current one are unaffected." style="font-size:18px; font-weight: 500;"　lang="JP"></button>' +
             '<button id="WkitToogleAudio" type="button" class="WkitButton WkitButtonleft" title="Turns on/off clicking on vocabulary items to play audio.\nAudio is automalically turned off when you click on a button that may change the screen." style="font-size:15px; font-weight: bold; padding-bottom: 1px"></button>' +
             '<div class="WkitSpacer"><span>x</span></div>'+
-            '<button id="WkitLeechTraining" type="button" class="WkitButton WkitButtonleft icon-code-fork" title="Leech Training Emulation.\nPermits quizzes similar to those provided by the Leech Trainer script.\n\nSelects items randomly.\nItems are selected at most once before next review.\nAt most three visually similar items are added with each random item."></button>' +
-            '<button id="WkitRandomSelection" type="button" class="WkitButton WkitButtonleft icon-retweet" title="Fill the screen with randomly chosen items.\nPermits to be quized on randomly picked items.\nClick again to return to whole table."></button>' +
-            '<button id="WkitDateOrdering" type="button" class="WkitButton WkitButtonleft icon-sort-by-attributes" title="Toggles the ordering of items by date and time.\nEnables navigation over time ranges.\nPermits to be quized on items selected by date.\nClick again to return to whole table,"></button>' +
+            '<button id="WkitLeechTraining" type="button" class="WkitButton WkitButtonleft fa fa-code-fork" title="Leech Training Emulation.\nPermits quizzes similar to those provided by the Leech Trainer script.\n\nSelects items randomly.\nItems are selected at most once before next review.\nAt most three visually similar items are added with each random item."></button>' +
+            '<button id="WkitRandomSelection" type="button" class="WkitButton WkitButtonleft fa fa-retweet" title="Fill the screen with randomly chosen items.\nPermits to be quized on randomly picked items.\nClick again to return to whole table."></button>' +
+            '<button id="WkitDateOrdering" type="button" class="WkitButton WkitButtonleft fa fa-sort-amount-asc " title="Toggles the ordering of items by date and time.\nEnables navigation over time ranges.\nPermits to be quized on items selected by date.\nClick again to return to whole table,"></button>' +
             '<div class="WkitSpacer"><span>x</span></div>'+
             '<select id="WkitFilterSelector" class="WkitSelector" title="Choose the temporary filter you want to apply"></select>'+
             '<select id="WkitViewSelector" class="WkitSelector" title="Choose the view or report you want to apply"></select>'+
@@ -13144,11 +13251,11 @@
             '<p class="WkitTitle"><b>Wanikani Item Inspector</b></p>' +
             '<div class="WkitControlRight">'+
             '<button id="WkitDocumentation"type="button" class="WkitButton WkitButtonRight" title="Go to Item Inspector Page" style="font-size:22px; font-weight: bold; padding: 4px"><a href="'+helpURL+'" target="_blank">?</a></button>' +
-            '<button id="WkitSettings" type="button" class="WkitButton WkitButtonRight icon-gear" title="Settings" style="font-size:20px;"></button>' +
-            '<button id="WkitWordExport" type="button" class="WkitButton WkitButtonRight icon-cloud" title="Export items\nSuitable for word clouds."></button>' +
+            '<button id="WkitSettings" type="button" class="WkitButton WkitButtonRight fa fa-gear" title="Settings" style="font-size:20px;"></button>' +
+            '<button id="WkitWordExport" type="button" class="WkitButton WkitButtonRight fa fa-cloud" title="Export items\nSuitable for word clouds."></button>' +
             '<button id="WkitExport" type="button" class="WkitButton WkitButtonRight" title="Export to format csv.\nSuitable for spreasheet, Anki and Kitsun." style="font-size:20px;">&#8686;</button>' +
-            '<button id="WkitQuizSelection" type="button" class="WkitButton WkitButtonRight icon-desktop" title="Quiz on items shown on the screen.\nUse navigation and random selection options\n to control which items are displayed."></button>' +
-            '<button id="WkitQuizTable" type="button" class="WkitButton WkitButtonRight icon-table" title="Quizzes on the whole table.\nWhen a random selection is activee quizzes on the selection."></button>' +
+            '<button id="WkitQuizSelection" type="button" class="WkitButton WkitButtonRight fa fa-desktop" title="Quiz on items shown on the screen.\nUse navigation and random selection options\n to control which items are displayed."></button>' +
+            '<button id="WkitQuizTable" type="button" class="WkitButton WkitButtonRight fa fa-table" title="Quizzes on the whole table.\nWhen a random selection is activee quizzes on the selection."></button>' +
             '</div>' +
             '</div>' +
             '</div>' +
@@ -13350,7 +13457,7 @@
                 dataRequired.larsYencken = true;
             };
             if (kanjidic2Used[preset[info]]) dataRequired.kanjidic2 = true;
-            if (preset[info] === 'Stroke_Count') dataRequired.WkStrokeCountData = true;
+            if (preset[info] === 'Stroke_Count') {dataRequired.WkStrokeCountData = true;};
             if (preset[info] === 'trad_rad') dataRequired.traditionalRadicals = true;
             if (preset[info] === 'JLPT_Waller') dataRequired.wallerJLPTdata = true;
 
@@ -13440,7 +13547,7 @@
 
         function forceCacheDeleteIfNeeded(){
             // increment currentQuestionNumber to force a deletion of all Item Inspector cached items
-            const currentQuestionNumber = 1;
+            const currentQuestionNumber = 2;
             const asked = wkof.settings[scriptId].cacheDeleteNumber || 0;
             if (asked < currentQuestionNumber) {
                 return deleteFilesFromCache()
