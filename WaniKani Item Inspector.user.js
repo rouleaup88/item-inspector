@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.21.2
+// @version       1.21.3
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -1237,7 +1237,7 @@
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.radical { color: var(--inverted-text-color) !important; }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.kanji { color: var(--inverted-text-color) !important; }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.vocabulary { color: var(--inverted-text-color) !important; }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left p.WkitKeiseiMsg { color: var(--inverted-text-color) !important; }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left { color: var(--inverted-text-color) !important; }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left { color: var(--wkit-text-color-dark); }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left span.radical { color: var(--wkit-text-color-dark) !important; }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left span.kanji { color: var(--wkit-text-color-dark) !important; }
