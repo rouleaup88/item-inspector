@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.21.3
+// @version       1.21.4
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -2347,6 +2347,7 @@
                 stroke-linecap: square;
                 stroke-miterlimit: 2;
                 vertical-align: middle;
+                pointer-events: none; /* remove the effect of the title tag within these images */
             }
 
             /* Messages showing when data is not displayed */
