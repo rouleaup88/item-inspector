@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.21.4
+// @version       1.22.0
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -2658,6 +2658,7 @@
                                                       path:'@tablePresets[@active_ipreset].contextSentences',
                                                       content:{'separateJP': 'Separate Rows JP First', 'separateEN': 'Separate Rows EN First',
                                                                'sameJP': 'Same Row JP First', 'sameEN': 'Same Row EN First',
+                                                               'shortestJP': 'Shortest Sentence JP First', 'shortestEN': 'Shortest Sentence EN First'
                                                                }},
                                    sect_tbl_export:{type:'section',label:'Exported Columns'},
                                    export1: {type:'dropdown',label:'Exported Column no 1',hover_tip:'The 1st column of exported information', default:'None',
@@ -10943,7 +10944,7 @@
 
         function fillInCtxSentences(){
             // context sentences have " quotes and linefeeds - escaping " and surronding quotes are mandatory
-            let text2;
+            let text2, currentSentence;
             switch(currentPreset.contextSentences){
                 case 'separateJP':
                     if (cellEntry.length === 0) {
@@ -11007,6 +11008,42 @@
                    };
                    cellEntryList = [text2];
                    break;
+                case 'shortestJP':
+                    if (cellEntry.length === 0) {
+                        cellEntryList = ['Unavailable'+separator+'Unavailable'];
+                    } else {
+                        currentSentence = cellEntry[0].ja
+                        text2 = '"'+cellEntry[0].ja.replace(/["]/g, '""')+'"';
+                        text2 += separator+'"'+cellEntry[0].en.replace(/["]/g, '""')+'"';
+                        cellEntryList = [text2];
+                    };
+                    for (let i = 1; i < cellEntry.length; i++){
+                        if (currentSentence.length > cellEntry[i].ja.length){
+                            currentSentence = cellEntry[i].ja
+                            text2 = '"'+cellEntry[i].ja.replace(/["]/g, '""')+'"';
+                            text2 += separator+'"'+cellEntry[i].en.replace(/["]/g, '""')+'"';
+                            cellEntryList = [text2];
+                        };
+                    };
+                    break;
+                case 'shortestEN':
+                    if (cellEntry.length === 0) {
+                        cellEntryList = ['Unavailable'+separator+'Unavailable'];
+                    } else {
+                        currentSentence = cellEntry[0].ja
+                        text2 = '"'+cellEntry[0].en.replace(/["]/g, '""')+'"';
+                        text2 += separator+'"'+cellEntry[0].ja.replace(/["]/g, '""')+'"';
+                        cellEntryList = [text2];
+                    };
+                    for (let i = 1; i < cellEntry.length; i++){
+                        if (currentSentence.length > cellEntry[i].ja.length){
+                            currentSentence = cellEntry[i].ja
+                            text2 = '"'+cellEntry[i].en.replace(/["]/g, '""')+'"';
+                            text2 += separator+'"'+cellEntry[i].ja.replace(/["]/g, '""')+'"';
+                            cellEntryList = [text2];
+                        };
+                    };
+                    break;
             };
         };
 
@@ -11059,6 +11096,14 @@
                         text += separator+'Context Sentence EN ' + i;
                         text += separator+'Context Sentence JP ' + i;
                     };
+                    break;
+                case 'shortestJP':
+                    text += separator+'Context Sentence JP';
+                    text += separator+'Context Sentence EN';
+                    break;
+                case 'shortestEN':
+                    text += separator+'Context Sentence EN';
+                    text += separator+'Context Sentence JP';
                     break;
             };
         };
