@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.22.0
+// @version       1.22.1
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -4668,7 +4668,6 @@
         };
 
         for (let src_name in ipreset) {
-            //if (!config[src_name].enabled) continue;
 
             var src_preset = ipreset[src_name];
             if (src_name !== 'wk_items' && !src_preset.enabled) continue;
@@ -4732,12 +4731,13 @@
         };
 
         for (var src_name in fpreset) {
-            //if (!config[src_name].enabled) continue;
 
             var src_preset = fpreset[src_name];
+            if (src_name !== 'wk_items' && !src_preset.enabled) continue;
             var fpre_filters = src_preset.filters;
             for (var flt_name in fpre_filters) {
                 if (!wkof.ItemData.registry.sources[src_name].filters[flt_name]) continue;
+                if (typeof wkof.ItemData.registry.sources[src_name].filters[flt_name].main_source !== 'undefined') continue;
                 var fpre_flt = fpre_filters[flt_name];
                 if (!fpre_flt.enabled) continue;
                 if (!wkof.ItemData.registry.sources[src_name].filters[flt_name]) continue;
@@ -4752,7 +4752,7 @@
                         };
                     };
                 };
-            }
+            };
         };
         for (let src_name in config){
             if (!config[src_name].enabled) continue;
@@ -9117,8 +9117,9 @@
         dataReady = false;
         wkof.wait_state(Wkit_navigation, 'Ready')
             .then(function(){
-                    let settings = quiz.settings;
-                    let selected = settings.active_fpreset = $('#WkitFilterSelector').prop('selectedIndex');
+                    let settings = quiz.settings = wkof.settings[scriptId]; // must rebind wkof.settings to work around an obscure Chrome bug
+                    settings.active_fpreset = $('#WkitFilterSelector').prop('selectedIndex');
+                    let selected = settings.active_fpreset;
                     settings.audioMode = false;
                     formatControlBar();
                     let presets = settings.tablePresets[settings.active_ipreset];
@@ -9185,15 +9186,12 @@
     function applyFiltersAndDisplay(){
         let settings = quiz.settings;
         let presets = settings.tablePresets[settings.active_ipreset];
-        applyTemporaryFilter()
-            .then(function(){
-                    presets.currentItem = currentItem = 0;
-                    presets.nextCurrentItem = nextCurrentItem = quiz.items.length;
-                    wkof.set_state(Wkit_navigation, 'Pending');
-                    wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')});
-                    dataReload('table');
-                    dataReady = true;
-            })
+        presets.currentItem = currentItem = 0;
+        presets.nextCurrentItem = nextCurrentItem = quiz.items.length;
+        wkof.set_state(Wkit_navigation, 'Pending');
+        wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')});
+        dataReload('table');
+        dataReady = true;
     };
 
     function askQuestionsAndProceed (selected){
@@ -9234,7 +9232,7 @@
             resetTemporaryFilters()
             wkof.set_state(Wkit_navigation, 'Pending');
             wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')});
-            displayItems();
+            dataReload('table');
             dataReady = true;
         };
 
