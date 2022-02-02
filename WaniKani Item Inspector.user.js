@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.22.1
+// @version       1.22.2
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -5440,21 +5440,21 @@
                                                'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                               },
                     'Review_Count': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Nb&nbsp;of&nbsp;Reviews ',
-                                              'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : 'None')}),
-                                              'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : 'None')}),
-                                              'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : 'None')}),
-                                              'sortkey': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : infinity)}),
+                                              'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'None')}),
+                                              'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'None')}),
+                                              'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'None')}),
+                                              'sortkey': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : infinity)}),
                                               'sortOrder': 'Ascending',
                                               'sortkey2': leechScore,
                                               'sortOrder2': 'Descending',
-                                              'wordCloud': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : 'None')}),
+                                              'wordCloud': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'None')}),
                                               'title': 'Nb Reviews',
                                               'needQuotes': false,
                                               'freeFormText': false,
                                               'labelExport': 'Nb Reviews: ',
-                                              'export': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) : 'None')}),
+                                              'export': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'None')}),
                                               'isDate': false, 'isList': false,
-                                              'reportValue': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct: 0) :0)}),
+                                              'reportValue': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct :0)}),
                                               'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                              },
 
