@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.22.2
+// @version       1.22.3
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -6541,12 +6541,14 @@
                         '叔母': 'おば: exception',
                         '漬物': 'つけもの, 漬: つけ: kun, 物: もの: kun',
                         '湧水': 'ゆうすい, 湧: しば: on, 水: すい: on, &emsp;わきみず, 湧: ;わき: exception, 水: みず: kun',
-                        '拉麺': 'らー: exception, めん: on',
-                        '素麺': 'そう: exception, めん: on',
-                        '天王星': 'てん: on, のう: exception, せい: on',
-                        '真似': 'ま: kun, ね: exception',
-                        '物真似': 'もの: kun, ま: kun, ね: exception',
-                        '猿真似': 'さる: kun, ま: kun, ね: exception',
+                        '拉麺': 'らーめん, 拉: らー: exception, 麺: めん: on',
+                        '素麺': 'そうめん, 素: そう: exception, 麺: めん: on',
+                        '天王星': 'てんのうせい , 天: てん: on, 王: のう: exception, 星: せい: on',
+                        '真似': 'まね: 真: ま: kun, 似: ね: exception',
+                        '物真似': 'ものまね, 物: もの: kun, 真: ま: kun,似:  ね: exception',
+                        '猿真似': 'さるまね: 猿: さる: kun, 真: ま: kun, 似: ね: exception',
+                        '由緒': 'ゆいしょ, 由: ゆい: on, 緒: しょ: on',
+                        '由緒正しい': 'ゆいしょただ, 由: ゆい: on, 緒: しょ:on, 正: ただ: kun',
                        };
 
     // Readings that may morph into something with a little っ
