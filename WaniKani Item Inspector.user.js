@@ -3,14 +3,16 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.22.3
-// @include       https://www.wanikani.com/dashboard
-// @include       https://www.wanikani.com/
+// @version       1.22.4
+// @match         https://www.wanikani.com/dashboard
+// @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
 // @run-at        document-end
 // @grant         none
 // ==/UserScript==
+// @include       https://www.wanikani.com/dashboard
+// @include       https://www.wanikani.com/
 
 // ===============================================================
 // Software Licence
@@ -10780,6 +10782,13 @@
                 currentPreset[emptyColumn] = "Item_Page";
             };
         };
+        let onlyCtxSentences = true;
+        for (let i = 0; i < exportedInfo.length; i++){
+            if ((currentPreset[exportedInfo[i]] !== 'Context_Sentences') && (currentPreset[exportedInfo[i]] !== 'None')){
+                onlyCtxSentences = false;
+            };
+        };
+
         let hoursInDate = currentPreset.hoursInDate;
 
         // preprocessing for context sentences
@@ -10836,6 +10845,7 @@
                             cellEntry = (missingData === 'Empty_Cell' ? '' : includeLabels ? metaCol.labelExport+'Unavailable' : 'Unavailable');
                             cellEntryList = [cellEntry];
                         } else {
+                            if (onlyCtxSentences) continue; // do not generate empty row in case of exporting only context sentences
                             makeEmptyCtxSentences();
                         }
                     } else {
@@ -10897,7 +10907,7 @@
                         for (let entry of cellEntryList){
                             if (firstColumn){
                                 cell2 = entry;
-                                firstColumn = false;
+                                if (! onlyCtxSentences) firstColumn = false;
                             } else {
                                 cell2 = cell + separator + entry;
                             };
@@ -10907,7 +10917,7 @@
                     row = row2;
                 };
             };
-            rowList.push(row.join('\n'));
+            if (row[0] !== '') rowList.push(row.join('\n'));
             firstElement = false;
             exportCount += 1;
         };
@@ -10919,6 +10929,8 @@
             switch(currentPreset.contextSentences){
                 case 'separateJP':
                 case 'separateEN':
+                case 'shortestJP':
+                case 'shortestEN':
                     if (missingData === 'Empty_Cell'){
                         cellEntry = separator;
                         cellEntryList = [cellEntry];
@@ -10943,7 +10955,7 @@
         };
 
         function fillInCtxSentences(){
-            // context sentences have " quotes and linefeeds - escaping " and surronding quotes are mandatory
+            // context sentences have " quotes and linefeeds - escaping " and surrounding quotes are mandatory
             let text2, currentSentence;
             switch(currentPreset.contextSentences){
                 case 'separateJP':
