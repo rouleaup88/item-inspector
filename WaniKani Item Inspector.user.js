@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.22.4
+// @version       1.23.0
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -3194,6 +3194,7 @@
                                                                       'This will force loading new versions afresh.\n'+
                                                                       'You need to refresh your browser for\nthis action to take effect.',},
                                     sect_tbl_cnts3:{type:'section',label:'Items Export Options'},
+                                    commaSeparated: {type: 'checkbox', label:'Comma Separated', default: false, hover_tip:'Separate the items with commas',},
                                     noLatin: {type: 'checkbox', label:'No Latin Characters', default: false, hover_tip:'Radicals with latin characters not exported if set',},
                                     oneItemPerLine: {type: 'checkbox', label:'One Item Per Line', default: false, hover_tip: 'One item per line if set\nAll items in one paragraph otherwise',},
                                     exportLimit: {type: 'number', label:'Export Limit', default: 0, hover_tip: 'Maximum number of items exported\n0 means no limit',},
@@ -10690,6 +10691,9 @@
     function performWordCloud(){
         let items = quiz.items;
         let text = '';
+        let commaSeparated = quiz.settings.commaSeparated;
+        if (commaSeparated === undefined){commaSeparated = false};
+        let separator = commaSeparated ? ', ' : ' ';
         let noLatin = quiz.settings.noLatin;
         if (noLatin === undefined){noLatin = false};
         let oneItemPerLine = quiz.settings.oneItemPerLine;
@@ -10709,10 +10713,10 @@
             };
             for (var j = 0; j < repeatCount; j++){
                 if(itemsData.characters!= null) {
-                    text += itemsData.characters+' ';
+                    text += itemsData.characters+separator;
                     if (oneItemPerLine){text += '\n'};
                 } else if (!noLatin){
-                    text += itemsData.slug+' ';
+                    text += itemsData.slug+separator;
                     if (oneItemPerLine){text += '\n'};
                 };
             };
