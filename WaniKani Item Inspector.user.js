@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.23.0
+// @version       1.23.1
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -373,7 +373,6 @@
                    margin: 2px;
                    margin-top: 5px;
                    margin-bottom: 5px;
-                   font-family: FontAwesome;
             }
 
             #WkitTopBar.WkitLight .WkitButton:not(.WkitActive) { background-color: #efefef;}
