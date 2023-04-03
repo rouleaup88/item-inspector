@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.23.1
+// @version       1.23.2
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -5788,7 +5788,7 @@
                                    'sortOrder2': 'Ascending',
                                    'title': 'Joyo Grade',
                                    'labelExport': 'Joyo Grade: ',
-                                   'needQuotes': false,
+                                   'needQuotes': true,
                                    'freeFormText': false,
                                    'export': makeJoyoData || "Unavailable",
                                    'isDate': false, 'isList': true,
@@ -5805,7 +5805,7 @@
                                    'sortOrder2': 'Ascending',
                                    'title': 'JLPT (by kan lvl)',
                                    'labelExport': 'JLPT (by kan lvl): ',
-                                   'needQuotes': false,
+                                   'needQuotes': true,
                                    'freeFormText': false,
                                    'export': makeJlptData || "Unavailable",
                                    'isDate': false, 'isList': true,
@@ -5822,7 +5822,7 @@
                                    'sortOrder2': 'Ascending',
                                    'title': 'JLPT (by voc lvl)',
                                    'labelExport': 'JLPT (by voc lvl): ',
-                                   'needQuotes': false,
+                                   'needQuotes': true,
                                    'freeFormText': false,
                                    'export': makeJlptWallerData || "Unavailable",
                                    'isDate': false, 'isList': true,
@@ -5839,7 +5839,7 @@
                                    'sortOrder2': 'Ascending',
                                    'title': 'Frequency',
                                    'labelExport': 'Frequency: ',
-                                   'needQuotes': false,
+                                   'needQuotes': true,
                                    'freeFormText': false,
                                    'export': makeFrequencyData || "Unavailable",
                                    'isDate': false, 'isList': true,
@@ -7084,7 +7084,7 @@
         if (item.object === 'radical' || item.object === 'trad_rad') return '';
         if (item.object === 'kanji') return jlptDataKanji(item.data.characters);
         var jlpt_level = vocabJLPTData[item.data.characters];
-        return (jlpt_level !== 0 ? 'N'+jlpt_level : 'None');
+        return ((jlpt_level !== 0) && (jlpt_level !== undefined) ? 'N'+jlpt_level : 'None');
    };
 
     function jlptSortDataKanji(characters) {
@@ -10891,12 +10891,12 @@
                             };
                             if (freeFormText){
                                 cellEntry = '"'+cellEntry.replace(/["]/g, '""').replace(/<.*?>/g ,'')+'"';
-                            } else {
+                            } else if (currentColumn !== 'Context_Sentences'){
+                                // quotes for context sentences are treated in fillInCtxSentences() below
                                 if (quotes === 'Always') cellEntry = '"'+cellEntry+'"';
                                 if (quotes === 'As_Needed' && metaCol.needQuotes) cellEntry = '"'+cellEntry+'"';
                                 if (quotes === 'As_Needed' && URLclickable && currentColumn === 'Item_Page' && (separator === ';' || separator === ',')) cellEntry = '"'+cellEntry+'"';
                             };
-                            // Empty Context Sentences generate 'Unavailable' results
                             if (currentColumn !== 'Context_Sentences'){
                                 cellEntryList = [cellEntry];
                             } else {
