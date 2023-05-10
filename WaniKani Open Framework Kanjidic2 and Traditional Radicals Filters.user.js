@@ -3,8 +3,8 @@
 // @namespace     https://www.wanikani.com
 // @description   Kanjidic2 and traditional radicals filters for the WaniKani Open Framework
 // @author        prouleau
-// @version       1.1.0
-// @include       https://www.wanikani.com/*
+// @version       1.2.0
+// @match         https://www.wanikani.com/*
 // @license       GPLV3; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with an exception described in comments
 // @grant         none
 // ==/UserScript==
@@ -465,7 +465,7 @@ var advSearchFilters = {};
                 if (term.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'meanings'); return true;};
             };
 
-            if (itemType !== 'radical'){
+            if (itemType !== 'radical' && itemType !== 'kana_vocabulary'){
                 for (let reading of item.data.readings){
                     if (reading.reading.indexOf(searchTerm) >= 0) {reportSearchResult(item, searchTerm, 'readings'); return true;};
                 };
@@ -525,7 +525,7 @@ var advSearchFilters = {};
     };
 
 
-    let advancedSearchDefaults = {itemType: {radical: true, kanji: true, vocabulary: true, trad_rad: true,},
+    let advancedSearchDefaults = {itemType: {radical: true, kanji: true, vocabulary: true, kana_vocabulary: true, trad_rad: true,},
                                   exactMatch: {characters: true, meanings: false, readings: true,
                                                allow: false, block: false,
                                                mMnemonics: false, mHints: false, rMnemonics: false, rHints: false, contextSentences: false,
@@ -590,8 +590,9 @@ var advSearchFilters = {};
             no_bkgd: true,
             settings: {itemType: {type: 'list', multi: true, label: 'Item Type', path: '@advSearch.itemType',
                                   hover_tip: 'The type of items that must match the search terms.',
-                                  default: {radical: true, kanji: true, vocabulary: true, trad_rad: true},
-                                  content: {radical: 'Radical', kanji: 'Kanji', vocabulary: 'Vocabulary', trad_rad:'Traditional Radical'},},
+                                  default: {radical: true, kanji: true, vocabulary: true, kana_vocabulary: true, trad_rad: true},
+                                  content: {radical: 'Radical', kanji: 'Kanji', vocabulary: 'Vocabulary', kana_vocabulary: 'Kana Vocabulary',
+                                            trad_rad:'Traditional Radical'},},
                        exactMatch: {type: 'list', multi: true, label: 'Searches With Exact Match', size: 5, path: '@advSearch.exactMatch',
                                     hover_tip: 'Selected searches requires the whole word matches.\nSubstring match is the default\nPart of Speech always use exact match.\n\nYou must select the search in Search In\nfor this parameter to take effect.',
                                     default: {characters: true, meanings: false, readings: true,
@@ -781,7 +782,7 @@ var advSearchFilters = {};
             };
 
             if (searchIn.readings){
-                if (itemType !== 'radical'){
+                if (itemType !== 'radical' && itemType !== 'kana_vocabulary'){
                     if (searchTerm === all) {reportSearchResult(item, searchTerm, 'readings'); return true;};
                     if (exactMatch.readings){
                         for (let reading of item.data.readings){
@@ -838,7 +839,7 @@ var advSearchFilters = {};
             };
 
             if (searchIn.pos){
-                if (itemType === 'vocabulary'){
+                if (itemType === 'vocabulary' || itemType === 'kana_vocabulary'){
                     if (searchTerm === all) {reportSearchResult(item, searchTerm, 'part of speech'); return true;};
                     for (let pos of item.data.parts_of_speech){
                         if (searchTerm === pos) {reportSearchResult(item, searchTerm, 'part of speech'); return true;};
