@@ -3,8 +3,8 @@
 // @namespace     https://www.wanikani.com
 // @description   Additional statistics filters for the WaniKani Open Framework
 // @author        prouleau
-// @version       1.4.1
-// @include       https://www.wanikani.com/*
+// @version       1.5.0
+// @match         https://www.wanikani.com/*
 // @license       MIT; http://opensource.org/licenses/MIT
 // @grant         none
 // ==/UserScript==
@@ -202,9 +202,9 @@
         let review_statistics = item.review_statistics;
 		if (review_statistics === undefined) {
 			return false;
-		}
+		};
 		return review_statistics.meaning_correct <= filterValue;
-	}
+	};
     // END Meaning correct answers
 
 	// BEGIN Reading correct answers
@@ -220,18 +220,18 @@
 			set_options: function(options) { options.review_statistics = true; },
 			hover_tip: readingCorAnsGteqFilterHover_tip,
 		};
-	}
+	};
 
 	function readingCorAnsGteqFilter(filterValue, item) {
         let review_statistics = item.review_statistics;
 		if (review_statistics === undefined) {
 			return false;
-		}
-        if (item.object === 'radical'){
+		};
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return true;
-        }
+        };
 		return review_statistics.reading_correct >= filterValue;
-	}
+	};
 
 	function registerReadingCorAnsLteqFilter() {
 		wkof.ItemData.registry.sources.wk_items.filters[readingCorAnsLteqFilterName] = {
@@ -249,7 +249,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return true;
         }
 		return review_statistics.reading_correct <= filterValue;
@@ -319,7 +319,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return true;
         }
 		return review_statistics.reading_incorrect >= filterValue;
@@ -341,7 +341,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return true;
         }
 		return review_statistics.reading_incorrect <= filterValue;
@@ -368,7 +368,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return review_statistics.meaning_correct >= filterValue;
         }
 		return review_statistics.meaning_correct + review_statistics.reading_correct >= filterValue;
@@ -390,7 +390,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return review_statistics.meaning_correct <= filterValue;
         }
 		return review_statistics.meaning_correct + review_statistics.reading_correct <= filterValue;
@@ -450,7 +450,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return review_statistics.meaning_incorrect >= filterValue;
         }
 		return review_statistics.meaning_incorrect + review_statistics.reading_incorrect >= filterValue;
@@ -472,7 +472,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return review_statistics.meaning_incorrect <= filterValue;
         }
 		return review_statistics.meaning_incorrect + review_statistics.reading_incorrect <= filterValue;
@@ -593,7 +593,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return true;
         }
 		return percentageRounding(review_statistics.reading_correct / (review_statistics.reading_correct + review_statistics.reading_incorrect)) >= filterValue;
@@ -615,7 +615,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return true;
         }
 		return percentageRounding(review_statistics.reading_correct / (review_statistics.reading_correct + review_statistics.reading_incorrect)) <= filterValue;
@@ -746,7 +746,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return true;
         }
 		return review_statistics.reading_current_streak	 >= filterValue;
@@ -769,7 +769,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return true;
         }
 		return review_statistics.reading_current_streak	 <= filterValue;
@@ -797,7 +797,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return true;
         }
 		return review_statistics.reading_max_streak >= filterValue;
@@ -820,7 +820,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return true;
         }
 		return review_statistics.reading_max_streak <= filterValue;
@@ -848,7 +848,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return review_statistics.meaning_current_streak >= filterValue;
         } else {
 		    return review_statistics.meaning_current_streak >= filterValue && review_statistics.reading_current_streak >= filterValue;
@@ -872,7 +872,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return review_statistics.meaning_current_streak <= filterValue;
         } else {
 		    return review_statistics.meaning_current_streak <= filterValue && review_statistics.reading_current_streak <= filterValue;
@@ -901,7 +901,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return review_statistics.meaning_current_streak >= filterValue;
         } else {
 		    return review_statistics.meaning_current_streak >= filterValue && review_statistics.reading_current_streak >= filterValue;
@@ -925,7 +925,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return review_statistics.meaning_current_streak <= filterValue;
         } else {
 	    	return review_statistics.meaning_current_streak <= filterValue || review_statistics.reading_current_streak <= filterValue;

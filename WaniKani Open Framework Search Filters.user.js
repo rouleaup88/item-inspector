@@ -3,8 +3,8 @@
 // @namespace     https://www.wanikani.com
 // @description   Additional Search filters for the WaniKani Open Framework
 // @author        prouleau
-// @version       1.3.1
-// @include       https://www.wanikani.com/*
+// @version       1.4.0
+// @match         https://www.wanikani.com/*
 // @license       MIT; http://opensource.org/licenses/MIT
 // @grant         none
 // ==/UserScript==
@@ -292,7 +292,7 @@
 		if (item.data === undefined) {
 			return false;
 		};
-        return (item.object !== 'vocabulary') && (filterValue.indexOf(item.id) >= 0);
+        return (item.object !== 'vocabulary' || item.object !== 'kana_vocabulary') && (filterValue.indexOf(item.id) >= 0);
 	}
 
     // END Components Search
@@ -317,7 +317,7 @@
 		if (item.data === undefined) {
 			return false;
 		};
-        return (item.object !== 'radical') && (filterValue.indexOf(item.id) >= 0)
+        return (item.object !== 'radical' || item.object !== 'kana_vocabulary') && (filterValue.indexOf(item.id) >= 0)
 	}
 
     // END Used In Search
@@ -433,7 +433,7 @@
 		if (item.data === undefined) {
 			return false;
 		};
-		if (item.object !== 'vocabulary') {
+		if (item.object !== 'vocabulary' && item.object !== 'kana_vocabulary') {
 			return false;
 		};
         var list = item.data.context_sentences;
