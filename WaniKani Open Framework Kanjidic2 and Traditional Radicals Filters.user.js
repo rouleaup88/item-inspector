@@ -3,7 +3,7 @@
 // @namespace     https://www.wanikani.com
 // @description   Kanjidic2 and traditional radicals filters for the WaniKani Open Framework
 // @author        prouleau
-// @version       1.2.0
+// @version       1.3.0
 // @match         https://www.wanikani.com/*
 // @license       GPLV3; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with an exception described in comments
 // @grant         none
@@ -1685,6 +1685,7 @@ var advSearchFilters = {};
     let explicitList_defaults = {explicitList_radical: '',
                                  explicitList_kanji: '',
                                  explicitList_vocabulary: '',
+                                 explicitList_kana_vocabulary: '',
                                  explicitList_trad_rad: '',
                       };
 
@@ -1715,13 +1716,15 @@ var advSearchFilters = {};
         wkof.settings[settingsScriptId].explicitList = $.extend(true, {}, explicitList_defaults, get_value(path));
 
         let areaIdRadical = settingsScriptId+'_radical';
-        let html_radical = '<textarea id="'+areaIdRadical+'" rows="3"></textarea>';
+        let html_radical = '<textarea id="'+areaIdRadical+'" rows="2"></textarea>';
         let areaIdKanji = settingsScriptId+'_kanji';
-        let html_kanji = '<textarea id="'+areaIdKanji+'" rows="3"></textarea>';
+        let html_kanji = '<textarea id="'+areaIdKanji+'" rows="2"></textarea>';
         let areaIdVocabulary = settingsScriptId+'_vocabulary';
-        let html_vocabulary = '<textarea id="'+areaIdVocabulary+'" rows="3"></textarea>';
+        let html_vocabulary = '<textarea id="'+areaIdVocabulary+'" rows="2"></textarea>';
+        let areaIdKana_Vocabulary = settingsScriptId+'_kana_vocabulary';
+        let html_kana_vocabulary = '<textarea id="'+areaIdKana_Vocabulary+'" rows="2"></textarea>';
         let areaIdTrad_rad = settingsScriptId+'_trad_rad';
-        let html_trad_rad = '<textarea id="'+areaIdTrad_rad+'" rows="3"></textarea>';
+        let html_trad_rad = '<textarea id="'+areaIdTrad_rad+'" rows="2"></textarea>';
         let downloadText = '<button><a download="Filter Item List.txt" id="'+settingsScriptId+'_itemList_link" style="text-decoration:none;color:#000000;">Download Configured Items</a></button>';
         let inputFile = '<input id="'+settingsScriptId+'_inputFile" type="file" title="Select a file for uploading items with the button above.">';
 
@@ -1733,7 +1736,8 @@ var advSearchFilters = {};
             no_bkgd: true,
             settings: {explicitList_radical:{type: "html", html: html_radical, label: 'Radicals',},
                        explicitList_kanji:{type: "html", html: html_kanji, label: 'Kanji',},
-                       explicitList_vocabulary:{type: "html", html: html_vocabulary, label: 'Vocabulary',},
+                       explicitList_vocabulary:{type: "html", html: html_vocabulary, label: 'Kanji Vocabulary',},
+                       explicitList_kana_vocabulary:{type: "html", html: html_kana_vocabulary, label: 'Kana Only Vocabulary',},
                        explicitList_trad_rad:{type: "html", html: html_trad_rad, label: 'Traditional Radicals',},
                        explicitList_divider:{type: 'divider'},
                        explicitList_download:{type: "html", label: ' ', html: downloadText,},
@@ -1774,6 +1778,14 @@ var advSearchFilters = {};
         $explicitList_vocabulary.val(wkof.settings[settingsScriptId].explicitList.explicitList_vocabulary);
         $explicitList_vocabulary.change(vocabularyChanged);
         $label = $explicitList_vocabulary.prev();
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        $label.attr('title', itemlHovertip);
+
+        let $explicitList_kana_vocabulary = $('#'+areaIdKana_Vocabulary);
+        $explicitList_kana_vocabulary.val(wkof.settings[settingsScriptId].explicitList.explicitList_kana_vocabulary);
+        $explicitList_kana_vocabulary.change(kana_vocabularyChanged);
+        $label = $explicitList_kana_vocabulary.prev();
         $label.css('width', 'calc(100% - 5px)');
         $label.children('label').css('text-align', 'left');
         $label.attr('title', itemlHovertip);
@@ -1819,6 +1831,11 @@ var advSearchFilters = {};
             setDownloadLink()
         };
 
+        function kana_vocabularyChanged(e){
+            wkof.settings[settingsScriptId].explicitList.explicitList_kana_vocabulary = $explicitList_kana_vocabulary.val();
+            setDownloadLink()
+        };
+
         function trad_radChanged(e){
             wkof.settings[settingsScriptId].explicitList.explicitList_trad_rad = $explicitList_trad_rad.val();
             setDownloadLink()
@@ -1830,17 +1847,19 @@ var advSearchFilters = {};
         let radicalElem = $('#'+settingsScriptId+'_radical');
         let kanjiElem = $('#'+settingsScriptId+'_kanji');
         let vocabularyElem = $('#'+settingsScriptId+'_vocabulary');
+        let kana_vocabularyElem = $('#'+settingsScriptId+'_kana_vocabulary');
         let trad_radElem = $('#'+settingsScriptId+'_trad_rad');
         let radicals = radicalElem.val();
         let kanji = kanjiElem.val();
         let vocabulary = vocabularyElem.val();
+        let kana_vocabulary = kana_vocabularyElem.val();
         let trad_rad = trad_radElem.val();
-        let encoded = makeEncode(radicals, kanji, vocabulary, trad_rad);
+        let encoded = makeEncode(radicals, kanji, vocabulary, kana_vocabulary, trad_rad);
         let downloadElem = $('#'+settingsScriptId+'_itemList_link');
         downloadElem.attr("href", "data:text/plain; charset=utf-8,"+encoded);
     };
 
-    function makeEncode(radicals, kanji, vocabulary, trad_rad){
+    function makeEncode(radicals, kanji, vocabulary, kana_vocabulary, trad_rad){
         let list = [];
         list.push('radicals');
         list.push(radicals);
@@ -1848,6 +1867,8 @@ var advSearchFilters = {};
         list.push(kanji);
         list.push('vocabulary');
         list.push(vocabulary);
+        list.push('kana_vocabulary');
+        list.push(kana_vocabulary);
         list.push('traditional radicals');
         list.push(trad_rad);
         let text = list.join('\n');
@@ -1878,7 +1899,7 @@ var advSearchFilters = {};
 
         function receiveText(event){
             let text = event.target.result;
-            let radicals, kanji, vocabulary, trad_rad;
+            let radicals, kanji, vocabulary, kana_vocabulary, trad_rad;
             let errorMsg = 'Invalid file content';
             text = text.replaceAll('\n','');
 
@@ -1886,18 +1907,24 @@ var advSearchFilters = {};
             if (start !== 0) return errorMsg;
             start = start + 'radicals'.length;
             let end = text.indexOf('kanji');
-            if (end <= start) return errorMsg+' radical';
+            if (end < start) return errorMsg+' radicals';
             radicals = text.slice(start, end);
 
             start = end + 'kanji'.length;
             end = text.indexOf('vocabulary');
-            if (end <= start) return errorMsg+' kanji';
+            if (end < start) return errorMsg+' kanji';
             kanji = text.slice(start, end);
 
             start = end + 'vocabulary'.length;
-            end = text.indexOf('traditional radicals');
-            if (end <= start) return errorMsg+' vocabulary';
+            // to support old versions from befroe the introduction of the kana_vocabulary object type
+            end =  text.indexOf('kana_vocabulary') === -1 ? text.indexOf('traditional radicals') : text.indexOf('kana_vocabulary');
+            if (end < start) return errorMsg+' vocabulary';
             vocabulary = text.slice(start, end);
+
+            start = end + 'kana_vocabulary'.length;
+            end = text.indexOf('traditional radicals');
+            // to support old versions from befroe the introduction of the kana_vocabulary object type
+            if (start < end) {kana_vocabulary = text.slice(start, end)} else {kana_vocabulary = ''};
 
             start = end + 'traditional radicals'.length;
             trad_rad = text.slice(start);
@@ -1911,6 +1938,9 @@ var advSearchFilters = {};
             elem = $('#'+settingsScriptId+'_vocabulary');
             elem.val(vocabulary);
             elem.change();
+            elem = $('#'+settingsScriptId+'_kana_vocabulary');
+            elem.val(kana_vocabulary);
+            elem.change();
             elem = $('#'+settingsScriptId+'_trad_rad');
             elem.val(trad_rad);
             elem.change();
@@ -1923,6 +1953,7 @@ var advSearchFilters = {};
         renamed.radical = split_list(filterValue.explicitList_radical).map((str) => str.replace(/ /g, '-'));
         renamed.kanji = split_list(filterValue.explicitList_kanji);
         renamed.vocabulary = split_list(filterValue.explicitList_vocabulary);
+        renamed.kana_vocabulary = split_list(filterValue.explicitList_kana_vocabulary);
         renamed.trad_rad = split_list(filterValue.explicitList_trad_rad);
         return renamed;
     };
@@ -1967,6 +1998,7 @@ var advSearchFilters = {};
     let explicitBlock_defaults = {explicitBlock_radical: '',
                                   explicitBlock_kanji: '',
                                   explicitBlock_vocabulary: '',
+                                  explicitBlock_kana_vocabulary: '',
                                   explicitBlock_trad_rad: '',
                                  };
 
@@ -1997,13 +2029,15 @@ var advSearchFilters = {};
         wkof.settings[settingsScriptId].explicitBlock = $.extend(true, {}, explicitBlock_defaults, get_value(path));
 
         let areaIdRadical = settingsScriptId+'_radicalBlock';
-        let html_radical = '<textarea id="'+areaIdRadical+'" rows="3"></textarea>';
+        let html_radical = '<textarea id="'+areaIdRadical+'" rows="2"></textarea>';
         let areaIdKanji = settingsScriptId+'_kanjiBlock';
-        let html_kanji = '<textarea id="'+areaIdKanji+'" rows="3"></textarea>';
+        let html_kanji = '<textarea id="'+areaIdKanji+'" rows="2"></textarea>';
         let areaIdVocabulary = settingsScriptId+'_vocabularyBlock';
-        let html_vocabulary = '<textarea id="'+areaIdVocabulary+'" rows="3"></textarea>';
+        let html_vocabulary = '<textarea id="'+areaIdVocabulary+'" rows="2"></textarea>';
+        let areaIdKanaVocabulary = settingsScriptId+'_kana_vocabularyBlock';
+        let html_kana_vocabulary = '<textarea id="'+areaIdKanaVocabulary+'" rows="2"></textarea>';
         let areaIdTrad_rad = settingsScriptId+'_trad_radBlock';
-        let html_trad_rad = '<textarea id="'+areaIdTrad_rad+'" rows="3"></textarea>';
+        let html_trad_rad = '<textarea id="'+areaIdTrad_rad+'" rows="2"></textarea>';
         let downloadText = '<button><a download="Filter Item List.txt" id="'+settingsScriptId+'_itemList_linkBlock" style="text-decoration:none;color:#000000;">Download Configured Items</a></button>';
         let inputFile = '<input id="'+settingsScriptId+'_inputFileBlock" type="file" title="Select a file for uploading items with the button above.">';
 
@@ -2016,6 +2050,7 @@ var advSearchFilters = {};
             settings: {explicitBlock_radical:{type: "html", html: html_radical, label: 'Radicals',},
                        explicitBlock_kanji:{type: "html", html: html_kanji, label: 'Kanji',},
                        explicitBlock_vocabulary:{type: "html", html: html_vocabulary, label: 'Vocabulary',},
+                       explicitBlock_kana_vocabulary:{type: "html", html: html_kana_vocabulary, label: 'Kana Vocabulary',},
                        explicitBlock_trad_rad:{type: "html", html: html_trad_rad, label: 'Traditional Radicals',},
                        explicitBlock_divider:{type: 'divider'},
                        explicitBlock_download:{type: "html", label: ' ', html: downloadText,},
@@ -2056,6 +2091,14 @@ var advSearchFilters = {};
         $explicitBlock_vocabulary.val(wkof.settings[settingsScriptId].explicitBlock.explicitBlock_vocabulary);
         $explicitBlock_vocabulary.change(vocabularyChanged);
         $label = $explicitBlock_vocabulary.prev();
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        $label.attr('title', itemlHovertip);
+
+        let $explicitBlock_kana_vocabulary = $('#'+areaIdKanaVocabulary);
+        $explicitBlock_kana_vocabulary.val(wkof.settings[settingsScriptId].explicitBlock.explicitBlock_kana_vocabulary);
+        $explicitBlock_kana_vocabulary.change(kana_vocabularyChanged);
+        $label = $explicitBlock_kana_vocabulary.prev();
         $label.css('width', 'calc(100% - 5px)');
         $label.children('label').css('text-align', 'left');
         $label.attr('title', itemlHovertip);
@@ -2101,6 +2144,11 @@ var advSearchFilters = {};
             setDownloadLinkBlock()
         };
 
+        function kana_vocabularyChanged(e){
+            wkof.settings[settingsScriptId].explicitBlock.explicitBlock_kana_vocabulary = $explicitBlock_kana_vocabulary.val();
+            setDownloadLinkBlock()
+        };
+
         function trad_radChanged(e){
             wkof.settings[settingsScriptId].explicitBlock.explicitBlock_trad_rad = $explicitBlock_trad_rad.val();
             setDownloadLinkBlock()
@@ -2112,12 +2160,14 @@ var advSearchFilters = {};
         let radicalElem = $('#'+settingsScriptId+'_radicalBlock');
         let kanjiElem = $('#'+settingsScriptId+'_kanjiBlock');
         let vocabularyElem = $('#'+settingsScriptId+'_vocabularyBlock');
+        let kana_vocabularyElem = $('#'+settingsScriptId+'_kana_vocabularyBlock');
         let trad_radElem = $('#'+settingsScriptId+'_trad_radBlock');
         let radicals = radicalElem.val();
         let kanji = kanjiElem.val();
         let vocabulary = vocabularyElem.val();
+        let kana_vocabulary = kana_vocabularyElem.val();
         let trad_rad = trad_radElem.val();
-        let encoded = makeEncode(radicals, kanji, vocabulary, trad_rad);
+        let encoded = makeEncode(radicals, kanji, vocabulary, kana_vocabulary, trad_rad);
         let downloadElem = $('#'+settingsScriptId+'_itemList_linkBlock');
         downloadElem.attr("href", "data:text/plain; charset=utf-8,"+encoded);
     };
@@ -2146,7 +2196,7 @@ var advSearchFilters = {};
 
         function receiveText(event){
             let text = event.target.result;
-            let radicals, kanji, vocabulary, trad_rad;
+            let radicals, kanji, vocabulary, kana_vocabulary, trad_rad;
             let errorMsg = 'Invalid file content';
             text = text.replaceAll('\n','');
 
@@ -2154,18 +2204,24 @@ var advSearchFilters = {};
             if (start !== 0) return errorMsg;
             start = start + 'radicals'.length;
             let end = text.indexOf('kanji');
-            if (end <= start) return errorMsg+' radical';
+            if (end < start) return errorMsg+' radicals';
             radicals = text.slice(start, end);
 
             start = end + 'kanji'.length;
             end = text.indexOf('vocabulary');
-            if (end <= start) return errorMsg+' kanji';
+            if (end < start) return errorMsg+' kanji';
             kanji = text.slice(start, end);
 
             start = end + 'vocabulary'.length;
-            end = text.indexOf('traditional radicals');
-            if (end <= start) return errorMsg+' vocabulary';
+            // to support old versions from befroe the introduction of the kana_vocabulary object type
+            end = (text.indexOf('kana_vocabulary') === -1) ? (text.indexOf('traditional radicals')) : (text.indexOf('kana_vocabulary'));
+            if (end < start) return errorMsg+' vocabulary';
             vocabulary = text.slice(start, end);
+
+            start = end + 'kana_vocabulary'.length;
+            end = text.indexOf('traditional radicals');
+            // to support old versions from befroe the introduction of the kana_vocabulary object type
+            if (start < end) kana_vocabulary = text.slice(start, end);
 
             start = end + 'traditional radicals'.length;
             trad_rad = text.slice(start);
@@ -2179,6 +2235,9 @@ var advSearchFilters = {};
             elem = $('#'+settingsScriptId+'_vocabularyBlock');
             elem.val(vocabulary);
             elem.change();
+            elem = $('#'+settingsScriptId+'_kana_vocabularyBlock');
+            elem.val(kana_vocabulary);
+            elem.change();
             elem = $('#'+settingsScriptId+'_trad_radBlock');
             elem.val(trad_rad);
             elem.change();
@@ -2191,6 +2250,7 @@ var advSearchFilters = {};
         renamed.radical = split_list(filterValue.explicitBlock_radical).map((str) => str.replace(/ /g, '-'));
         renamed.kanji = split_list(filterValue.explicitBlock_kanji);
         renamed.vocabulary = split_list(filterValue.explicitBlock_vocabulary);
+        renamed.kana_vocabulary = split_list(filterValue.explicitBlock_kana_vocabulary);
         renamed.trad_rad = split_list(filterValue.explicitBlock_trad_rad);
         return renamed;
     };
