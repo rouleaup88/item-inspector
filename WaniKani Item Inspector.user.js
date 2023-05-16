@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.23.2
+// @version       1.24.0
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -113,7 +113,10 @@
                              blockList: 'https://greasyfork.org/scripts/420050-wanikani-blacklist-filter-for-self-study-quiz/code/Wanikani%20Blacklist%20Filter%20(for%20Self-Study%20Quiz).user.js',
                              partOfSpeech: 'https://greasyfork.org/scripts/376095-wanikani-part-of-speech-filter/code/Wanikani%20Part-of-Speech%20Filter.user.js',
                              visSim: 'https://greasyfork.org/scripts/377971-wanikani-open-framework-visually-similar-kanji-filter/code/Wanikani%20Open%20Framework:%20Visually%20similar%20kanji%20filter.user.js',
-                             joyoJpltFrequency: 'https://greasyfork.org/scripts/377613-wanikani-open-framework-jlpt-joyo-and-frequency-filters/code/Wanikani%20Open%20Framework%20JLPT,%20Joyo,%20and%20Frequency%20filters.user.js'
+                             joyoJpltFrequency: 'https://greasyfork.org/scripts/377613-wanikani-open-framework-jlpt-joyo-and-frequency-filters/code/Wanikani%20Open%20Framework%20JLPT,%20Joyo,%20and%20Frequency%20filters.user.js',
+                             // test versions of some fo the previous files
+                             //kanjidic2_trad_rad: 'http://127.0.0.1:8887/WaniKani%20Open%20Framework%20Kanjidic2%20and%20Traditional%20Radicals%20Filters.user.js',
+                             //dateFilters: 'http://127.0.0.1:8887/WaniKani%20Open%20Framework%20Statistics%20Filters.user.js',
                             };
 
 
@@ -539,6 +542,7 @@
                   box-sizing: border-box;
             }
 
+            #WkitTopBar.WkitLight .WkitTableList table tr[class=kana_vocabulary],
             #WkitTopBar.WkitLight .WkitTableList table tr[class=vocabulary]{
                   background-color: var(--Wkit-base-voc-color);
                   background-image: -moz-linear-gradient(top, #a0f, #9300dd);
@@ -550,6 +554,7 @@
                   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFAA00FF', endColorstr='#FF9300DD', GradientType=0);
            }
 
+           #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=kana_vocabulary],
            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=vocabulary]{
                   background-color: var(--Wkit-base-voc-color);
                   background-image: -moz-linear-gradient(top, #a0f, #9300dd);
@@ -561,6 +566,7 @@
                   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFAA00FF', endColorstr='#FF9300DD', GradientType=0);
            }
 
+           #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=kana_vocabulary],
            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=vocabulary]{
                   color: var(--inverted-text-color);
                   background-color: var(--vocabulary-color) !important;
@@ -569,6 +575,7 @@
                   border-style: solid;
            }
 
+           #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=kana_vocabulary],
            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=vocabulary]{
                   color: var(--wkit-text-color-dark);
                   background-color: var(--vocabulary-color) !important;
@@ -760,21 +767,25 @@
             #WkitTopBar.WkitLight .WkitTooltip2 .radical { padding: 5px; background: var(--Wkit-base-rad-color); }
             #WkitTopBar.WkitLight .WkitTooltip2 .kanji { padding: 5px; background: var(--Wkit-base-kan-color); }
             #WkitTopBar.WkitLight .WkitTooltip2 .vocabulary { padding: 5px; background: var(--Wkit-base-voc-color); }
+            #WkitTopBar.WkitLight .WkitTooltip2 .kana_vocabulary { padding: 5px; background: var(--Wkit-base-voc-color); }
             #WkitTopBar.WkitLight .WkitTooltip2 .trad_rad { padding: 5px; background: var(--Wkit-base-trad-color); }
 
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .radical { padding: 5px; background: var(--Wkit-base-rad-color); }
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .kanji { padding: 5px; background: var(--Wkit-base-kan-color); }
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .vocabulary { padding: 5px; background: var(--Wkit-base-voc-color); }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .kana_vocabulary { padding: 5px; background: var(--Wkit-base-voc-color); }
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .trad_rad { padding: 5px; background: var(--Wkit-base-trad-color); }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .radical { padding: 5px; background: var(--radical-color); }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .kanji { padding: 5px; background: var(--kanji-color); }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .vocabulary { padding: 5px; background:var(--vocabulary-color); }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .kana_vocabulary { padding: 5px; background:var(--vocabulary-color); }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .trad_rad { padding: 5px; background:var(--Wkit-baseBD-trad-color); }
 
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .radical { padding: 5px; background: var(--radical-color); }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .kanji { padding: 5px; background: var(--kanji-color); }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .vocabulary { padding: 5px; background:var(--vocabulary-color); }
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .kana_vocabulary { padding: 5px; background:var(--vocabulary-color); }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .trad_rad { padding: 5px; background:var(--Wkit-base-trad-color); }
 
            #WkitTopBar .WkitEnlargedTooltip span {
@@ -985,16 +996,20 @@
                   background-color:  var(--kanji-color);
             }
 
+            #WkitTopBar.WkitLight .WkitItemListed span.kana_vocabulary,
             #WkitTopBar.WkitLight .WkitItemListed span.vocabulary {
                   background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
                   background-color: var(--Wkit-base-voc-color);
             }
 
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.kana_vocabulary,
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.vocabulary {
                   background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
                   background-color: var(--Wkit-base-voc-color);
             }
 
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.kana_vocabulary,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.kana_vocabulary,
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.vocabulary,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.vocabulary {
                   background-color: var(--vocabulary-color);
@@ -1011,6 +1026,7 @@
             }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.trad_rad,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.kana_vocabulary,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.vocabulary {
                   background-color: var(--Wkit-baseBD-trad-color);
             }
@@ -1238,6 +1254,7 @@
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.radical { color: var(--inverted-text-color) !important; }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.kanji { color: var(--inverted-text-color) !important; }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.vocabulary { color: var(--inverted-text-color) !important; }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.kana_vocabulary { color: var(--inverted-text-color) !important; }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left { color: var(--inverted-text-color) !important; }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left { color: var(--wkit-text-color-dark); }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left span.radical { color: var(--wkit-text-color-dark) !important; }
@@ -1266,12 +1283,16 @@
                   background-color: var(--kanji-color);
             }
 
-             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .vocabulary,
-             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .vocabulary {
+            #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
+            #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .vocabulary,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .vocabulary {
                   background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
                   background-color: var(--Wkit-base-voc-color);
             }
 
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .vocabulary,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .vocabulary {
                   background-color: var(--vocabulary-color);
@@ -1766,17 +1787,20 @@
                  z-index: 100;
            }
 
+           #WkitTopBar .WkitLeftItem .WkitStrokeOrderPopup.kana_vocabulary,
            #WkitTopBar .WkitLeftItem .WkitStrokeOrderPopup.vocabulary {
                  left: 0px;
                  right: unset;
            }
 
+           #WkitTopBar .WkitCenterItem .WkitStrokeOrderPopup.kana_vocabulary,
            #WkitTopBar .WkitCenterItem .WkitStrokeOrderPopup.vocabulary {
                  left: 50%;
                  right: unset;
                  transform: translateX(calc(-50% - 10px));
            }
 
+           #WkitTopBar .WkitRightItem .WkitStrokeOrderPopup.kana_vocabulary,
            #WkitTopBar .WkitRightItem .WkitStrokeOrderPopup.vocabulary {
                  right: 0px;
                  left: unset;
@@ -2472,7 +2496,7 @@
                                         'Lesson_Date':'Lesson Date', 'Unlock_Date': 'Unlock Date',
                                         'Joyo': 'Joyo Grade', 'JLPT': 'JLPT (voc by kanji lvl)', 'JLPT_Waller': 'JLPT (voc by vocabulary lvl)', 'Frequency': 'Frequency', };
 
-        let dataElementContents = {'None':'None', 'Item': 'Item Characters', 'Meaning_Brief':'Meaning Brief', 'Meaning_Full':'Meaning Full',
+        let dataElementContents = {'None':'None', 'Meaning_Brief':'Meaning Brief', 'Meaning_Full':'Meaning Full',
                                    'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
                                    'Reading_Brief':'Reading Brief', 'Reading_Full':'Reading Full', 'Reading_by_Type': 'Reading by Type (on kun)',
                                    'Reading_Onyomi': 'Reading Onyomi', 'Reading_Kunyomi': 'Reading Kunyomi', 'Reading_Nanori': 'Reading Nanori',
@@ -4077,9 +4101,10 @@
                               searchFilters_ctxSenkSearch: {group: 'search', order: 55, suborder: 230}, searchFilters_mnemonicsSearch: {group: 'search', order: 55, suborder: 240},
 
                               radical_list: {group: 'item', order: 60, suborder: 10}, kanji_list: {group: 'item', order: 60, suborder: 11},
-                              vocabulary_list: {group: 'item', order: 60, suborder: 12},
+                              vocabulary_list: {group: 'item', order: 60, suborder: 12}, kana_vocabulary_list: {group: 'item', order: 60, suborder: 13},
                               radical_blacklist: {group: 'item', order: 60, suborder: 20}, kanji_blacklist: {group: 'item', order: 60, suborder: 21},
                               vocabulary_blacklist: {group: 'item', order: 60, suborder: 22},
+                              kana_vocabulary_blacklist: {group: 'item', order: 60, suborder: 23},
                               additionalFilters_relatedItems: {group: 'item', order: 60, suborder: 40},
                               jlpt_level: {group: 'item', order: 60, suborder: 230}, jlpt_level_waller: {group: 'item', order: 60, suborder: 234},
                               jlpt_level_vocab: {group: 'item', order: 60, suborder: 235},
@@ -4391,13 +4416,14 @@
     // because this is the original license of Self Study Quiz and wkof ItemData module
     //----------------------------------------------------------------------
 
-    // Four indexes are indexed by subject id.
+    // Five indexes are indexed by subject id.
     // Over 80% of the time we know the item type so we can search a smaller and faster index.
-    // Therefore we have indexes by item type: subjectIndexRad, subjectIndexKan, subjectIndexVoc
+    // Therefore we have indexes by item type: subjectIndexRad, subjectIndexKan, subjectIndexVoc, subjectIndexKana
     // In the volume, accelerating the indexes when we know the type improves significantly the response time.
     // There is also an index for when we don't know the item type: subjectIndex
     var subjectIndex = false;
     var subjectIndexVoc = {};
+    var subjectIndexKana = {};
     var subjectIndexKan = {};
     var subjectIndexRad = {};
 
@@ -4483,6 +4509,9 @@
             switch (item.object){
                 case 'vocabulary':
                     subjectIndexVoc[item.id] = item;
+                    break;
+                case 'kana_vocabulary':
+                    subjectIndexKana[item.id] = item;
                     break;
                 case 'kanji':
                     subjectIndexKan[item.id] = item;
@@ -4785,7 +4814,8 @@
 		var is_wk_items = (spec === wkof.ItemData.registry.sources.wk_items);
 		var is_trad_rad = (spec === wkof.ItemData.registry.sources.trad_rad);
         if (is_wk_items){
-            items = baseItems.filter(function(item){return item.object === 'vocabulary' || item.object === 'kanji' || item.object === 'radical'});
+            items = baseItems.filter(function(item){return item.object === 'vocabulary' || item.object === 'kanji' ||
+                                                           item.object === 'radical' || item.object === 'kana_vocabulary'});
         } else if (is_trad_rad) {
             items = baseItems.filter(function(item){return item.object === 'trad_rad'});
         };
@@ -5208,7 +5238,7 @@
                                         'reportValue': ((item) => {return (item.review_statistics ? MeaningCorrect(item) : 'Unavailable')}),
                                         'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() +'%' : 'Unavailable')}),
                                        },
-                    'Reading_Correct': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': '%Reading ',
+                    'Reading_Correct': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'vocabulary'}), 'label': '%Reading ',
                                         'tableEntry': ((item) => {return (item.review_statistics ? ReadingCorrect(item)+'%' : 'Unavailable')}),
                                         'tableEntryMarker': ((item) => {return (item.review_statistics ? ReadingCorrect(item)+'%' : 'Unavailable')}),
                                         'tooltipEntry':  ((item) => {return (item.review_statistics ? ReadingCorrect(item)+'%' : 'Unavailable')}),
@@ -5261,7 +5291,7 @@
                                         'reportValue': ((item) => {return (item.review_statistics ? (100 - MeaningCorrect(item)) : 'Unavailable')}),
                                         'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() +'%': 'Unavailable')}),
                                        },
-                    'Reading_Incorrect': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': '%Inc.&nbsp;Reading ',
+                    'Reading_Incorrect': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'vocabulary'}), 'label': '%Inc.&nbsp;Reading ',
                                         'tableEntry': ((item) => {return (item.review_statistics ? (100 - ReadingCorrect(item))+'%' : 'Unavailable')}),
                                         'tableEntryMarker': ((item) => {return (item.review_statistics ? (100 - ReadingCorrect(item))+'%' : 'Unavailable')}),
                                         'tooltipEntry':  ((item) => {return (item.review_statistics ? (100 - ReadingCorrect(item))+'%' : 'Unavailable')}),
@@ -5351,7 +5381,7 @@
                                            'reportValue': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_max_streak - 1, 0) : 'Unavailable')}),
                                            'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                           },
-                    'Reading_Incorrect_Answers': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'Rg&nbsp;Incor. ',
+                    'Reading_Incorrect_Answers': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'vocabulary'}), 'label': 'Rg&nbsp;Incor. ',
                                                   'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : 'Unavailable')}),
                                                   'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : 'Unavailable')}),
                                                   'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : 'Unavailable')}),
@@ -5369,7 +5399,7 @@
                                                   'reportValue': ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : 'Unavailable')}),
                                                   'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                                  },
-                    'Reading_Correct_Answers': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'Rg&nbsp;Cor. ',
+                    'Reading_Correct_Answers': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'vocabulary'}), 'label': 'Rg&nbsp;Cor. ',
                                                 'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : 'Unavailable')}),
                                                 'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : 'Unavailable')}),
                                                 'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : 'Unavailable')}),
@@ -5387,7 +5417,7 @@
                                                 'reportValue': ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : 'Unavailable')}),
                                                 'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                                },
-                    'Reading_Current_Streak': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'Rg&nbsp;Cur.&nbsp;Streak ',
+                    'Reading_Current_Streak': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'vocabulary'}), 'label': 'Rg&nbsp;Cur.&nbsp;Streak ',
                                                'tableEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
                                                'tableEntryMarker': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
                                                'tooltipEntry':  ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
@@ -5405,7 +5435,7 @@
                                                'reportValue': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
                                                'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                               },
-                    'Reading_Max_Streak': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'Rg&nbsp;Max.&nbsp;Streak ',
+                    'Reading_Max_Streak': {'exists': ((item) => {return item.object === 'kanji' || item.object !== 'vocabulary'}), 'label': 'Rg&nbsp;Max.&nbsp;Streak ',
                                            'tableEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
                                            'tableEntryMarker': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
                                            'tooltipEntry':  ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
@@ -5679,7 +5709,7 @@
                       // ----------------------------
                       // Related Items
 
-                    'Used_In': {'exists': ((item) => {return (item.object !== 'vocabulary')}), 'label': 'Used&nbsp;In',
+                    'Used_In': {'exists': ((item) => {return (item.object !== 'vocabulary' && item.object !== 'kana_vocabulary')}), 'label': 'Used&nbsp;In',
                                 'title': 'Used In',
                                 'labelExport': 'Used In: ',
                                 'needQuotes': true,
@@ -5743,7 +5773,7 @@
                       // ----------------------------
                       // Miscellaneous item info
 
-                    'Part_Of_Speech': {'exists': ((item) => {return item.object === 'vocabulary'}), 'label': 'Part&nbsp;of&nbsp;Sp.',
+                    'Part_Of_Speech': {'exists': ((item) => {return item.object === 'vocabulary' || item.object === 'kana_vocabulary'}), 'label': 'Part&nbsp;of&nbsp;Sp.',
                                        'tooltipEntry':  ((item) => {return item.data.parts_of_speech.join(', ')}),
                                        'title': 'Part of Speech',
                                        'labelExport': 'Part of Speech: ',
@@ -5778,7 +5808,8 @@
                                    'export': ((item) => {return makeAuxMeaningList(item.data.auxiliary_meanings, 'whitelist')}),
                                    'isDate': false, 'isList': true,
                                   },
-                    'Joyo': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'Joyo',
+                    'Joyo': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad' && item.object !== 'kana_vocabulary'}),
+                                   'label': 'Joyo',
                                    'tableEntry':  makeJoyoData || "Unavailable",
                                    'tableEntryMarker':  makeJoyoData || "Unavailable",
                                    'tooltipEntry':  makeJoyoData,
@@ -5795,7 +5826,8 @@
                                    'reportValue': makeJoyoReportValue,
                                    'reportString': ((num) => {return (typeof num === 'number' ? Math.round(num).toString(): 'Unavailable')}),
                                   },
-                    'JLPT': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'JLPT&nbsp;by&nbsp;kan&nbsp;lvl',
+                    'JLPT': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad' && item.object !== 'kana_vocabulary'}),
+                                   'label': 'JLPT&nbsp;by&nbsp;kan&nbsp;lvl',
                                    'tableEntry':  makeJlptData || "Unavailable",
                                    'tableEntryMarker':  makeJlptData || "Unavailable",
                                    'tooltipEntry':  makeJlptData,
@@ -5829,7 +5861,8 @@
                                    'reportValue': makeJlptWallerReportValue,
                                    'reportString': ((num) => {return (typeof num === 'number' ? 'N' + Math.round(num).toString(): 'Unavailable')}),
                                   },
-                    'Frequency': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'Frequency',
+                    'Frequency': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad' && item.object !== 'kana_vocabulary'}),
+                                   'label': 'Frequency',
                                    'tableEntry':  makeFrequencyData || "Unavailable",
                                    'tableEntryMarker':  makeFrequencyData || "Unavailable",
                                    'tooltipEntry':  makeFrequencyData,
@@ -5898,7 +5931,7 @@
                                    'export': ((item) => {return item.data.meaning_mnemonic}),
                                    'isDate': false, 'isList': false,
                                    },
-                    'rMnemonics': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}),
+                    'rMnemonics': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad' && item.object !== 'kana_vocabulary'}),
                                    'title': 'Reading Mnemonics',
                                    'labelExport': 'Reading Mnemonic: ',
                                    'needQuotes': true,
@@ -5922,7 +5955,7 @@
                                'export': ((item) => {return (item.data.reading_hint !== null ? item.data.reading_hint : "Unavailable")}),
                                'isDate': false, 'isList': false,
                               },
-                    'Context_Sentences': {'exists': ((item) => {return item.object === 'vocabulary'}),
+                    'Context_Sentences': {'exists': ((item) => {return item.object === 'vocabulary' || item.object === 'kana_vocabulary'}),
                                           'title': 'Context Sentences',
                                           'labelExport': '',
                                           'needQuotes': true,
@@ -5938,7 +5971,7 @@
                                'export': ((item) => {return (item.study_materials !== undefined ? (item.study_materials.meaning_note ? item.study_materials.meaning_note : 'Unavailable') : 'Unavailable')}),
                                'isDate': false, 'isList': false,
                                },
-                    'rNotes': {'exists': ((item) => {return item.object !== 'trad_rad'}),
+                    'rNotes': {'exists': ((item) => {return item.object !== 'trad_rad' && item.object !== 'kana_vocabulary'}),
                                'title': 'Reading Notes',
                                'labelExport': 'Reading Note: ',
                                'needQuotes': true,
@@ -9483,7 +9516,7 @@
     function makeMoreIconsPopup(id, type, stringList){
         let item = subjectIndex[parseInt(id)];
         let itemList = [];
-        // more icons indicators are always vocabulary or Niai
+        // more icons indicators are always vocabulary, Niai or traditional radicals
         if (type === 'vocabulary'){
             itemList = item.data.amalgamation_subject_ids;
         } else if (type === 'Niai') {
@@ -9673,9 +9706,9 @@
             };
         };
         //check if an item has characters. Kanji and vocabulary will always have these but wk-specific radicals (e.g. gun, leaf, stick) use images instead
-        if(item.data.characters!= null) {
+        if(item.data.characters !== null) {
             return [item.data.characters, true, ' lang="JP"'];
-        } else if (item.data.character_images!= null){
+        } else if (item.data.character_images !== null){
             return [svgForRadicals[item.id], true, ' lang="JP"'];
         } else {
             //if both characters and character_images are somehow absent try using slug instead
@@ -9851,6 +9884,9 @@
                     //if (pitchInfoDiagrams.length > 0) visualInfoFormat = 'pitchInfo';
                     visualInfoFormat = 'pitchInfo';
                 }
+                break;
+            case ('kana_vocabulary'):
+                // Always itemOnly
                 break;
         }
 
@@ -11681,7 +11717,7 @@
                 if (term.indexOf(searchTerm) >= 0) {reportExtensiveSearchResult(item, searchTerm, 'meanings'); return true;};
             };
 
-            if (itemType !== 'radical'){
+            if (itemType !== 'radical' && itemType !== 'kana_vocabulary'){
                 for (let reading of item.data.readings){
                     if (reading.reading.indexOf(searchTerm) >= 0) {reportExtensiveSearchResult(item, searchTerm, 'readings'); return true;};
                 };
@@ -11743,7 +11779,7 @@
     };
 
 
-    let advancedSearchDefaults = {itemType: {radical: true, kanji: true, vocabulary: true, trad_rad: true,},
+    let advancedSearchDefaults = {itemType: {radical: true, kanji: true, vocabulary: true, kana_vocabulary: true, trad_rad: true,},
                                   exactMatch: {characters: true, meanings: false, readings: true,
                                                allow: false, block: false,
                                                mMnemonics: false, mHints: false, rMnemonics: false, rHints: false, contextSentences: false,
@@ -11808,8 +11844,9 @@
             no_bkgd: true,
             settings: {itemType: {type: 'list', multi: true, label: 'Item Type', path: '@advSearch.itemType',
                                   hover_tip: 'The type of items that must match the search terms.',
-                                  default: {radical: true, kanji: true, vocabulary: true, trad_rad: true},
-                                  content: {radical: 'Radical', kanji: 'Kanji', vocabulary: 'Vocabulary', trad_rad:'Traditional Radical'},},
+                                  default: {radical: true, kanji: true, vocabulary: true, kana_vocabulary: true, trad_rad: true},
+                                  content: {radical: 'Radical', kanji: 'Kanji', vocabulary: 'Vocabulary', kana_vocabulary : 'Kana Vocabulary',
+                                            trad_rad:'Traditional Radical'},},
                        exactMatch: {type: 'list', multi: true, label: 'Searches With Exact Match', size: 5, path: '@advSearch.exactMatch',
                                     hover_tip: 'Selected searches requires the whole word matches.\nSubstring match is the default\nPart of Speech always use exact match.\n\nYou must select the search in Search In\nfor this parameter to take effect.',
                                     default: {characters: true, meanings: false, readings: true,
@@ -12004,7 +12041,7 @@
             };
 
             if (searchIn.readings){
-                if (itemType !== 'radical'){
+                if (itemType !== 'radical' && itemType !== 'kana_vocabulary'){
                     if (searchTerm === all) {reportMatchResult(item, searchTerm, 'readings'); return true;};
                     if (exactMatch.readings){
                         for (let reading of item.data.readings){
@@ -12061,7 +12098,7 @@
             };
 
             if (searchIn.pos){
-                if (itemType === 'vocabulary'){
+                if (itemType === 'vocabulary' || itemType === 'kana_vocabulary'){
                     if (searchTerm === all) {reportMatchResult(item, searchTerm, 'part of speech'); return true;};
                     for (let pos of item.data.parts_of_speech){
                         if (searchTerm === pos) {reportMatchResult(item, searchTerm, 'part of speech'); return true;};
@@ -12211,7 +12248,7 @@
             };
 
             if (searchIn.contextSentences){
-                if (item.object === 'vocabulary'){
+                if (item.object === 'vocabulary' || item.object === 'kana_vocabulary'){
                     if (item.data.context_sentences.length !== 0){
                         if (searchTerm === all) {reportMatchResult(item, searchTerm, 'context sentences'); return true;};
                         for (let sentences of item.data.context_sentences){
@@ -13070,7 +13107,10 @@
     function accept_jlpt_kanji_waller(filter_value, item) {
         var characters = item.data.characters;
         if (item.object === 'kanji') return accept_jlpt_kanji(filter_value, characters);
-        if (item.object === 'vocabulary') return (filter_value[vocabJLPTData[item.data.characters]] === true);
+        if (item.object === 'vocabulary' || item.object === 'kana_vocabulary') {
+            if (item.object === 'kana_vocabulary')
+            return (vocabJLPTData[item.data.characters] !== undefined ? filter_value[vocabJLPTData[item.data.characters]] === true : filter_value[0]);
+        };
         return false;
     };
 
@@ -13154,7 +13194,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return review_statistics.meaning_current_streak >= filterValue;
         } else {
 		    return review_statistics.meaning_current_streak >= filterValue && review_statistics.reading_current_streak >= filterValue;
@@ -13182,7 +13222,7 @@
 		if (review_statistics === undefined) {
 			return false;
 		}
-        if (item.object === 'radical'){
+        if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return review_statistics.meaning_current_streak <= filterValue;
         } else {
 	    	return review_statistics.meaning_current_streak <= filterValue || review_statistics.reading_current_streak <= filterValue;
@@ -13608,7 +13648,7 @@
 
         function forceCacheDeleteIfNeeded(){
             // increment currentQuestionNumber to force a deletion of all Item Inspector cached items
-            const currentQuestionNumber = 2;
+            const currentQuestionNumber = 3;
             const asked = wkof.settings[scriptId].cacheDeleteNumber || 0;
             if (asked < currentQuestionNumber) {
                 return deleteFilesFromCache()
