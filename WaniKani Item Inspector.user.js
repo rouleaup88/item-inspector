@@ -2022,10 +2022,6 @@
             /* The kanji picker */
 
             #wkofs_WkitKanjiPicker {
-                --Wkit-grad-rad-color1: #0af;
-                --Wkit-grad-rad-color2: #0093dd;
-                --Wkit-grad-kan-color1: #f0a;
-                --Wkit-grad-kan-color2: #dd0093;
                 --Wkit-base-trad-color: #00a800;
                 --Wkit-grad-trad-color1: #0eaf0e;
                 --Wkit-grad-trad-color2: #0d9c0d;
