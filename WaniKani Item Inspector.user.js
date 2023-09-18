@@ -207,10 +207,10 @@
                     elem.classList.remove('WkitLight', 'WkitAzure', 'WkitVanillaColors', 'WkitColorBlind');
                     elem.classList.add('WkitDark', 'WkitBreeze', 'WkitBreezeColors');
                 } else if (quiz.settings.themeColor === 'Color_Blind') {
-                    elem.classList.remove('WkitLight', 'WkitAzure', 'WkitVanillaColors', 'WkitBreezeColors', 'WkitBreeze2Colors');
+                    elem.classList.remove('WkitLight', 'WkitAzure', 'WkitVanillaColors', 'WkitBreezeColors');
                     elem.classList.add('WkitDark', 'WkitBreeze', 'WkitColorBlind');
                 } else {
-                    elem.classList.remove('WkitLight', 'WkitAzure', 'WkitBreezeColors', 'WkitBreeze2Colors');
+                    elem.classList.remove('WkitLight', 'WkitAzure', 'WkitBreezeColors');
                     elem.classList.add('WkitDark', 'WkitBreeze', 'WkitVanillaColors');
                 };
             } else if (backgroundColor === DarkAzureBackground && fontColor === DarkAzureColor){
@@ -361,7 +361,7 @@
                 vertical-align: middle;
                 border-width: 1px;
                 border-radius: 3px;
-                border-color: #010101;
+                border-color: #010101; /* original: rgb(118, 118, 118); changed to match dropdowns */
                 text-align: center;
                 min-width: 30px;
                 width: max-content;
@@ -1140,6 +1140,7 @@
             #WkitTopBar.WkitDark.WkitBreeze .right table {
                 width: 100%;
                 line-height: 1em;
+		color: var(--text-color) !important;
                 border-collapse: collapse !important;
             }
 
@@ -2205,15 +2206,7 @@
             #wkofs_WkitKanjiPicker .right table {
                 width: 100%;
                 line-height: 1em;
-            }
-
-            #wkofs_WkitKanjiPicker .right table {
                 color: var(--wkit-text-color-light);
-            }
-
-            #wkofs_WkitKanjiPicker .right table {
-                width: 100%;
-                line-height: 1em;
                 border-collapse: collapse !important;
             }
 
@@ -11792,7 +11785,7 @@
             '* selects items where "Search In" information is PRESENT *and* NON EMPTY.\n'+
             '!* selects items where "Search In" information is ABSENT *or* EMPTY.\n\n'+
             'Valid parts of speech are:\n'+
-            'adjective adverb conjunction counter expression godan verb ichican verb\n'+
+            'adjective adverb conjunction counter expression godan verb ichidan verb\n'+
             'interjection intransitive verb noun numeral prefix pronoun proper noun suffix\n'+
             'transitive verb い adjective な adjective の adjective する verb';
 
