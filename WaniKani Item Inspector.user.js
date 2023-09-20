@@ -181,7 +181,6 @@
 
     // A mutation observer detects the change of style and set classes accordingly
 
-    var userChoiceOfColors = 'Breeze_Dark';
     function setThemeWatcher(){
         setThemeClasses(null, null)
         let themeWatcher = new MutationObserver(setThemeClasses);
@@ -203,11 +202,11 @@
         } else {
             let backgroundColor = $('body').css('background-color');
             let fontColor = $('body').css('color');
-            if (backgroundColor === BreezeDarkBackground && fontColor === BreezeDarkcolor){
-                if (quiz.settings.themeColor ===  'Breeze_Dark') {
+            if (backgroundColor === BreezeDarkBackground && fontColor === BreezeDarkcolor ){
+                if (quiz.settings.themeColor === 'Breeze_Dark') {
                     elem.classList.remove('WkitLight', 'WkitAzure', 'WkitVanillaColors', 'WkitColorBlind');
                     elem.classList.add('WkitDark', 'WkitBreeze', 'WkitBreezeColors');
-                } else if (quiz.settings.themeColor ===  'Color_Blind') {
+                } else if (quiz.settings.themeColor === 'Color_Blind') {
                     elem.classList.remove('WkitLight', 'WkitAzure', 'WkitVanillaColors', 'WkitBreezeColors');
                     elem.classList.add('WkitDark', 'WkitBreeze', 'WkitColorBlind');
                 } else {
@@ -224,8 +223,7 @@
         };
     };
 
-    var fontColor;
-    var secondaryFontColor;
+    var userstyleItemTextColor = $('.subject-character__characters').css('color'); // If the userstyle changes the text color of items, we detect this and use that color
     function table_css(){
         var leechTableCss = `
 
@@ -234,474 +232,439 @@
             /* And also the custom variable to theme the colors */
 
             #WkitTopBar {
-                  position: relative;
-                  display: inline-block;
-                  width: 103.2%;
-                  margin-left: -27px;
-                  margin-bottom: 30px;
-                  padding-top: 3px;
-                  padding-bottom: 3px;
-                  padding-right: 3px;
-                  padding-left: 3px;
-                  --Wkit-base-rad-color: #00a1f1;
-                  --Wkit-grad-rad-color1: #0af;
-                  --Wkit-grad-rad-color2: #0093dd;
-                  --Wkit-base-kan-color: #f100a1;
-                  --Wkit-grad-kan-color1: #f0a;
-                  --Wkit-grad-kan-color2: #dd0093;
-                  --Wkit-base-voc-color: #a100f1;
-                  --Wkit-grad-voc-color1: #a0f;
-                  --Wkit-grad-voc-color2: #9300dd;
-                  --Wkit-baseBD-trad-color:  #bbda18;
-                  --Wkit-base-trad-color:  #00a800;
-                  --Wkit-grad-trad-color1: #0eaf0e;
-                  --Wkit-grad-trad-color2: #0d9c0d;
-                  --wkit-text-color-light: white;
-                  --wkit-text-color-dark: black;
-                  --wkit-text-color-dark-theme: rgb(188, 188, 188);
-                  --wkit-kanji-text-color-dark: hsl(0 0% 18% / 1);
-                  --wkit-text-sec-color-light: gainsboro;
-                  --wkit-text-sec-color-dark: #212020;
-                  --wkit-backgound-widgets-dark: rgb(30, 33, 35);
-                  --wkit-backgound-dark: #000000;
-                  --wkit-backgound-explain: #5f1616;
-             }
+                position: relative;
+                display: inline-block;
+                width: 103.2%;
+                margin-left: -27px;
+                margin-bottom: 30px;
+                padding: 3px;
+                --Wkit-grad-rad-color1: var(--color-radical, #0af);
+                --Wkit-grad-rad-color2: var(--color-radical-dark, #0093dd);
+                --Wkit-grad-kan-color1: var(--color-kanji, #f0a);
+                --Wkit-grad-kan-color2: var(--color-kanji-dark, #dd0093);
+                --Wkit-grad-voc-color1: var(--color-vocabulary, #a0f);
+                --Wkit-grad-voc-color2: var(--color-vocabulary-dark, #9300dd);
+                --Wkit-baseBD-trad-color: #bbda18;
+                --Wkit-base-trad-color: #00a800;
+                --Wkit-grad-trad-color1: #0eaf0e;
+                --Wkit-grad-trad-color2: #0d9c0d;
+                --wkit-text-color-light: white;
+                --wkit-text-color-dark: black;
+                --wkit-text-color-item: ${userstyleItemTextColor};
+                --wkit-text-color-dark-theme: rgb(188, 188, 188);
+                --wkit-kanji-text-color-dark: hsl(0 0% 18% / 1);
+                --wkit-text-sec-color-light: gainsboro;
+                --wkit-text-sec-color-dark: #212020;
+                --wkit-backgound-widgets-dark: rgb(30, 33, 35);
+                --wkit-backgound-dark: #000000;
+                --wkit-backgound-explain: #5f1616;
+            }
 
 
-           /* ----------------------- */
-           /* Control Bar and widgets */
+            /* ----------------------- */
+            /* Control Bar and widgets */
 
-           .WkitControlBar {position: relative; margin: 7px 0.6% 7px 2.6%;}
+            .WkitControlBar { position: relative; margin: 7px 0.6% 7px 2.6%; }
 
             /* Top bar containers for widgets */
             #WkitTopBar .WkitHeader {
-                  display: -webkit-flex;
-                  display: flex;
-                  justify-content: space-between;
-                  padding: 3px;
-                  width: calc(100% - 8px);
-                  border-radius: 5px;
-                  margin-left: -2px;
-             }
+                display: -webkit-flex;
+                display: flex;
+                justify-content: space-between;
+                padding: 3px;
+                width: calc(100% - 8px);
+                border-radius: 5px;
+                margin-left: -2px;
+            }
 
-            #WkitTopBar.WkitLight .WkitHeader {background-color: #5c6c705c;}
-            #WkitTopBar.WkitDark .WkitHeader {background-color: #232629;}
+            #WkitTopBar.WkitLight .WkitHeader { background-color: #5c6c705c; }
+            #WkitTopBar.WkitDark .WkitHeader { background-color: #232629; }
 
             /* Left container for widgets */
             #WkitTopBar .WkitControlLeft {
-                  display: block;
-                  vertical-align: middle;
-                  height: 100%;
-                  padding-left: 2px;
-                  max-width: max-content;
-                  flex: 6;
+                display: block;
+                vertical-align: middle;
+                height: 100%;
+                padding-left: 2px;
+                max-width: max-content;
+                flex: 6;
             }
 
             /* Right container for widgets */
             #WkitTopBar .WkitControlRight {
-                  display: block;
-                  vertical-align: middle;
-                  height: 100%;
-                  padding-right: 3px;
-                  max-width: 224px;
-                  flex: 6;
+                display: block;
+                vertical-align: middle;
+                height: 100%;
+                padding-right: 3px;
+                max-width: 224px;
+                flex: 6;
             }
 
             /* Spacer for formatting the top bar */
             #WkitTopBar .WkitSpacer {
-                  visibility: hidden;
-                  display: inline;
-                  float: left;
-                  width: 8px;
+                visibility: hidden;
+                display: inline;
+                float: left;
+                width: 8px;
             }
 
             /* Dialog for export */
             #WkitTopBar .WkitDialogContainer {
-                  display: none; /* Hidden by default */
-                  position: absolute;
-                  z-index: 1;
-                  right: 12px;
-                  top: 63px;
-                  width: 156px;
-                  height: auto;
-                  padding: 5px;
-                  overflow: auto;
-                  border-radius: 5px;
-                  border-width: 1px;
+                display: none; /* Hidden by default */
+                position: absolute;
+                z-index: 1;
+                right: 12px;
+                top: 63px;
+                width: 156px;
+                height: auto;
+                padding: 5px;
+                overflow: auto;
+                border-radius: 5px;
+                border-width: 1px;
             }
 
-            #WkitTopBar .WkitDialogContainer {background-color: rgb(0,0,0);}
+            #WkitTopBar .WkitDialogContainer { background-color: rgb(0,0,0); }
 
             /* Buttons in the dialog for export */
             #WkitTopBar .WkitExportButton{
-                   z-index: 1;
-                   border-width: 1px;
-                   border-radius: 3px;
-                   text-align: center;
-                   min-width: 150px;
-                   width: max-content;
-                   height: 30px;
-                   margin: 3px;
-                   text-decoration: none;
+                z-index: 1;
+                border-width: 1px;
+                border-radius: 3px;
+                text-align: center;
+                min-width: 150px;
+                width: max-content;
+                height: 30px;
+                margin: 3px;
+                text-decoration: none;
             }
 
-            #WkitTopBar.WkitLight .WkitExportButton{background-color: #efefef;  color: var(--wkit-text-color-dark);}
-            #WkitTopBar.WkitDark .WkitExportButton{background-color: var(--wkit-backgound-widgets-darkk); color: var(--wkit-text-color-dark-theme);}
+            #WkitTopBar.WkitLight .WkitExportButton { background-color: #efefef; color: var(--wkit-text-color-dark); }
+            #WkitTopBar.WkitDark .WkitExportButton { background-color: var(--wkit-backgound-widgets-dark); color: var(--wkit-text-color-dark-theme); }
 
             /* Top bar widgets */
 
             #WkitTopBar .WkitTitle {
-                   vertical-align: middle;
-                   font-size: 150%;
-                   text-align: center;
-                   margin-top: 3px;
-                   margin-bottom: 3px;
-                   flex: 4;
+                vertical-align: middle;
+                font-size: 150%;
+                text-align: center;
+                margin-top: 3px;
+                margin-bottom: 3px;
+                flex: 4;
             }
 
-            #WkitTopBar.WkitDark .WkitTitle {color:  var(--wkit-text-color-dark-theme);}
-            #WkitTopBar.WkitDark.WkitBreeze  .WkitTitle {color:  var(--text-color, --wkit-text-color-dark-theme);}
+            #WkitTopBar.WkitDark .WkitTitle { color: var(--wkit-text-color-dark-theme); }
+            #WkitTopBar.WkitDark.WkitBreeze .WkitTitle { color: var(--text-color, --wkit-text-color-dark-theme); }
 
             #WkitTopBar .WkitButton {
-                   display: inline;
-                   float: left;
-                   vertical-align: middle;
-                   border-width: 1px;
-                   border-radius: 3px;
-                   border-color: rgb(118, 118, 118);
-                   text-align: center;
-                   min-width: 30px;
-                   width: max-content;
-                   height: 30px;
-                   margin: 2px;
-                   margin-top: 5px;
-                   margin-bottom: 5px;
+                display: inline;
+                float: left;
+                vertical-align: middle;
+                border-width: 1px;
+                border-radius: 3px;
+                border-color: #010101; /* original: rgb(118, 118, 118); changed to match dropdowns */
+                text-align: center;
+                min-width: 30px;
+                width: max-content;
+                height: 30px;
+                margin: 2px;
+                margin-top: 5px;
+                margin-bottom: 5px;
             }
 
-            #WkitTopBar.WkitLight .WkitButton:not(.WkitActive) { background-color: #efefef;}
-            #WkitTopBar.WkitDark .WkitButton:not(.WkitActive) { background-color: var(--wkit-backgound-widgets-dark); color: var(--wkit-text-color-dark-theme);}
+            #WkitTopBar.WkitLight .WkitButton:not(.WkitActive) { background-color: #efefef; }
+            #WkitTopBar.WkitDark .WkitButton:not(.WkitActive) { background-color: var(--wkit-backgound-widgets-dark); color: var(--wkit-text-color-dark-theme); }
 
-            #WkitTopBar.WkitLight .WkitButton.WkitActive {background-color: #00b300 ! important;}
-            #WkitTopBar.WkitDark .WkitButton.WkitActive {background-color: green ! important; color: var(--wkit-text-color-dark-theme);}
+            #WkitTopBar.WkitLight .WkitButton.WkitActive { background-color: #00b300 !important; }
+            #WkitTopBar.WkitDark .WkitButton.WkitActive { background-color: green !important; color: var(--wkit-text-color-dark-theme); }
 
             /* Anchors disguised as a button must look like a button */
-            #WkitTopBar button a {text-decoration: none;}
-            #WkitTopBar.WkitLight button a {color: var(--wkit-text-color-dark);}
-            #WkitTopBar.WkitDark button a {color: var(--wkit-text-color-dark-theme);}
+            #WkitTopBar button a { text-decoration: none; }
+            #WkitTopBar.WkitLight button a { color: var(--wkit-text-color-dark); }
+            #WkitTopBar.WkitDark button a { color: var(--wkit-text-color-dark-theme); }
 
 
-            #WkitTopBar .WkitButtonLeft {float: left;}
-            #WkitTopBar .WkitButtonRight {float: right;}
+            #WkitTopBar .WkitButtonLeft { float: left; }
+            #WkitTopBar .WkitButtonRight { float: right; }
 
-            #WkitTopBar .WkitEnglishButton {font-size: 18px; font-weight: bold; }
+            #WkitTopBar .WkitEnglishButton { font-size: 18px; font-weight: bold; }
 
             #WkitTopBar .WkitSelector {
-                   display: inline;
-                   float: left;
-                   vertical-align: middle;
-                   margin-right: 3px;
-                   margin-left: 3px;
-                   margin-top: 5px;
-                   margin-bottom: 5px;
-                   border-width: 1px;
-                   border-color: Black;
-                   width: 181px;
-                   background-color: #efefef;
+                display: inline;
+                float: left;
+                vertical-align: middle;
+                margin-right: 3px;
+                margin-left: 3px;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                border-width: 1px;
+                border-color: Black;
+                width: 181px;
+                background-color: #efefef;
             }
 
-            #WkitTopBar.WkitLight .WkitSelector {color: var(--wkit-text-color-dark);}
-            #WkitTopBar.WkitDark .WkitSelector {background-color: var(--wkit-backgound-widgets-dark); color: var(--wkit-text-color-dark-theme);}
+            #WkitTopBar.WkitLight .WkitSelector { color: var(--wkit-text-color-dark); }
+            #WkitTopBar.WkitDark .WkitSelector { background-color: var(--wkit-backgound-widgets-dark); color: var(--wkit-text-color-dark-theme); }
 
-           /* ------------------------------ */
-           /* End of Control Bar and widgets */
-
-
-           /* ------- */
-           /* Reports */
-
-           #WkitTopBar .WkitReportContainer {
-                 position: relative;
-                 margin-left: 29px;
-                 margin-right; 4px;
-                 width: 98%;
-                 height: 477px;
-                 overflow-y: scroll;
-                 background-color: #0000001a;
-           }
-
-           #WkitTopBar.WkitDark .WkitReportContainer {color: var(--wkit-text-color-dark-theme);}
-           #WkitTopBar.WkitDark.WkitBreeze .WkitReportContainer {background-color: #0000001a; color: var(--wkit-text-color-dark-theme);}
-
-           #WkitTopBar.WkitLight .WkitStickyHeader {background-color: #d5d3d3;}
-           #WkitTopBar.WkitDark .WkitStickyHeader {background-color: #242323; }
-           #WkitTopBar.WkitDark.WkitBreeze .WkitStickyHeader {background-color: #242323;}
-
-           #WkitTopBar .WkitStickyHeader {
-                 position: sticky;
-                 top: 0;
-                 z-index: 1;
-           }
-
-           #WkitTopBar .WkitReportCellFormat {
-                 padding-left: 8px;
-                 text-align: center;
-           }
-
-           /* -------------- */
-           /* End of Reports */
+            /* ------------------------------ */
+            /* End of Control Bar and widgets */
 
 
+            /* ------- */
+            /* Reports */
 
-           /* ------------------------- */
-           /* Main tables in table mode */
-
-           /* table headers */
-
-           #WkitTopBar .WkitSmallCaps {
-                  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-                  margin: 0px;
-                  padding: 7.5px 30px;
-                  background-color: #d5d5d5;
-                  text-align: center;
-                  border-radius: 5px 5px 0 0;
-                  font-size: 11px;
-                  font-weight: bold;
-                  letter-spacing: 0;
-                  line-height: 20px;
-                  color: #555;
-                  text-transform: uppercase;
-                  text-shadow: 0 1px 0 #fff;
+            #WkitTopBar .WkitReportContainer {
+                position: relative;
+                margin-left: 29px;
+                margin-right; 4px;
+                width: 98%;
+                height: 477px;
+                overflow-y: scroll;
+                background-color: #0000001a;
             }
 
-           #WkitTopBar.WkitDark .WkitSmallCaps {
-                  background-color: var(--wkit-backgound-dark);
-                  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.7), 0 2px 2px rgba(0, 0, 0, 0.7);
-                  color: var(--wkit-text-color-dark-theme);
-                  margin-bottom: 0px;
-                  max-height: 60px;
-                  padding-bottom: 3px;
-                  padding-top: 3px;
-                  text-align: center;
+            #WkitTopBar.WkitDark .WkitReportContainer { color: var(--wkit-text-color-dark-theme); }
+            #WkitTopBar.WkitDark.WkitBreeze .WkitReportContainer { background-color: #0000001a; color: var(--wkit-text-color-dark-theme); }
+
+            #WkitTopBar.WkitLight .WkitStickyHeader { background-color: #d5d3d3; }
+            #WkitTopBar.WkitDark .WkitStickyHeader { background-color: #242323; }
+            #WkitTopBar.WkitDark.WkitBreeze .WkitStickyHeader { background-color: #242323; }
+
+            #WkitTopBar .WkitStickyHeader {
+                position: sticky;
+                top: 0;
+                z-index: 1;
             }
 
-           #WkitTopBar.WkitDark.WkitBreeze .WkitSmallCaps {
-                  align-items: center;
-                  background-color: var(--section-background);
-                  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.7), 0 2px 2px rgba(0, 0, 0, 0.7);
-                  color: var(--text-color);
-                  display: flex;
-                  margin-bottom: 0px;
-                  max-height: 60px;
-                  padding-bottom: 3px;
-                  padding-top: 3px;
-                  text-align: left;
-                  text-shadow: unset;
+            #WkitTopBar .WkitReportCellFormat {
+                padding-left: 8px;
+                text-align: center;
+            }
+
+            /* -------------- */
+            /* End of Reports */
+
+
+
+            /* ------------------------- */
+            /* Main tables in table mode */
+
+            /* table headers */
+
+            #WkitTopBar .WkitSmallCaps {
+                font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+                margin: 0px;
+                padding: 7.5px 30px;
+                background-color: #d5d5d5;
+                text-align: center;
+                border-radius: 5px 5px 0 0;
+                font-size: 11px;
+                font-weight: bold;
+                letter-spacing: 0;
+                line-height: 20px;
+                color: #555;
+                text-transform: uppercase;
+                text-shadow: 0 1px 0 #fff;
+            }
+
+            #WkitTopBar.WkitDark .WkitSmallCaps {
+                background-color: var(--wkit-backgound-dark);
+                box-shadow: 0 1px 1px rgba(0, 0, 0, 0.7), 0 2px 2px rgba(0, 0, 0, 0.7);
+                color: var(--wkit-text-color-dark-theme);
+                margin-bottom: 0px;
+                max-height: 60px;
+                padding-bottom: 3px;
+                padding-top: 3px;
+                text-align: center;
+            }
+
+            #WkitTopBar.WkitDark.WkitBreeze .WkitSmallCaps {
+                align-items: center;
+                background-color: var(--section-background);
+                box-shadow: 0 1px 1px rgba(0, 0, 0, 0.7), 0 2px 2px rgba(0, 0, 0, 0.7);
+                color: var(--text-color);
+                display: flex;
+                margin-bottom: 0px;
+                max-height: 60px;
+                padding-bottom: 3px;
+                padding-top: 3px;
+                text-align: left;
+                text-shadow: unset;
             }
 
             /* The tables */
 
             #WkitTopBar .WkitTableList {
-                  position: relative;
-                  margin: 0 0 30px;
+                position: relative;
+                margin: 0 0 30px;
             }
 
             /* Table elements and their contents */
 
             #WkitTopBar .WkitTableList table a {
-                  text-decoration: none;
+                text-decoration: none;
             }
 
             #WkitTopBar .WkitTableList .WkitMainElement {
-                  display: block;
-                  padding: 0.7em 1em;
-                  margin: 0px;
-                  text-decoration: none;
+                display: block;
+                padding: 0.7em 1em;
+                margin: 0px;
+                text-decoration: none;
             }
 
-            #WkitTopBar.WkitLight .WkitTableList .WkitItem {color: var(--wkit-text-color-light);}
-            #WkitTopBar.WkitDark .WkitTableList .WkitItem {color: var(--wkit-kanji-text-color-dark);}
-            #WkitTopBar.WkitDark.WkitBreeze.WkitVanillaColors .WkitTableList .WkitItem {color: var(--wkit-kanji-text-color-dark) !important;}
-            #WkitTopBar.WkitDark.WkitBreeze.WkitBreezeColors .WkitTableList .WkitItem {color: var(--inverted-text-color) !important;}
-            #WkitTopBar.WkitDark.WkitBreeze.WkitColorBlind .WkitTableList .WkitItem {color: var(--wkit-kanji-text-color-dark) !important;}
+            #WkitTopBar.WkitLight .WkitTableList .WkitItem { color: var(--wkit-text-color-light); }
+            #WkitTopBar.WkitDark .WkitTableList .WkitItem { color: var(--wkit-kanji-text-color-dark); }
+            #WkitTopBar.WkitDark.WkitBreeze.WkitVanillaColors .WkitTableList .WkitItem { color: var(--wkit-kanji-text-color-dark) !important; }
+            #WkitTopBar.WkitDark.WkitBreeze.WkitBreezeColors .WkitTableList .WkitItem { color: var(--inverted-text-color) !important; }
+            #WkitTopBar.WkitDark.WkitBreeze.WkitColorBlind .WkitTableList .WkitItem { color: var(--wkit-kanji-text-color-dark) !important; }
 
-            #WkitTopBar.WkitLight .WkitTableList .WkitTableEntry {color: var(--wkit-text-sec-color-light);}
-            #WkitTopBar.WkitDark .WkitTableList .WkitTableEntry {color: var(--wkit-text-sec-color-dark);}
-            #WkitTopBar.WkitDark.WkitBreeze.WkitVanillaColors .WkitTableEntry {color: var(--wkit-text-sec-color-dark) !important;}
-            #WkitTopBar.WkitDark.WkitBreeze.WkitBreezeColors .WkitTableEntry {color: var(--inverted-text-color) !important;}
-            #WkitTopBar.WkitDark.WkitBreeze.WkitColorBlind .WkitTableEntry {color: var(--wkit-text-sec-color-dark) !important;}
+            #WkitTopBar.WkitLight .WkitTableList .WkitTableEntry { color: var(--wkit-text-sec-color-light); }
+            #WkitTopBar.WkitDark .WkitTableList .WkitTableEntry { color: var(--wkit-text-sec-color-dark); }
+            #WkitTopBar.WkitDark.WkitBreeze.WkitVanillaColors .WkitTableEntry { color: var(--wkit-text-sec-color-dark) !important; }
+            #WkitTopBar.WkitDark.WkitBreeze.WkitBreezeColors .WkitTableEntry { color: var(--inverted-text-color) !important; }
+            #WkitTopBar.WkitDark.WkitBreeze.WkitColorBlind .WkitTableEntry { color: var(--wkit-text-sec-color-dark) !important; }
 
-            #WkitTopBar .WkitTableList table tr{
-                  border-top: 0;
-                  border-bottom: 0;
-                  border-left: 0;
+            #WkitTopBar .WkitTableList table tr {
+                border-top: 0;
+                border-bottom: 0;
+                border-left: 0;
             }
 
-            #WkitTopBar .WkitTableList table td{
-                  -webkit-box-sizing: border-box;
-                  -moz-box-sizing: border-box;
-                  box-sizing: border-box;
+            #WkitTopBar .WkitTableList table td {
+                -webkit-box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                box-sizing: border-box;
             }
 
             #WkitTopBar.WkitLight .WkitTableList table tr[class=kana_vocabulary],
-            #WkitTopBar.WkitLight .WkitTableList table tr[class=vocabulary]{
-                  background-color: var(--Wkit-base-voc-color);
-                  background-image: -moz-linear-gradient(top, #a0f, #9300dd);
-                  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#a0f), to(#9300dd));
-                  background-image: -webkit-linear-gradient(top, #a0f, #9300dd);
-                  background-image: -o-linear-gradient(top, #a0f, #9300dd);
-                  background-image: linear-gradient(to bottom, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
-                  background-repeat: repeat-x;
-                  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFAA00FF', endColorstr='#FF9300DD', GradientType=0);
-           }
-
-           #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=kana_vocabulary],
-           #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=vocabulary]{
-                  background-color: var(--Wkit-base-voc-color);
-                  background-image: -moz-linear-gradient(top, #a0f, #9300dd);
-                  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#a0f), to(#9300dd));
-                  background-image: -webkit-linear-gradient(top, #a0f, #9300dd);
-                  background-image: -o-linear-gradient(top, #a0f, #9300dd);
-                  background-image: linear-gradient(to bottom, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
-                  background-repeat: repeat-x;
-                  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFAA00FF', endColorstr='#FF9300DD', GradientType=0);
-           }
-
-           #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=kana_vocabulary],
-           #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=vocabulary]{
-                  color: var(--inverted-text-color);
-                  background-color: var(--vocabulary-color) !important;
-                  border: var(--page-background);
-                  border-width: 1px;
-                  border-style: solid;
-           }
-
-           #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=kana_vocabulary],
-           #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=vocabulary]{
-                  color: var(--wkit-text-color-dark);
-                  background-color: var(--vocabulary-color) !important;
-                  border: var(--page-background);
-                  border-width: 1px;
-                  border-style: solid;
-           }
-
-            #WkitTopBar.WkitLight .WkitTableList table tr[class=kanji]{
-                  background-color: #f100a1;
-                  background-image: -moz-linear-gradient(top, #f0a, #dd0093);
-                  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#f0a), to(#dd0093));
-                  background-image: -webkit-linear-gradient(top, #f0a, #dd0093);
-                  background-image: -o-linear-gradient(top, #f0a, #dd0093);
-                  background-image: linear-gradient(to bottom, #f0a, #dd0093);
-                  background-repeat: repeat-x;
-                  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFF00AA', endColorstr='#FFDD0093', GradientType=0);
+            #WkitTopBar.WkitLight .WkitTableList table tr[class=vocabulary] {
+                background-color: var(--color-vocabulary);
+                background-image: linear-gradient(to bottom, var(--Wkit-grad-voc-color1), #9300dd); /* using hex instead of --Wkit-grad-voc-color2 due to error of wanikani setting --color-vocabulary-dark to the same value as --color-vocabulary */
+                background-repeat: repeat-x;
+                color: var(--wkit-text-color-item);
             }
 
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=kanji]{
-                  background-color: var(--Wkit-base-kan-color);
-                  background-image: -moz-linear-gradient(top, #f0a, #dd0093);
-                  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#f0a), to(#dd0093));
-                  background-image: -webkit-linear-gradient(top, #f0a, #dd0093);
-                  background-image: -o-linear-gradient(top, #f0a, #dd0093);
-                  background-image: linear-gradient(to bottom, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                  background-repeat: repeat-x;
-                  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFF00AA', endColorstr='#FFDD0093', GradientType=0);
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=kana_vocabulary],
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=vocabulary] {
+                background-color: var(--color-vocabulary);
+                background-image: linear-gradient(to bottom, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
+                background-repeat: repeat-x;
+                color: var(--wkit-text-color-item);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=kanji]{
-                  color: var(--inverted-text-color);
-                  background-color: var(--kanji-color) !important;
-                  border: var(--page-background);
-                  border-width: 1px;
-                  border-style: solid;
-             }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=kanji]{
-                  color: var(--wkit-text-color-dark);
-                  background-color: var(--kanji-color) !important;
-                  border: var(--page-background);
-                  border-width: 1px;
-                  border-style: solid;
-             }
-
-            #WkitTopBar.WkitLight .WkitTableList table tr[class=radical]{
-                  background-color: var(--Wkit-base-rad-color);
-                  background-image: -moz-linear-gradient(top, #0af, #0093dd);
-                  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0af), to(#0093dd));
-                  background-image: -webkit-linear-gradient(top, #0af, #0093dd);
-                  background-image: -o-linear-gradient(top, #0af, #0093dd);
-                  background-image: linear-gradient(to bottom, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
-                  background-repeat: repeat-x;
-                  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF00AAFF', endColorstr='#FF0093DD', GradientType=0);
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=kana_vocabulary],
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=vocabulary] {
+                color: var(--inverted-text-color);
+                background-color: var(--vocabulary-color) !important;
+                border: var(--page-background);
+                border-width: 1px;
+                border-style: solid;
             }
 
-             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=radical]{
-                  background-color: var(--Wkit-base-rad-color);
-                  background-image: -moz-linear-gradient(top, #0af, #0093dd);
-                  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0af), to(#0093dd));
-                  background-image: -webkit-linear-gradient(top, #0af, #0093dd);
-                  background-image: -o-linear-gradient(top, #0af, #0093dd);
-                  background-image: linear-gradient(to bottom, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
-                  background-repeat: repeat-x;
-                  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF00AAFF', endColorstr='#FF0093DD', GradientType=0);
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=kana_vocabulary],
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=vocabulary] {
+                color: var(--wkit-text-color-dark);
+                background-color: var(--vocabulary-color) !important;
+                border: var(--page-background);
+                border-width: 1px;
+                border-style: solid;
             }
 
-             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=radical]{
-                  color: var(--inverted-text-color) !important;
-                  background-color: var(--radical-color) !important;
-                  border: var(--page-background);
-                  border-width: 1px;
-                  border-style: solid;
+            #WkitTopBar.WkitLight .WkitTableList table tr[class=kanji] {
+                background-color: var(--color-kanji);
+                background-image: linear-gradient(to bottom, var(--Wkit-grad-kan-color1), #dd0093); /* using hex instead of --Wkit-grad-kan-color2 due to error of wanikani setting --color-kanji-dark to the same value as --color-kanji */
+                background-repeat: repeat-x;
+                color: var(--wkit-text-color-item);
             }
 
-             #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=radical]{
-                  color: var(--wkit-text-color-dark) !important;
-                  background-color: var(--radical-color) !important;
-                  border: var(--page-background);
-                  border-width: 1px;
-                  border-style: solid;
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=kanji] {
+                background-color: var(--color-kanji);
+                background-image: linear-gradient(to bottom, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
+                background-repeat: repeat-x;
+                color: var(--wkit-text-color-item);
             }
 
-            #WkitTopBar.WkitLight .WkitTableList table tr[class=trad_rad]{
-                  background-color: var(--Wkit-base-trad-color);
-                  background-image: -moz-linear-gradient(top,green, green);
-                  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(green), to(green));
-                  background-image: -webkit-linear-gradient(top, green, green);
-                  background-image: -o-linear-gradient(top, green, green);
-                  background-image: linear-gradient(to bottom, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
-                  background-repeat: repeat-x;
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=kanji] {
+                color: var(--inverted-text-color);
+                background-color: var(--kanji-color) !important;
+                border: var(--page-background);
+                border-width: 1px;
+                border-style: solid;
             }
 
-             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=trad_rad]{
-                  background-color: var(--Wkit-base-trad-color);
-                  background-image: -moz-linear-gradient(top,green, green);
-                  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(green), to(green));
-                  background-image: -webkit-linear-gradient(top, green, green);
-                  background-image: -o-linear-gradient(top, green, green);
-                  background-image: linear-gradient(to bottom, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
-                  background-repeat: repeat-x;
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=kanji] {
+                color: var(--wkit-text-color-dark);
+                background-color: var(--kanji-color) !important;
+                border: var(--page-background);
+                border-width: 1px;
+                border-style: solid;
             }
 
-             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=trad_rad]{
-                  color: var(--inverted-text-color) !important;
-                  background-color: var(--Wkit-baseBD-trad-colorr) !important;
-                  border: var(--page-background);
-                  border-width: 1px;
-                  border-style: solid;
+            #WkitTopBar.WkitLight .WkitTableList table tr[class=radical] {
+                background-color: var(--color-radical);
+                background-image: linear-gradient(to bottom, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+                background-repeat: repeat-x;
+                color: var(--wkit-text-color-item);
             }
 
-             #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=trad_rad]{
-                  color: var(--wkit-text-color-dark) !important;
-                  background-color: var(--Wkit-baseBD-trad-color) !important;
-                  border: var(--page-background);
-                  border-width: 1px;
-                  border-style: solid;
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=radical] {
+                background-color: var(--color-radical);
+                background-image: linear-gradient(to bottom, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+                background-repeat: repeat-x;
+                color: var(--wkit-text-color-item);
             }
 
-           /* Popups in table mode */
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=radical] {
+                color: var(--inverted-text-color) !important;
+                background-color: var(--radical-color) !important;
+                border: var(--page-background);
+                border-width: 1px;
+                border-style: solid;
+            }
+
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=radical] {
+                color: var(--wkit-text-color-dark) !important;
+                background-color: var(--radical-color) !important;
+                border: var(--page-background);
+                border-width: 1px;
+                border-style: solid;
+            }
+
+            #WkitTopBar.WkitLight .WkitTableList table tr[class=trad_rad] {
+                background-color: var(--Wkit-base-trad-color);
+                background-image: linear-gradient(to bottom, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+                background-repeat: repeat-x;
+                color: var(--wkit-text-color-item);
+            }
+
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=trad_rad] {
+                background-color: var(--Wkit-base-trad-color);
+                background-image: linear-gradient(to bottom, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+                background-repeat: repeat-x;
+                color: var(--wkit-text-color-item);
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=trad_rad] {
+                color: var(--inverted-text-color) !important;
+                background-color: var(--Wkit-baseBD-trad-color) !important;
+                border: var(--page-background);
+                border-width: 1px;
+                border-style: solid;
+            }
+
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=trad_rad] {
+                color: var(--wkit-text-color-dark) !important;
+                background-color: var(--Wkit-baseBD-trad-color) !important;
+                border: var(--page-background);
+                border-width: 1px;
+                border-style: solid;
+            }
+
+            /* Popups in table mode */
 
             #WkitTopBar .WkitTableList .WkitTooltip:hover .WkitTooltipContent {
-                  visibility: visible;
-                  z-index: 50;
-                  transition-delay: 0.1s;
+                visibility: visible;
+                z-index: 50;
+                transition-delay: 0.1s;
             }
 
             #WkitTopBar .WkitTableList .WkitTooltip.WkitFirstItem div.WkitTooltipContent { top: 100%; }
@@ -710,10 +673,10 @@
             #WkitTopBar .WkitTableList .WkitTooltip.WkitRightItem .WkitTooltipContent { right: calc(100% - 30px); }
 
             #WkitTopBar .WkitTableList .WkitTooltip .WkitTooltipContent::after {
-                  content: " ";
-                  position: absolute;
-                  border-width: 5px;
-                  border-style: solid;
+                content: " ";
+                position: absolute;
+                border-width: 5px;
+                border-style: solid;
             }
 
             #WkitTopBar .WkitTableList .WkitTooltip.WkitLeftItem .WkitTooltipContent::after { left: 1em; }
@@ -724,23 +687,23 @@
             /* Enlarging popup */
 
             #WkitTopBar .WkitTooltip2 {
-                  position: relative;
-                  display: inline-block;
-                  width: 30px;
+                position: relative;
+                display: inline-block;
+                width: 30px;
             }
 
             #WkitTopBar .WkitTooltip2 .WkitEnlargedTooltip {
-                  display: none;
-                  visibility: hidden;
-                  background-color: black;
-                  font-size: 100%;
-                  width: max-content;
-                  border-radius: 3px;
-                  position: absolute;
-                  bottom: 30px;
-                  left: 0%;
-                  padding: 2px;
-                  z-index: 1;
+                display: none;
+                visibility: hidden;
+                background-color: black;
+                font-size: 100%;
+                width: max-content;
+                border-radius: 3px;
+                position: absolute;
+                bottom: 30px;
+                left: 0%;
+                padding: 2px;
+                z-index: 1;
             }
 
             #WkitTopBar.WkitLight .WkitTooltip2 .WkitEnlargedTooltip { color: var(--wkit-text-color-light); }
@@ -749,131 +712,131 @@
             #WkitTopBar.WkitDark.WkitColorblind .WkitTooltip2 .WkitEnlargedTooltip { color: var(--wkit-text-color-dark); }
 
             #WkitTopBar .WkitTooltip2:hover div.WkitEnlargedTooltip {
-                  visibility: visible;
-                  display: inline-block;
-                  z-index: 50;
+                visibility: visible;
+                display: inline-block;
+                z-index: 50;
             }
 
             #WkitTopBar .WkitTooltip2 .WkitEnlargedTooltip::after {
-                  content: " ";
-                  position: absolute;
-                  top: 100%;
-                  left: 1em;
-                  border-width: 5px;
-                  border-style: solid;
-                  border-color: black transparent transparent transparent;
+                content: " ";
+                position: absolute;
+                top: 100%;
+                left: 1em;
+                border-width: 5px;
+                border-style: solid;
+                border-color: black transparent transparent transparent;
             }
 
-            #WkitTopBar.WkitLight .WkitTooltip2 .radical { padding: 5px; background: var(--Wkit-base-rad-color); }
-            #WkitTopBar.WkitLight .WkitTooltip2 .kanji { padding: 5px; background: var(--Wkit-base-kan-color); }
-            #WkitTopBar.WkitLight .WkitTooltip2 .vocabulary { padding: 5px; background: var(--Wkit-base-voc-color); }
-            #WkitTopBar.WkitLight .WkitTooltip2 .kana_vocabulary { padding: 5px; background: var(--Wkit-base-voc-color); }
+            #WkitTopBar.WkitLight .WkitTooltip2 .radical { padding: 5px; background: var(--color-radical); }
+            #WkitTopBar.WkitLight .WkitTooltip2 .kanji { padding: 5px; background: var(--color-kanji); }
+            #WkitTopBar.WkitLight .WkitTooltip2 .vocabulary { padding: 5px; background: var(--color-vocabulary); }
+            #WkitTopBar.WkitLight .WkitTooltip2 .kana_vocabulary { padding: 5px; background: var(--color-vocabulary); }
             #WkitTopBar.WkitLight .WkitTooltip2 .trad_rad { padding: 5px; background: var(--Wkit-base-trad-color); }
 
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .radical { padding: 5px; background: var(--Wkit-base-rad-color); }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .kanji { padding: 5px; background: var(--Wkit-base-kan-color); }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .vocabulary { padding: 5px; background: var(--Wkit-base-voc-color); }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .kana_vocabulary { padding: 5px; background: var(--Wkit-base-voc-color); }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .radical { padding: 5px; background: var(--color-radical); }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .kanji { padding: 5px; background: var(--color-kanji); }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .vocabulary { padding: 5px; background: var(--color-vocabulary); }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .kana_vocabulary { padding: 5px; background: var(--color-vocabulary); }
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .trad_rad { padding: 5px; background: var(--Wkit-base-trad-color); }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .radical { padding: 5px; background: var(--radical-color); }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .kanji { padding: 5px; background: var(--kanji-color); }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .vocabulary { padding: 5px; background:var(--vocabulary-color); }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .kana_vocabulary { padding: 5px; background:var(--vocabulary-color); }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .trad_rad { padding: 5px; background:var(--Wkit-baseBD-trad-color); }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .vocabulary { padding: 5px; background: var(--vocabulary-color); }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .kana_vocabulary { padding: 5px; background: var(--vocabulary-color); }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .trad_rad { padding: 5px; background: var(--Wkit-baseBD-trad-color); }
 
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .radical { padding: 5px; background: var(--radical-color); }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .kanji { padding: 5px; background: var(--kanji-color); }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .vocabulary { padding: 5px; background:var(--vocabulary-color); }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .kana_vocabulary { padding: 5px; background:var(--vocabulary-color); }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .trad_rad { padding: 5px; background:var(--Wkit-base-trad-color); }
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .vocabulary { padding: 5px; background: var(--vocabulary-color); }
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .kana_vocabulary { padding: 5px; background: var(--vocabulary-color); }
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .trad_rad { padding: 5px; background: var(--Wkit-baseBD-trad-color); }
 
-           #WkitTopBar .WkitEnlargedTooltip span {
-                  font-size: 60px;
-                  line-height: 58px;
-                  display: block;
-                  border-radius: 3px;
-                  margin: 5px;
-           }
-
-           /* -------------------------------- */
-           /* End of main tables in table mode */
-
-           /* ----------------------------- */
-           /* Main tables in icon list mode */
-
-            #WkitTopBar .WkitItemList {
-                  visibility: visible;
-                  position: relative;
-                  background-color: #0000001a;
-                  display: -webkit-flex;
-                  display: flex;
-                  flex-direction: row;
-                  flex-wrap: wrap;
-                  line-height: 1;
-                  width: 96.1%;
-                  margin-left: 29px;
-                  margin-right: 4px;
-                  padding-top: 3px;
-                  padding-bottom: 3px;
-                  padding-right: 3px;
-                  padding-left: 3px;
-                  border-radius: 5px;
+            #WkitTopBar .WkitEnlargedTooltip span {
+                font-size: 60px;
+                line-height: 58px;
+                display: block;
+                border-radius: 3px;
+                margin: 5px;
             }
 
-            #WkitTopBar .WkitItemList.WkitFlexJustified { justify-content: space-between;}
+            /* -------------------------------- */
+            /* End of main tables in table mode */
+
+            /* ----------------------------- */
+            /* Main tables in icon list mode */
+
+            #WkitTopBar .WkitItemList {
+                visibility: visible;
+                position: relative;
+                background-color: #0000001a;
+                display: -webkit-flex;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                line-height: 1;
+                width: 96.1%;
+                margin-left: 29px;
+                margin-right: 4px;
+                padding-top: 3px;
+                padding-bottom: 3px;
+                padding-right: 3px;
+                padding-left: 3px;
+                border-radius: 5px;
+            }
+
+            #WkitTopBar .WkitItemList.WkitFlexJustified { justify-content: space-between; }
             #WkitTopBar .WkitItemList.WkitFlexLeft { justify-content: flex-start; }
 
             /* Block for item count */
 
             #WkitTopBar .WkitSmallCapsList {
-                  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-                  width: max-content;
-                  font-weight: bold;
-                  letter-spacing: 0;
-                  text-transform: uppercase;
-                  border-radius: 5px;
-                  border-color: #000000;
-                  border-width: 1px;
-                  border-style: solid;
-             }
-
-            #WkitTopBar.WkitDark .WkitSmallCapsList {
-                  align-items: center;
-                  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.7), 0 2px 2px rgba(0, 0, 0, 0.7);
-                  display: flex;
-                  max-height: 60px;
-                  padding-bottom: 3px;
-                  padding-top: 3px;
+                font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+                width: max-content;
+                font-weight: bold;
+                letter-spacing: 0;
+                text-transform: uppercase;
+                border-radius: 5px;
+                border-color: #000000;
+                border-width: 1px;
+                border-style: solid;
             }
 
-            #WkitTopBar.WkitLight .WkitSmallCapsList { background-color: #cccccc; color: #241f42; text-align: center;}
-            #WkitTopBar.WkitDark .WkitSmallCapsList {background-color: #1c1e21; color: #bcbcbc;  text-align: left;}
+            #WkitTopBar.WkitDark .WkitSmallCapsList {
+                align-items: center;
+                box-shadow: 0 1px 1px rgba(0, 0, 0, 0.7), 0 2px 2px rgba(0, 0, 0, 0.7);
+                display: flex;
+                max-height: 60px;
+                padding-bottom: 3px;
+                padding-top: 3px;
+            }
+
+            #WkitTopBar.WkitLight .WkitSmallCapsList { background-color: #cccccc; color: #241f42; text-align: center; }
+            #WkitTopBar.WkitDark .WkitSmallCapsList { background-color: #1c1e21; color: #bcbcbc; text-align: left; }
 
 
             #WkitTopBar .WkitSmallCapsList.WkitReading {
-                  margin-top: 2px;
-                  margin-bottom: 2px;
-                  margin-left: 5px;
-                  margin-right: 5px;
-                  line-height: 1em;
-                  padding: 15px 20px;
-                  font-size: 14px;
-             }
+                margin-top: 2px;
+                margin-bottom: 2px;
+                margin-left: 5px;
+                margin-right: 5px;
+                line-height: 1em;
+                padding: 15px 20px;
+                font-size: 14px;
+            }
 
             #WkitTopBar .WkitSmallCapsList.WkitMeaning {
-                  margin-top: 2px;
-                  margin-bottom: 2px;
-                  margin-left: 5px;
-                  margin-right: 5px;
-                  padding: 8px 20px;
-                  font-size: 12px;
-             }
+                margin-top: 2px;
+                margin-bottom: 2px;
+                margin-left: 5px;
+                margin-right: 5px;
+                padding: 8px 20px;
+                font-size: 12px;
+            }
 
             /* Markers */
 
             #WkitTopBar .WkitTooltipIcon .WkitMarker {
-                  margin: 8px 5px;
+                margin: 8px 5px;
             }
 
             #WkitTopBar .WkitMarker span {
@@ -911,7 +874,7 @@
             #WkitTopBar.WkitDark:not(.WkitAzure) .WkitMarkerMeaning span,
             #WkitTopBar.WkitDark:not(.WkitAzure) .WkitMarker span {
                 box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
-                background-image: linear-gradient(0deg, hsl(140 11% 14% / 1), hsl(140 10% 8% / 1));
+                background-image: unset; /* original: linear-gradient(0deg, hsl(140 11% 14% / 1), hsl(140 10% 8% / 1)) */
                 background-color: hsl(140 11% 13% / 1);
                 color: var(--wkit-text-color-dark-theme);
             }
@@ -930,12 +893,12 @@
                 background-color: hsl(140 11% 10% / 1);
             }
 
-           #WkitTopBar.WkitDark.WkitBreeze .WkitMarkerMeaning span,
-           #WkitTopBar.WkitDark.WkitBreeze .WkitMarker span {
+            #WkitTopBar.WkitDark.WkitBreeze .WkitMarkerMeaning span,
+            #WkitTopBar.WkitDark.WkitBreeze .WkitMarker span {
                 color: var(--text-color);
             }
 
-          /* The items and their icons */
+            /* The items and their icons */
 
             #WkitTopBar .WkitTooltipIcon {
                 margin: 10px 5px;
@@ -955,86 +918,85 @@
                 box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
             }
 
-            #WkitTopBar.WkitLight .WkitItemListed span {color: var(--wkit-text-color-light);}
-            #WkitTopBar.WkitDark .WkitItemListed span {color: var(--wkit-text-color-dark) !important;}
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span {color: var(--inverted-text-color) !important;}
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span {color: var(--wkit-text-color-dark) !important;}
+            #WkitTopBar.WkitLight .WkitItemListed span { color: var(--wkit-text-color-light); }
+            #WkitTopBar.WkitDark .WkitItemListed span { color: var(--wkit-text-color-dark) !important; }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span { color: var(--inverted-text-color) !important; }
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span { color: var(--wkit-text-color-dark) !important; }
 
 
             #WkitTopBar .WkitItemListed a { text-decoration-line: none; }
-            #WkitTopBar .WkitTooltipIconMeaning  .WkitItemListed { font-size: 14px; }
+            #WkitTopBar .WkitTooltipIconMeaning .WkitItemListed { font-size: 14px; }
 
-           /* items colors */
+            /* items colors */
 
             #WkitTopBar.WkitLight .WkitItemListed span.radical {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
-                  background-color: var(--Wkit-base-rad-color);
+                background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+                background-color: var(--color-radical);
             }
 
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.radical {
-                  background-image: linear-gradient(0deg,  var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
-                  background-color: var(--Wkit-base-rad-color);
+                background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+                background-color: var(--color-radical);
             }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.radical,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.radical {
-                  background-color: var(--radical-color);
+                background-color: var(--radical-color);
             }
 
             #WkitTopBar.WkitLight .WkitItemListed span.kanji {
-                  background-image: linear-gradient(0deg,  var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                  background-color:  var(--Wkit-base-kan-color);
+                background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
+                background-color: var(--color-kanji);
             }
 
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.kanji {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                  background-color:  var(--Wkit-base-kan-color);
+                background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
+                background-color: var(--color-kanji);
             }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.kanji,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.kanji {
-                  background-color:  var(--kanji-color);
+                background-color: var(--kanji-color);
             }
 
             #WkitTopBar.WkitLight .WkitItemListed span.kana_vocabulary,
             #WkitTopBar.WkitLight .WkitItemListed span.vocabulary {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
-                  background-color: var(--Wkit-base-voc-color);
+                background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
+                background-color: var(--color-vocabulary);
             }
 
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.kana_vocabulary,
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.vocabulary {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
-                  background-color: var(--Wkit-base-voc-color);
+                background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
+                background-color: var(--color-vocabulary);
             }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.kana_vocabulary,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.kana_vocabulary,
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.vocabulary,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.vocabulary {
-                  background-color: var(--vocabulary-color);
+                background-color: var(--vocabulary-color);
             }
 
             #WkitTopBar.WkitLight .WkitItemListed span.trad_rad {
-                  background-image: var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
-                  background-color: var(--Wkit-base-trad-color);
+                background-image: var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+                background-color: var(--Wkit-base-trad-color);
             }
 
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.trad_rad {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
-                  background-color: var(--Wkit-base-trad-color);
+                background-image: linear-gradient(0deg, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+                background-color: var(--Wkit-base-trad-color);
             }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.trad_rad,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.kana_vocabulary,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.vocabulary {
-                  background-color: var(--Wkit-baseBD-trad-color);
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.trad_rad {
+                background-color: var(--Wkit-baseBD-trad-color);
             }
 
-           /* Popups for icon list mode */
+            /* Popups for icon list mode */
 
             #WkitTopBar .WkitItemList .WkitTooltip .WkitTooltipContent > .left,
-            #WkitTopBar .WkitItemList .WkitTooltip .WkitTooltipContent > .right  display: block; }
+            #WkitTopBar .WkitItemList .WkitTooltip .WkitTooltipContent > .right { display: block; }
 
             #WkitTopBar .WkitItemList .WkitTooltipIcon .WkitTooltipContent { transition-delay: 0.15s; }
             #WkitTopBar .WkitItemList .WkitTooltipIcon.WkitFirstItem .WkitTooltipContent { transform: translateY(calc(-45% + 8px)); }
@@ -1049,17 +1011,17 @@
             #WkitTopBar .WkitItemList .WkitTooltipIconMeaning { margin: 10px 5px; }
 
             #WkitTopBar .WkitItemList .WkitTooltip:hover div.WkitTooltipContent {
-                  visibility: visible;
-                  display: inline-block;
-                  z-index: 50;
-                  transition-delay: 0.5s;
+                visibility: visible;
+                display: inline-block;
+                z-index: 50;
+                transition-delay: 0.5s;
             }
 
             #WkitTopBar .WkitItemList .WkitTooltip .WkitTooltipContent::after {
-                  content: " ";
-                  position: absolute;
-                  border-width: 5px;
-                  border-style: solid;
+                content: " ";
+                position: absolute;
+                border-width: 5px;
+                border-style: solid;
             }
 
             #WkitTopBar .WkitItemList .WkitTooltip.WkitFirstItem.WkitLeftSide .WkitTooltipContent::after { right: 100%; top: 40%; }
@@ -1068,147 +1030,147 @@
             #WkitTopBar .WkitItemList .WkitTooltip.WkitLaterItem.WkitRightSide .WkitTooltipContent::after { left: 100%; bottom: 1em; }
 
             #WkitTopBar.WkitLight .WkitItemList .WkitTooltip.WkitFirstItem.WkitLeftSide .WkitTooltipContent::after {
-                  border-color: transparent black transparent transparent;
+                border-color: transparent black transparent transparent;
             }
 
             #WkitTopBar.WkitLight .WkitItemList .WkitTooltip.WkitFirstItem.WkitRightSide .WkitTooltipContent::after {
-                 border-color: transparent transparent transparent black;
+                border-color: transparent transparent transparent black;
             }
 
             #WkitTopBar.WkitLight .WkitItemList .WkitTooltip.WkitLaterItem.WkitLeftSide .WkitTooltipContent::after {
-                  border-color: transparent black transparent transparent;
+                border-color: transparent black transparent transparent;
             }
 
             #WkitTopBar.WkitLight .WkitItemList .WkitTooltip.WkitLaterItem.WkitRightSide .WkitTooltipContent::after {
-                  border-color: transparent transparent transparent black;
+                border-color: transparent transparent transparent black;
             }
 
             #WkitTopBar.WkitDark .WkitItemList .WkitTooltip.WkitFirstItem.WkitLeftSide .WkitTooltipContent::after {
-                  border-color: transparent white transparent transparent;
+                border-color: transparent white transparent transparent;
             }
 
             #WkitTopBar.WkitDark .WkitItemList .WkitTooltip.WkitFirstItem.WkitRightSide .WkitTooltipContent::after {
-                 border-color: transparent transparent transparent white;
+                border-color: transparent transparent transparent white;
             }
 
             #WkitTopBar.WkitDark .WkitItemList .WkitTooltip.WkitLaterItem.WkitLeftSide .WkitTooltipContent::after {
-                  border-color: transparent white transparent transparent;
+                border-color: transparent white transparent transparent;
             }
 
             #WkitTopBar.WkitDark .WkitItemList .WkitTooltip.WkitLaterItem.WkitRightSide .WkitTooltipContent::after {
-                  border-color: transparent transparent transparent white;
+                border-color: transparent transparent transparent white;
             }
 
-           /* ------------------------------------ */
-           /* End of main tables in icon list mode */
+            /* ------------------------------------ */
+            /* End of main tables in icon list mode */
 
             /* ------------------ */
             /* Main popup styling */
 
             #WkitTopBar .WkitTooltip {
-                  display: inline-block;
-                  position: relative;
-                  padding: 0px;
+                display: inline-block;
+                position: relative;
+                padding: 0px;
             }
 
             #WkitTopBar .WkitTooltip .WkitTooltipContent {
-                  background-color: black;
-                  max-width: 650px;
-                  min-width: 350px;
-                  z-index: 1;
+                background-color: black;
+                max-width: 650px;
+                min-width: 350px;
+                z-index: 1;
             }
 
             #WkitTopBar .WkitTooltip .WkitIconTooltipContent,
             #WkitTopBar .WkitTooltip .WkitTooltipContent {
-                  display: inline-block;
-                  visibility: hidden;
-                  font-size: 100%;
-                  width: max-content;
-                  text-align: left;
-                  padding: 2px;
-                  border-radius: 3px;
-                  position: absolute;
-                  transition-property: visibility;
-                  transition-delay: 0.15s;
+                display: inline-block;
+                visibility: hidden;
+                font-size: 100%;
+                width: max-content;
+                text-align: left;
+                padding: 2px;
+                border-radius: 3px;
+                position: absolute;
+                transition-property: visibility;
+                transition-delay: 0.15s;
             }
 
             #WkitTopBar.WkitLight .WkitTooltip .WkitIconTooltipContent,
             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent { color: var(--wkit-text-color-light); }
             #WkitTopBar.WkitDark .WkitTooltip .WkitIconTooltipContent,
-            #WkitTopBar.WkitDark .WkitTooltip .WkitTooltipContent { color: var(--wkit-text-color-dark-theme) }
+            #WkitTopBar.WkitDark .WkitTooltip .WkitTooltipContent { color: var(--wkit-text-color-dark-theme); }
 
             #WkitTopBar .WkitTooltip .WkitIconTooltipContent { max-width: 235px; z-index: 2; }
             #WkitTopBar.WkitLight .WkitTooltip .WkitIconTooltipContent { background-color: #5f1616; }
             #WkitTopBar.WkitDark .WkitTooltip .WkitIconTooltipContent { background-color: #421010; }
 
-           /* The html table in the popups */
+            /* The html table in the popups */
 
-            #WkitTopBar .WkitTableList table{
-                  width: 100%;
-                  max-width: 100%;
-                  background-color: transparent;
-                  border-collapse: collapse;
-                  border-spacing: 0;
+            #WkitTopBar .WkitTableList table {
+                width: 100%;
+                max-width: 100%;
+                background-color: transparent;
+                border-collapse: collapse;
+                border-spacing: 0;
             }
 
             #WkitTopBar .WkitTableList table,
-            #WkitTopBar .right table{
-                  width: 100%;
-                  line-height: 1em;
+            #WkitTopBar .right table {
+                width: 100%;
+                line-height: 1em;
             }
 
             #WkitTopBar.WkitLight .WkitTableList table,
-            #WkitTopBar.WkitLight .right table{
-                  color: var(--wkit-text-color-light);
+            #WkitTopBar.WkitLight .right table {
+                color: var(--wkit-text-color-light);
             }
 
             #WkitTopBar.WkitDark .WkitTableList table,
-            #WkitTopBar.WkitDark .right table{
-                  color: var(--wkit-text-color-dark-theme);
+            #WkitTopBar.WkitDark .right table {
+                color: var(--wkit-text-color-dark-theme);
             }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table,
             #WkitTopBar.WkitDark.WkitBreezeColors .right table,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table,
-            #WkitTopBar.WkitDark.WkitColorBlind .right table{
-                  color: var(--text-color);
+            #WkitTopBar.WkitDark.WkitColorBlind .right table {
+                color: var(--text-color);
             }
 
             #WkitTopBar.WkitDark.WkitBreeze .WkitTableList table,
-            #WkitTopBar.WkitDark.WkitBreeze .right table{
-                  width: 100%;
-                  line-height: 1em;
-                  color: var(--text-color) !important;
-                  border-collapse: collapse !important;
+            #WkitTopBar.WkitDark.WkitBreeze .right table {
+                width: 100%;
+                line-height: 1em;
+		color: var(--text-color) !important;
+                border-collapse: collapse !important;
             }
 
-           #WkitTopBar .left span {
-                  font-size: 35px;
-                  line-height: 40px;
-                  display: block;
-                  align-items: center;
-                  text-align: center;
-                  border-radius: 3px;
-                  padding: 5px;
-                  margin: 5px;
-           }
+            #WkitTopBar .left span {
+                font-size: 35px;
+                line-height: 40px;
+                display: block;
+                align-items: center;
+                text-align: center;
+                border-radius: 3px;
+                padding: 5px;
+                margin: 5px;
+            }
 
-           #WkitTopBar .right  {
-                  padding-left: 7px;
-                  padding-right: 7px;
-                  padding-bottom: 7px;
-           }
+            #WkitTopBar .right {
+                padding-left: 7px;
+                padding-right: 7px;
+                padding-bottom: 7px;
+            }
 
-           #WkitTopBar .right table td:first-child {
-                  padding-right: 10px;
-                  font-weight: bold;
-                  width: max-content;
-           }
+            #WkitTopBar .right table td:first-child {
+                padding-right: 10px;
+                font-weight: bold;
+                width: max-content;
+            }
 
             #WkitTopBar .right table td {
-                 padding-top: 3px;
-                 width: 100%;
-           }
+                padding-top: 3px;
+                width: 100%;
+            }
 
             /* ------------------------- */
             /* End of main popup styling */
@@ -1216,1141 +1178,1129 @@
             /* ----------------------------------------------- */
             /* Visual styling of elements in the top of popups */
 
-           /* Various containers styling */
+            /* Various containers styling */
 
-           #WkitTopBar .WkitTooltipContent .WkitVisualDataContainer {
-                  display: block;
-                  max-height: 100px;
-                  overflow: auto;
-                  border-spacing: 7px;
-           }
+            #WkitTopBar .WkitTooltipContent .WkitVisualDataContainer {
+                display: block;
+                max-height: 100px;
+                overflow: auto;
+                border-spacing: 7px;
+            }
 
-           #WkitTopBar.WkitLight .WkitTooltipContent .WkitVisualDataContainer { color: var(--wkit-text-color-light); }
-           #WkitTopBar.WkitDark:not(.WkitBreeze) .WkitTooltipContent .WkitVisualDataContainer { color: var(--wkit-text-color-dark) !important; }
-           #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltipContent .WkitVisualDataContainer span{ color: var(--inverted-text-color) !important; }
-           #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltipContent .WkitVisualDataContainer span{ color: var(--wkit-text-color-dark) !important; }
-           #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=radical] p.WkitKeiseiMsg { color: var(--text-color) !important; }
-           #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=radical] p.WkitKeiseiMsg { color: var(--text-color) !important; }
+            #WkitTopBar.WkitLight .WkitTooltipContent .WkitVisualDataContainer { color: var(--wkit-text-color-light); }
+            #WkitTopBar.WkitDark:not(.WkitBreeze) .WkitTooltipContent .WkitVisualDataContainer { color: var(--wkit-text-color-dark) !important; }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltipContent .WkitVisualDataContainer span{ color: var(--inverted-text-color) !important; }
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltipContent .WkitVisualDataContainer span{ color: var(--wkit-text-color-dark) !important; }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=radical] p.WkitKeiseiMsg { color: var(--text-color) !important; }
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=radical] p.WkitKeiseiMsg { color: var(--text-color) !important; }
 
-           #WkitTopBar .WkitBaseDataList {
-                  display: table;
-                  border-collapse: separate;
-           }
+            #WkitTopBar .WkitBaseDataList {
+                display: table;
+                border-collapse: separate;
+            }
 
-           #WkitTopBar .WkitCompoundData,
-           #WkitTopBar .WkitItemForKeisei,
-           #WkitTopBar .WkitBaseData {
-                  display: table-cell;
-                  white-space: nowrap;
-           }
+            #WkitTopBar .WkitCompoundData,
+            #WkitTopBar .WkitItemForKeisei,
+            #WkitTopBar .WkitBaseData {
+                display: table-cell;
+                white-space: nowrap;
+            }
 
-           /* Styling of elements containing only characters */
+            /* Styling of elements containing only characters */
 
             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left { color: var(--wkit-text-color-light); }
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left { color: var(--wkit-text-color-dark); }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left  span.radical { color: var(--wkit-text-color-dark) !important;; }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left  p.WkitKeiseiMsg { color: var(--wkit-text-color-dark-theme) !important;; }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left { color: var(--inverted-text-color); }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left span.radical { color: var(--wkit-text-color-dark) !important; }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left span.kanji { color: var(--wkit-text-color-dark) !important; }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left span.vocabulary { color: var(--wkit-text-color-dark) !important; }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left span.kana_vocabulary { color: var(--wkit-text-color-dark) !important; }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left p.WkitKeiseiMsg { color: var(--wkit-text-color-dark-theme) !important; }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left { color: var(--inverted-text-color) !important; }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.radical { color: var(--inverted-text-color) !important; }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.kanji { color: var(--inverted-text-color) !important; }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.vocabulary { color: var(--inverted-text-color) !important; }
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.kana_vocabulary { color: var(--inverted-text-color) !important; }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left { color: var(--inverted-text-color) !important; }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left p.WkitKeiseiMsg { color: var(--inverted-text-color) !important; }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left { color: var(--wkit-text-color-dark); }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left span.radical { color: var(--wkit-text-color-dark) !important; }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left span.kanji { color: var(--wkit-text-color-dark) !important; }
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left span.vocabulary { color: var(--wkit-text-color-dark) !important; }
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left span.kana_vocabulary { color: var(--wkit-text-color-dark) !important; }
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left p.WkitKeiseiMsg { color: var(--wkit-text-color-dark-theme) !important; }
 
             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .radical,
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .radical {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
-                  background-color: var(--Wkit-base-rad-color);
+                background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+                background-color: var(--color-radical);
             }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .radical,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .radical {
-                  background-color: var(--radical-color);
+                background-color: var(--radical-color);
             }
 
-             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .kanji,
-             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .kanji {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                  background-color: var(--Wkit-base-kan-color);
+            #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .kanji,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .kanji {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
+                background-color: var(--color-kanji);
             }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .kanji,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .kanji {
-                  background-color: var(--kanji-color);
+                background-color: var(--kanji-color);
             }
 
             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .vocabulary,
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .vocabulary {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
-                  background-color: var(--Wkit-base-voc-color);
+                background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
+                background-color: var(--color-vocabulary);
             }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .vocabulary,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .vocabulary {
-                  background-color: var(--vocabulary-color);
+                background-color: var(--vocabulary-color);
             }
 
-             #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .trad_rad,
-             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .trad_rad {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
-                  background-color: var(--Wkit-base-trad-color);
+            #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .trad_rad,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .trad_rad {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+                background-color: var(--Wkit-base-trad-color);
             }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .trad_rad,
             #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .trad_rad {
-                  background-color: var(--Wkit-baseBD-trad-color);
+                background-color: var(--Wkit-baseBD-trad-color);
             }
 
-           #WkitTopBar .WkitMessage,
-           #WkitTopBar .WkitCharacters {
-                  display: table-cell;
-                  vertical-align: middle;
-           }
+            #WkitTopBar .WkitMessage,
+            #WkitTopBar .WkitCharacters {
+                display: table-cell;
+                vertical-align: middle;
+            }
 
-           #WkitTopBar .WkitCharacters { border-radius: 5px; }
+            #WkitTopBar .WkitCharacters { border-radius: 5px; }
 
-           #WkitTopBar .WkitMessage p,
-           #WkitTopBar .WkitMessage span {
-                 text-align: left;
-                 font-size: 16px;
-                 line-height: 1.2em;
-                 padding-right: 8px;
-           }
+            #WkitTopBar .WkitMessage p,
+            #WkitTopBar .WkitMessage span {
+                text-align: left;
+                font-size: 16px;
+                line-height: 1.2em;
+                padding-right: 8px;
+            }
 
-           #WkitTopBar.WkitLight .WkitCharacters.radical {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
-                  background-color: var(--Wkit-base-rad-color);
-                  color: var(--wkit-text-color-light);
-           }
+            #WkitTopBar.WkitLight .WkitCharacters.radical {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+                background-color: var(--color-radical);
+                color: var(--wkit-text-color-light);
+            }
 
-           #WkitTopBar.WkitDark.WkitVanillaColors .WkitCharacters.radical {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
-                  background-color: var(--Wkit-base-rad-color);
-                  color: var(--wkit-text-color-dark);
-           }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitCharacters.radical {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+                background-color: var(--color-radical);
+                color: var(--wkit-text-color-dark);
+            }
 
-           #WkitTopBar.WkitDark.WkitBreezeColors .WkitCharacters.radical {
-                  background-color: var(--radical-color);
-                  color: var(--inverted-text-color) !important;
-          }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitCharacters.radical {
+                background-color: var(--radical-color);
+                color: var(--inverted-text-color) !important;
+            }
 
-           #WkitTopBar.WkitDark.WkitColorBlind .WkitCharacters.radical {
-                  background-color: var(--radical-color);
-                  color: var(--wkit-text-color-dark) !important;
-          }
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitCharacters.radical {
+                background-color: var(--radical-color);
+                color: var(--wkit-text-color-dark) !important;
+            }
 
-           #WkitTopBar.WkitDark.WkitVanillaColors .WkitCharacters.radical span.radical{
-                  color: var(--wkit-text-color-dark) !important;
-          }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitCharacters.radical span.radical {
+                color: var(--wkit-text-color-dark) !important;
+            }
 
-           #WkitTopBar.WkitDark.WkitBreezeColors .WkitCharacters.radical span.radical{
-                  color: var(--inverted-text-color) !important;
-          }
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitCharacters.radical span.radical {
+                color: var(--inverted-text-color) !important;
+            }
 
-           #WkitTopBar.WkitDark.WkitColorBlind .WkitCharacters.radical span.radical{
-                  color: var(--wkit-text-color-dark) !important;
-          }
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitCharacters.radical span.radical {
+                color: var(--wkit-text-color-dark) !important;
+            }
 
-           #WkitTopBar.WkitLight .WkitCharacters.kanji {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                  background-color: var(--Wkit-base-kan-color);
-                  color: var(--wkit-text-color-light);
-           }
+            #WkitTopBar.WkitLight .WkitCharacters.kanji {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
+                background-color: var(--color-kanji);
+                color: var(--wkit-text-color-light);
+            }
 
-            #WkitTopBar.WkitDark:not(Breeze) .WkitCharacters.kanji {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                  background-color: var(--Wkit-base-kan-color);
-                  color: var(--wkit-text-color-dark);
-           }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitCharacters.kanji {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
+                background-color: var(--color-kanji);
+                color: var(--wkit-text-color-dark);
+            }
 
             #WkitTopBar.WkitDark.WkitBreezeColors .WkitCharacters.kanji {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                  background-color: var(--kanji-color);
-                  color: var(--inverted-text-color);
-           }
+                background-color: var(--kanji-color);
+                color: var(--inverted-text-color);
+            }
 
             #WkitTopBar.WkitDark.WkitColorBlind .WkitCharacters.kanji {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                  background-color: var(--kanji-color);
-                  color: var(--wkit-text-color-dark);
-           }
+                background-color: var(--kanji-color);
+                color: var(--wkit-text-color-dark);
+            }
 
-           #WkitTopBar .left .WkitCharacters span.kanji,
-           #WkitTopBar .left .WkitCharacters span.radical {
-                  padding: 5px 12px 5px 12px;
-                  margin: 0px;
-                  font-size: 35px;
-           }
+            #WkitTopBar .left .WkitCharacters span.kanji,
+            #WkitTopBar .left .WkitCharacters span.radical {
+                padding: 5px 12px 5px 12px;
+                margin: 0px;
+                font-size: 35px;
+            }
 
             /*=== Keisei Sematntic-Phonetic Composition ===*/
 
-           /* Messages from Keisei when not a Semantic-Phonetic Composition */
-
-           #WkitTopBar .WkitTooltipContent .WkitMessageContainer {
-                  display: table;
-                  border-collapse: separate;
-                  border-spacing: 7px;
-           }
-
-           #WkitTopBar .WkitKeiseiMsg {
-                  padding-right: 5px;
-           }
-
-           #WkitTopBar .keiseiExplanations {
-                 display: none;
-                 visibility: hidden;
-                 white-space: normal;
-                 position: absolute;
-                 left: 10px;
-                 top: 125px;
-                 background-color: var(--wkit-backgound-explain);
-                 border-radius: 5px;
-                 width: calc(100% - 47px);
-                 padding: 8px;
-                 z-index: 100;
-           }
-
-           #WkitTopBar .WkitVisualDataContainer .keiseiExplanations span,
-           #WkitTopBar .WkitVisualDataContainer .keiseiExplanations p {
-                 display: inline;
-                 font-size: 16px;
-                 line-height: 1.2em;
-           }
-
-           #WkitTopBar.WkitLight .WkitVisualDataContainer .keiseiExplanations span,
-           #WkitTopBar.WkitLight .WkitVisualDataContainer .keiseiExplanations p {
-                 color: var(--wkit-text-color-light) !important;
-           }
-
-           #WkitTopBar.WkitDark .WkitVisualDataContainer .keiseiExplanations span,
-           #WkitTopBar.WkitDark .WkitVisualDataContainer .keiseiExplanations p {
-                 color: var(--wkit-text-color-dark-theme) !important;
-           }
-
-           #WkitTopBar .WkitBaseData:hover .keiseiExplanations,
-           #WkitTopBar .WkitCompoundData:hover .keiseiExplanations {
-                 display: block;
-                 visibility: visible;
-           }
-
-           #WkitTopBar .WkitCompoundData .keiseiText,
-           #WkitTopBar .WkitItemForKeisei .keiseiText,
-           #WkitTopBar .WkitBaseData .keiseiText {
-                  line-height: 14px;
-                  font-size: 14px;
-                  margin: 0px;
-                  padding: 2px;
-           }
-
-           #WkitTopBar .keiseiItem {
-                  display: inline-block;
-                  position: relative;
-                  border-radius: 3px;
-                  min-width: 65px;
-                  margin: 0px 2px 0px 2px;
-                  padding: 0px 2px 3px 2px;
-           }
-
-           /* margin to clear the room made for the scrollbar, but not on the top series */
-           #WkitTopBar .WkitBaseDataList ~ .WkitBaseDataList .keiseiItem {
-                  margin-top: 17px;
-           }
-
-           #WkitTopBar .WkitCompoundData .keiseiLarge,
-           #WkitTopBar .WkitItemForKeisei .keiseiLarge,
-           #WkitTopBar .WkitBaseData .keiseiLarge {
-                 font-size: 25px;
-                 line-height: 25px;
-                 padding: 5px 0px 0px 0px;
-                 margin: 0px;
-           }
-
-           #WkitTopBar.WkitLight .keiseiPhon {
-                 background-image: linear-gradient(0deg, #48af1b, #348613);
-                 background-color: #2bef35;
-                 color: var(--wkit-text-color-light);
-           }
-
-           #WkitTopBar.WkitDark.WkitVanillaColors .keiseiPhon {
-                 background-image: linear-gradient(0deg, #48af1b, #348613);
-                 background-color: #2bef35;
-                 color: var(--wkit-text-color-dark);
-           }
-
-           #WkitTopBar.WkitDark.WkitBreezeColors .keiseiPhon {
-                 background-color: #2bef35;
-                 color: var(--inverted-text-color);
-           }
-
-           #WkitTopBar.WkitDark.WkitColorblind .keiseiPhon {
-                 background-color: #2bef35;
-                 color: var(--wkit-text-color-dark);
-           }
-
-           #WkitTopBar.WkitLight .keiseiNonPhon {
-                  background-image: linear-gradient(0deg, #f51212, #d41010);
-                  background-color: #d6171b;
-                  color: var(--wkit-text-color-light);
-           }
-
-            #WkitTopBar.WkitDark.WkitVanillaColors .keiseiNonPhon {
-                  background-image: linear-gradient(0deg, #f51212, #d41010);
-                  background-color: #d6171b;
-                  color: var(--wkit-text-color-dark);
-           }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .keiseiNonPhon {
-                  background-color: #ff4d4f;
-                  color: var(--inverted-text-color);
-           }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .keiseiNonPhon {
-                  background-color: #ff4d4f;
-                  color: var(--wkit-text-color-dark);
-           }
-
-           #WkitTopBar.WkitLight .keiseiRad {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
-                  background-color: var(--Wkit-base-rad-color);
-                  color: var(--wkit-text-color-light);
-           }
-
-           #WkitTopBar.WkitDark.WkitVanillaColors .keiseiRad {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
-                  background-color: var(--Wkit-base-rad-color);
-                  color: var(--wkit-text-color-dark);
-           }
-
-           #WkitTopBar.WkitDark.WkitBreezeColors .keiseiRad {
-                  background-color: var(--radical-color);
-                  color: var(--inverted-text-color);
-           }
-
-           #WkitTopBar.WkitDark.WkitColorBlind .keiseiRad {
-                  background-color: var(--radical-color);
-                  color: var(--wkit-text-color-dark);
-           }
-
-           #WkitTopBar.WkitLight .keiseiKan {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                  background-color: var(--Wkit-base-kan-color);
-                  color: var(--wkit-text-color-light);
-           }
-
-           #WkitTopBar.WkitDark.WkitVanillaColors .keiseiKan {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                  background-color: var(--Wkit-base-kan-color);
-                  color: var(--wkit-text-color-dark);
-           }
-
-           #WkitTopBar.WkitDark.WkitBreezeColors .keiseiKan {
-                  background-color: var(--kanji-color);
-                  color: var(--inverted-text-color);
-           }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .keiseiKan {
-                  background-color: var(--kanji-color);
-                  color: var(--wkit-text-color-dark);
-           }
-
-          /* css rules adapted from acm2010 for Keisei Semantic-phonetic composition */
-          /* These rules must be licensed under GPL V3 */
-
-          #WkitTopBar .badge-perfect:before {
-                  content: "天";
-                  background-color: #092;
-          }
-
-          #WkitTopBar .badge-high:before {
-                  content: "上";
-                  background-color: #092;
-          }
-
-          #WkitTopBar .badge-middle:before {
-                  content: "中";
-                  background-color: #f04;
-          }
-
-          #WkitTopBar .badge-low:before {
-                 content: "下";
-                 background-color: #f04;
-          }
-
-          #WkitTopBar .WkitBadge:before {
-                 display:block;
-                 position:absolute;
-                 top:-0.3em;
-                 left:-0.3em;
-                 width:2em;
-                 height:2em;
-                 color:#fff;
-                 font-size:11px;
-                 font-weight:normal;
-                 line-height:2.2em;
-                 text-align: center;
-                 text-shadow:0 2px 0 #99001f;
-                 -webkit-box-shadow:0 -2px 0 rgba(0,0,0,0.2) inset,0 0 10px rgba(255,255,255,0.5);
-                 -moz-box-shadow:0 -2px 0 rgba(0,0,0,0.2) inset,0 0 10px rgba(255,255,255,0.5);
-                 box-shadow:0 -2px 0 rgba(0,0,0,0.2) inset,0 0 10px rgba(255,255,255,0.5);
-                 -webkit-border-radius:50%;
-                 -moz-border-radius:50%;
-                 border-radius:50%;
-                 z-index:50;
-           }
-
-          /* End of css rules adapted from acm2010 for Keisei Semantic-phonetic composition */
-          /* End of rules that must be licensed under GPL V3 */
-
-            /*=== End of Keisei Sematntic-Phonetic Composition ===*/
-
-           /*=== Pitch information ===*/
-
-           #WkitTopBar .WkitTooltipContent .WkitPitchInfoContainer {
-                  display: table;
-                  border-collapse: separate;
-                  border-spacing: 5px;
-           }
-
-           #WkitTopBar .WkitPitchInfo {
-                 display: table-cell;
-                 padding: 5px;
-                 border-radius: 3px;
-           }
-
-           #WkitTopBar.WkitLight .WkitPitchInfo {
-                 background-image: linear-gradient(0deg, #48af1b, #348613);
-                 background-color: #2bef35;
-                 color: var(--wkit-text-color-light);
-           }
-
-           #WkitTopBar.WkitDark.WkitVanillaColors .WkitPitchInfo {
-                 background-image: linear-gradient(0deg, #48af1b, #348613);
-                 background-color: #2bef35;
-                 color: var(--wkit-text-color-dark);
-           }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitPitchInfo {
-                 background-color: #2bef35;
-                 color: var(--inverted-text-color);
-           }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitPitchInfo {
-                 background-color: #2bef35;
-                 color: var(--wkit-text-color-dark);
-           }
-
-           #WkitTopBar .WkitFirstPitchInfo {
-                  text-align: center;
-           }
-
-           #WkitTopBar .WkitPitchInfoReading {
-                  margin-top: 3px;
-                  font-weight: bolder;
-           }
-
-           #WkitTopBar .WkitCharactersPitch {
-                  display: table-cell;
-                  width: 100%;
-                  border-radius: 3px;
-                  vertical-align: middle;
-           }
-
-           #WkitTopBar.WkitLight .WkitCharactersPitch {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1),var(--Wkit-grad-voc-color2));
-                  background-color: var(--Wkit-base-voc-color);
-                  color: var(--wkit-text-color-light);
-           }
-
-           #WkitTopBar.WkitDark.WkitVanillaColors .WkitCharactersPitch {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
-                  background-color: var(--Wkit-base-voc-color);
-                  color: var(--wkit-text-color-dark);
-           }
-
-           #WkitTopBar.WkitDark.WkitBreezeColors .WkitCharactersPitch {
-                  background-color: var(--vocabulary-color);
-                  color: var(--wkit-text-color-dark);
-           }
-
-           #WkitTopBar.WkitDark.WkitColorBlind .WkitCharactersPitch {
-                  background-color: var(--vocabulary-color);
-                  color: var(--inverted-text-color);
-           }
-
-           #WkitTopBar .WkitPitchInfoContainer .WkitCharactersPitch span {
-                  word-break: keep-all;
-                  font-size: 40px;
-                  margin: 0px;
-                  background-color: unset;
-           }
-
-           #WkitTopBar .svgPitchDiagram{ stroke: currentcolor; fill: currentcolor; }
-
-           /*=== End of  Pitch information  ===*/
-
-           /*=== Begin of rendaku information ===*/
-
-           #WkitTopBar .WkitRendakuPopup {
-                 display: none;
-                 visibility: hidden;
-                 white-space: normal;
-                 position: absolute;
-                 left: 10px;
-                 top: 75px;
-                 background-color: var(--wkit-backgound-explain);
-                 border-radius: 5px;
-                 width: calc(100% - 47px);
-                 padding: 8px;
-                 z-index: 100;
-           }
-
-           #WkitTopBar .WkitStrokeOrderHover:not(.WkitCharactersPitch) .WkitRendakuPopup {
-                 top: 58px;
-           }
-
-           #WkitTopBar .WkitPitchInfo .WkitRendakuPopup span,
-           #WkitTopBar .WkitStrokeOrderHover .WkitRendakuPopup span,
-           #WkitTopBar .WkitCharactersPitch .WkitRendakuPopup span {
-                 display: inline;
-                 font-size: 16px;
-                 line-height: 1.2em;
-           }
-
-           #WkitTopBar.WkitLight .WkitPitchInfo .WkitRendakuPopup span,
-           #WkitTopBar.WkitLight .WkitStrokeOrderHover .WkitRendakuPopup span,
-           #WkitTopBar.WkitLight .WkitCharactersPitch .WkitRendakuPopup span {
-                 color: var(--wkit-text-color-light) !important;
-           }
-
-           #WkitTopBar.WkitDark .WkitPitchInfo .WkitRendakuPopup span,
-           #WkitTopBar.WkitDark .WkitStrokeOrderHover .WkitRendakuPopup span,
-           #WkitTopBar.WkitDark .WkitCharactersPitch .WkitRendakuPopup span {
-                 color: var(--wkit-text-color-dark-theme) !important;
-           }
-
-           #WkitTopBar .WkitCharactersPitch:hover .WkitRendakuPopup,
-           #WkitTopBar .WkitStrokeOrderHover:hover .WkitRendakuPopup,
-           #WkitTopBar .WkitPitchInfo:hover .WkitRendakuPopup {
-                 display: block;
-                 visibility: visible;
-           }
-
-           /*=== End of rendaku information ===*/
-
-
-           /*=== Kanji stroke order svg images ===*/
-
-           #WkitTopBar .WkitTooltipContent .WkitStrokeOrderContainer {
-                  display: table;
-                  border-collapse: separate;
-                  border-spacing: 5px;
-           }
-
-           #WkitTopBar .WkitTooltipContent .WkitCharactersStrokeOrder {
-                  display: table-cell;
-                  vertical-align: middle;
-           }
-
-           #WkitTopBar .WkitTooltipContent .WkitCharactersStrokeOrder span {
-                  font-size: 40px;
-                  padding: 13px;
-           }
-
-           #WkitTopBar .WkitTooltipContent .WkitStrokeOrderImage {
-                  display: table-cell;
-                  background-color: #dedede;
-           }
-
-           /*=== End of kanji stroke order svg images ===*/
-
-           /*=== Stroke Order Popups ===*/
-
-           #WkitTopBar .WkitStrokeOrderPopup {
-                 visibility: hidden;
-                 position: absolute;
-                 bottom: 35px;
-                 left: 0px;
-                 width: max-content;
-                 border-style: solid;
-                 border-color: black;
-                 border-width: 10px;
-                 border-radius: 10px;
-                 background-color: black;
-                 z-index: 100;
-           }
-
-           #WkitTopBar .WkitLeftItem .WkitStrokeOrderPopup.kana_vocabulary,
-           #WkitTopBar .WkitLeftItem .WkitStrokeOrderPopup.vocabulary {
-                 left: 0px;
-                 right: unset;
-           }
-
-           #WkitTopBar .WkitCenterItem .WkitStrokeOrderPopup.kana_vocabulary,
-           #WkitTopBar .WkitCenterItem .WkitStrokeOrderPopup.vocabulary {
-                 left: 50%;
-                 right: unset;
-                 transform: translateX(calc(-50% - 10px));
-           }
-
-           #WkitTopBar .WkitRightItem .WkitStrokeOrderPopup.kana_vocabulary,
-           #WkitTopBar .WkitRightItem .WkitStrokeOrderPopup.vocabulary {
-                 right: 0px;
-                 left: unset;
-           }
-
-           #WkitTopBar .WkitTooltip .WkitTooltipContent .WkitStrokeOrderPopup span {
-                 font-family: "KanjiStrokeOrders";
-                 font-size: 160px;
-                 line-height: 1em;
-                 border-radius: 5px;
-                 margin: 0px;
-                 width: max-content;
-                 height: max-content;
-           }
-
-           #WkitTopBar .WkitPitchInfo:hover .WkitStrokeOrderPopup,
-           #WkitTopBar .WkitStrokeOrderHover:hover .WkitStrokeOrderPopup {
-                 visibility: visible;
-                 transition-delay: 0.25s;
-           }
-
-           #WkitTopBar .WkitTooltipContent > .WkitStrokeOrderHover span {
-                 margin: 5px;
-           }
-
-           /*=== End of Stroke Order Popups ===*/
-
-           /* ------------------------------------------------------- */
-           /* End of visual elements in the top of popups */
-
-           /* --------------------------- */
-           /* Mini icons and their popups */
-
-          #WkitTopBar .WkitMiniContainer {
-                  display: block;
-                  position: relative;
-          }
-
-          #WkitTopBar .WkitMiniIcon {
-                  position: relative;
-                  display: inline-block;
-                  font-size: 14px;
-                  vertical-align: middle;
-                  text-align:center;
-                  margin: 2px;
-                  height: fit-content;
-                  width: max-content;
-                  padding: 3px;
-                  border-radius: 3px;
-                  -webkit-text-size-adjust: none;
-                  text-size-adjust: none;
-          }
-
-          #WkitTopBar.WkitLight .WkitMiniIcon.radical,
-          #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.radical {
-                  background: var(--Wkit-base-rad-color);
-          }
-
-          #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.radical,
-          #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.radical {
-                  background: var(--radical-color);
-          }
-
-          #WkitTopBar.WkitLight .WkitMiniIcon.kanji,
-          #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.kanji {
-                  background: var(--Wkit-base-kan-color);
-          }
-
-          #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.kanji,
-          #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.kanji {
-                  background: var(--kanji-color);
-          }
-
-          #WkitTopBar.WkitLight .WkitMiniIcon.vocabulary,
-          #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.vocabulary {
-                  background: var(--Wkit-base-voc-color);
-          }
-
-          #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.vocabulary,
-          #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.vocabulary {
-                  background: var(--vocabulary-color);
-          }
-
-          #WkitTopBar.WkitLight .WkitMiniIcon.trad_rad,
-          #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.trad_rad {
-                  background: var(--Wkit-base-trad-color);
-          }
-
-          #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.trad_rad,
-          #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.trad_rad {
-                  background: var(--Wkit-baseBD-trad-color);
-          }
-
-          #WkitTopBar.WkitLight .WkitMiniIcon.radical a,
-          #WkitTopBar.WkitLight .WkitMiniIcon.kanji a,
-          #WkitTopBar.WkitLight .WkitMiniIcon.vocabulary a,
-          #WkitTopBar.WkitLight .WkitMiniIcon.trad_rad a {
-                color: var(--wkit-text-color-light) !important;
-                text-decoration: none;
-          }
-
-          #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.radical a,
-          #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.kanji a,
-          #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.vocabulary a,
-          #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.trad_rad a {
-                color: var(--wkit-text-color-dark) !important;
-                text-decoration: none;
-          }
-
-          #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.radical a,
-          #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.kanji a,
-          #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.vocabulary a,
-          #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.trad_rad a {
-                color: var(--inverted-text-color) !important;
-                text-decoration: none;
-          }
-
-          #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.radical a,
-          #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.kanji a,
-          #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.vocabulary a,
-          #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.trad_rad a {
-                color: var(--wkit-text-color-dark) !important;
-                text-decoration: none;
-          }
-
-          #WkitTopBar .WkitIconTooltipContent {
-                 height: fit-content;
-                 top: 50%;
-                 right: calc(100% + 5px);
-                 transform: translateY(calc(-50% - 5px));
-          }
-
-          #WkitTopBar .WkitIconTooltipContent span {
-                 margin: 5px;
-          }
-
-          #WkitTopBar .WkitMiniIcon:hover .WkitIconTooltipContent {
-                  visibility: visible;
-                  z-index: 50;
-                  transition-delay: 0.15s;
-          }
-
-          #WkitTopBar .WkitMiniIcon .WkitIconTooltipContent::after {
-                  content: ' ';
-                  position: absolute;
-                  left: 100%;
-                  top: 50%;
-                  border-style: solid;
-                  border-width: 5px;
-                  border-color: transparent transparent transparent #fff;
-          }
-
-          /*=== The popups for the "And More" notice ===*/
-
-          #WkitTopBar .WkitIconWarning {
-                 margin: auto;
-                 font-weight: bold;
-          }
-
-          #WkitTopBar .WkitAndMore {
-                  display: inline-block;
-                  position: relative;
-          }
-
-          #WkitTopBar .WkitAndMorePopup .WkitMiniIcon {
-                  position: unset;
-          }
-
-          #WkitTopBar .WkitAndMorePopup {
-                  display: block;
-                  visibility: hidden;
-                  position: absolute;
-                  right: 20%;
-                  transform: translateY(-50%);
-                  width: 456px;
-                  transition-delay: 0.1s;
-                  z-index: 150;
-          }
-
-          #WkitTopBar .WkitAndMoreInnerIcons {
-                  display: block;
-                  right: 0%;
-                  background-color: #463838;
-                  border-radius: 5px;
-                  padding: 5px;
-                  width: 100%;
-                  height: 100%;
-                  max-height: 189px;
-                  overflow-y: auto;
-          }
-
-          #WkitTopBar .WkitAndMore:hover .WkitAndMorePopup{
-                  visibility: visible;
-          }
-
-          #WkitTopBar .WkitAndMore .WkitAndMorePopup::after {
-                  left: 100%;
-                  top: 50%;
-                  border-color: tranparent #463838 transparent transparent;
-          }
-
-           /* --------------------------- */
-           /* End of mini icons and their popups */
-
-           /* ----------------------------------------------------------------------- */
-           /* Popups for mnemonics, hints, context sentences, notes and user synonyms */
-
-           #WkitTopBar .WkitLabel, {
-                  padding: 4px;
-           }
-
-          #WkitTopBar .WkitMnemonicContainer {
-                  position: relative;
-          }
-
-          #WkitTopBar .WkitMnemonic {
-                  display: inline-block;
-                  background-color: #463838;
-                  border-radius: 3px;
-                  padding: 2px;
-                  margin: 0px 2px;
-          }
-
-          #WkitTopBar .WkitMnemonicPopup {
-                  visibility: hidden;
-                  position: absolute;
-                  bottom: 100%;
-                  left: 0%;
-                  background-color: #5f1616;
-                  border-radius: 5px;
-                  max-height: 205px;
-                  overflow: auto;
-                  padding: 5px 8px;
-                  z-index: 200;
-                  transition-delay: 0.2s;
-          }
-
-          #WkitTopBar .WkitMnemonic:hover .WkitMnemonicPopup {
-                  visibility: visible;
-                  transition-delay: 0.2s;
-          }
-
-          #WkitTopBar .WkitMnemonic .WkitMnemonicPopup:after {
-                  top: 100%;
-                  border-style: solid;
-                  border-width: 3px;
-                  border-color: transparent transparent grey transparent;
-          }
-
-           /* ------------------------------------------------------------------------------ */
-           /* End of popups for mnemonics, hints, context sentences, notes and user synonyms */
-
-           /* ---------------- */
-           /* The kanji picker */
-
-           #wkofs_WkitKanjiPicker {
-                  --Wkit-base-rad-color: #00a1f1;
-                  --Wkit-grad-rad-color1: #0af;
-                  --Wkit-grad-rad-color2: #0093dd;
-                  --Wkit-base-kan-color: #f100a1;
-                  --Wkit-grad-kan-color1: #f0a;
-                  --Wkit-grad-kan-color2: #dd0093;
-                  --Wkit-base-trad-color:  #00a800;
-                  --Wkit-grad-trad-color1: #0eaf0e;
-                  --Wkit-grad-trad-color2: #0d9c0d;
-                  --wkit-text-color-light: white;
-                  --wkit-text-color-dark: black;
-                  --wkit-background-light-theme: #e6e6e6;
-                  --wkit-background-dark-theme: #4e4d4d;
-                  --wkit-selected-light-theme: #000000;
-                  --wkit-unselected-all-themes: #000000;
-                  --wkit-selected-dark-theme: red;
-             }
-
-
-           #wkofs_WkitKanjiPicker .WkitKanjiPicker {
-                  display: inline-block;
-                  height: 100px;
-                  width: 100%;
-                  overflow-y: auto;
-           }
-
-           #wkofs_WkitKanjiPicker.WkitLight .WkitKanjiPicker { background-color:var(--wkit-background-light-theme); }
-           #wkofs_WkitKanjiPicker.WkitDark .WkitKanjiPicker { background-color:var(--wkit-background-dark-theme); }
-
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount {
-                  height: 70px;
-           }
-
-            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked {
-                  height: 90px;
-           }
-
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount {
-                  display: inline-block;
-                  padding: 3px;
-                  border-style: solid;
-                  min-width: 1.5em;
-                  text-align: center;
-                  text-shadow: none;
-                  color: black;
-           }
-
-           #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_strokeCount .WkitStrokeCount { border-color: var(--wkit-selected-light-theme); }
-           #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_strokeCount .WkitStrokeCount { border-color: var(--wkit-selected-dark-theme); }
-
-
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount.WkitSelected {font-weight: bold;background-color: #c1bee2}
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount:not(.WkitSelected) {font-weight: normal; background-color: #dedcf5;}
-
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount:not(.WkitNotPicked) {border-width: 3px; margin: 1px;}
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount.WkitNotPicked {border-width: 1px; margin: 3px;}
-
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking {
-                  display: inline-block;
-                  height: 176px;
-                  width: 100%;
-                  /*background-color: #e6e6e6;*/
-                  overflow-y: auto;
-           }
-
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical {
-                  display: inline-block;
-                  padding: 3px;
-                  line-height: 1.2em;
-                  /*border-color: black;*/
-                  border-style: solid;
-                  min-width: 1.5em;
-                  font-size: 25px;
-                  text-align: center;
-                  text-shadow: none;
-           }
-
-           #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical {color: var(--wkit-text-color-light);}
-           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors #WkitKanjiPicker_picking .WkitPickableRadical {color: var(--wkit-text-color-dark);}
-           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors #WkitKanjiPicker_picking .WkitPickableRadical {color: var(--inverted-text-color);}
-           #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind #WkitKanjiPicker_picking .WkitPickableRadical {color: var(--wkit-text-color-dark);}
-
-           #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani {background-color: var(--Wkit-base-rad-color);}
-           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani {background-color: var(--Wkit-base-rad-color);}
-           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani {background-color: var(--Wkit-base-rad-color);}
-
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitTraditional {background-color: var(--Wkit-base-trad-color);}
-
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical svg {
-                  width: 1em;
-                  fill: none;
-                  stroke: currentColor;
-                  stroke-width: 70;
-                  stroke-linecap: square;
-                  stroke-miterlimit: 2;
-                  vertical-align: middle;
-           }
-
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNotPicked) {border-width: 3px; margin: 1px;}
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitNotPicked {border-width: 1px; margin: 3px;}
-
-           #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNoyPicked) { border-color: var(--wkit-selected-light-theme); }
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitNotPicked { border-color: var(--wkit-unselected-all-themes); }
-           #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNotPicked) { border-color: var(--wkit-selected-dark-theme); }
-
-
-           #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked .WkitKanjiPicked {
-                  display: inline-block;
-                  margin: 3px;
-                  padding: 3px;
-                  line-height: 1.2em;
-                  border-style: solid;
-                  border-width: 1px;
-                  border-color: black;
-                  min-width: 1.5em;
-                  font-size: 25px;
-                  text-align: center;
-                  text-shadow: none;
-           }
-
-           #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picked .WkitKanjiPicked {
-                  background-color: var(--Wkit-base-kan-color);
-                  color: var(--wkit-text-color-light);
-           }
-
-           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors #WkitKanjiPicker_picked .WkitKanjiPicked {
-                  background-color: var(--Wkit-base-kan-color);
-                  color: var(--wkit-text-color-dark);
-           }
-
-           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors #WkitKanjiPicker_picked .WkitKanjiPicked {
-                  background-color: var(--kanji-color);
-                  color: var(-inverted-text-color);
-           }
-
-           #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind #WkitKanjiPicker_picked .WkitKanjiPicked {
-                  background-color: var(--kanji-color);
-                  color: var(--wkit-text-color-dark);
-           }
-
-
-           /* Popups in kanji picker */
-
-          #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickerPopupContent,
-          #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked .WkitPickerPopupContent {
-                 position: absolute;
-                 visibility: hidden;
-                 height: fit-content;
-                 top: 0%;
-                 left: 0%;
-                 font-size: 100%;
-                 width: max-content;
-                 text-align: left;
-                 padding: 2px;
-                 /*transform: translateY(calc(-50% - 5px));*/
-                 transition-property: visibility;
-                 transition-delay: 0.15s;
-                 max-width: 235px;
-                 background-color: #5f1616;
-          }
-
-
-          #wkofs_WkitKanjiPicker .WkitPickerPopupContent span {
-                 margin: 5px;
-          }
-
-          #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical:hover .WkitPickerPopupContent,
-          #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked .WkitKanjiPicked:hover .WkitPickerPopupContent {
-                  visibility: visible;
-                  z-index: 15000;
-                  transition-delay: 0.15s;
-          }
-
-          /* The table in the kanji picker popups */
-
-            #wkofs_WkitKanjiPicker table{
-                  width: 100%;
-                  max-width: 100%;
-                  background-color: transparent;
-                  border-collapse: collapse;
-                  border-spacing: 0;
+            /* Messages from Keisei when not a Semantic-Phonetic Composition */
+
+            #WkitTopBar .WkitTooltipContent .WkitMessageContainer {
+                display: table;
+                border-collapse: separate;
+                border-spacing: 7px;
             }
 
-            #wkofs_WkitKanjiPicker .right table{
-                  width: 100%;
-                  line-height: 1em;
+            #WkitTopBar .WkitKeiseiMsg {
+                padding-right: 5px;
+            }
+
+            #WkitTopBar .keiseiExplanations {
+                display: none;
+                visibility: hidden;
+                white-space: normal;
+                position: absolute;
+                left: 10px;
+                top: 125px;
+                background-color: var(--wkit-backgound-explain);
+                border-radius: 5px;
+                width: calc(100% - 47px);
+                padding: 8px;
+                z-index: 100;
+            }
+
+            #WkitTopBar .WkitVisualDataContainer .keiseiExplanations span,
+            #WkitTopBar .WkitVisualDataContainer .keiseiExplanations p {
+                display: inline;
+                font-size: 16px;
+                line-height: 1.2em;
+            }
+
+            #WkitTopBar.WkitLight .WkitVisualDataContainer .keiseiExplanations span,
+            #WkitTopBar.WkitLight .WkitVisualDataContainer .keiseiExplanations p {
+                color: var(--wkit-text-color-light) !important;
+            }
+
+            #WkitTopBar.WkitDark .WkitVisualDataContainer .keiseiExplanations span,
+            #WkitTopBar.WkitDark .WkitVisualDataContainer .keiseiExplanations p {
+                color: var(--wkit-text-color-dark-theme) !important;
+            }
+
+            #WkitTopBar .WkitBaseData:hover .keiseiExplanations,
+            #WkitTopBar .WkitCompoundData:hover .keiseiExplanations {
+                display: block;
+                visibility: visible;
+            }
+
+            #WkitTopBar .WkitCompoundData .keiseiText,
+            #WkitTopBar .WkitItemForKeisei .keiseiText,
+            #WkitTopBar .WkitBaseData .keiseiText {
+                line-height: 14px;
+                font-size: 14px;
+                margin: 0px;
+                padding: 2px;
+            }
+
+            #WkitTopBar .keiseiItem {
+                display: inline-block;
+                position: relative;
+                border-radius: 3px;
+                min-width: 65px;
+                margin: 0px 2px 0px 2px;
+                padding: 0px 2px 3px 2px;
+            }
+
+            /* margin to clear the room made for the scrollbar, but not on the top series */
+            #WkitTopBar .WkitBaseDataList ~ .WkitBaseDataList .keiseiItem {
+                margin-top: 17px;
+            }
+
+            #WkitTopBar .WkitCompoundData .keiseiLarge,
+            #WkitTopBar .WkitItemForKeisei .keiseiLarge,
+            #WkitTopBar .WkitBaseData .keiseiLarge {
+                font-size: 25px;
+                line-height: 25px;
+                padding: 5px 0px 0px 0px;
+                margin: 0px;
+            }
+
+            #WkitTopBar.WkitLight .keiseiPhon {
+                background-image: linear-gradient(0deg, #48af1b, #348613);
+                background-color: #2bef35;
+                color: var(--wkit-text-color-light);
+            }
+
+            #WkitTopBar.WkitDark.WkitVanillaColors .keiseiPhon {
+                background-image: linear-gradient(0deg, #48af1b, #348613);
+                background-color: #2bef35;
+                color: var(--wkit-text-color-dark);
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .keiseiPhon {
+                background-color: #2bef35;
+                color: var(--inverted-text-color);
+            }
+
+            #WkitTopBar.WkitDark.WkitColorblind .keiseiPhon {
+                background-color: #2bef35;
+                color: var(--wkit-text-color-dark);
+            }
+
+            #WkitTopBar.WkitLight .keiseiNonPhon {
+                background-image: linear-gradient(0deg, #f51212, #d41010);
+                background-color: #d6171b;
+                color: var(--wkit-text-color-light);
+            }
+
+            #WkitTopBar.WkitDark.WkitVanillaColors .keiseiNonPhon {
+                background-image: linear-gradient(0deg, #f51212, #d41010);
+                background-color: #d6171b;
+                color: var(--wkit-text-color-dark);
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .keiseiNonPhon {
+                background-color: #ff4d4f;
+                color: var(--inverted-text-color);
+            }
+
+            #WkitTopBar.WkitDark.WkitColorBlind .keiseiNonPhon {
+                background-color: #ff4d4f;
+                color: var(--wkit-text-color-dark);
+            }
+
+            #WkitTopBar.WkitLight .keiseiRad {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+                background-color: var(--color-radical);
+                color: var(--wkit-text-color-light);
+            }
+
+            #WkitTopBar.WkitDark.WkitVanillaColors .keiseiRad {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+                background-color: var(--color-radical);
+                color: var(--wkit-text-color-dark);
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .keiseiRad {
+                background-color: var(--radical-color);
+                color: var(--inverted-text-color);
+            }
+
+            #WkitTopBar.WkitDark.WkitColorBlind .keiseiRad {
+                background-color: var(--radical-color);
+                color: var(--wkit-text-color-dark);
+            }
+
+            #WkitTopBar.WkitLight .keiseiKan {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
+                background-color: var(--color-kanji);
+                color: var(--wkit-text-color-light);
+            }
+
+            #WkitTopBar.WkitDark.WkitVanillaColors .keiseiKan {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
+                background-color: var(--color-kanji);
+                color: var(--wkit-text-color-dark);
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .keiseiKan {
+                background-color: var(--kanji-color);
+                color: var(--inverted-text-color);
+            }
+
+            #WkitTopBar.WkitDark.WkitColorBlind .keiseiKan {
+                background-color: var(--kanji-color);
+                color: var(--wkit-text-color-dark);
+            }
+
+            /* css rules adapted from acm2010 for Keisei Semantic-phonetic composition */
+            /* These rules must be licensed under GPL V3 */
+
+            #WkitTopBar .badge-perfect::before {
+                content: "天";
+                background-color: #092;
+            }
+
+            #WkitTopBar .badge-high::before {
+                content: "上";
+                background-color: #092;
+            }
+
+            #WkitTopBar .badge-middle::before {
+                content: "中";
+                background-color: #f04;
+            }
+
+            #WkitTopBar .badge-low::before {
+                content: "下";
+                background-color: #f04;
+            }
+
+            #WkitTopBar .WkitBadge::before {
+                display: block;
+                position: absolute;
+                top: -0.3em;
+                left: -0.3em;
+                width: 2em;
+                height: 2em;
+                color: #fff;
+                font-size: 11px;
+                font-weight: normal;
+                line-height: 2.2em;
+                text-align: center;
+                text-shadow:0 2px 0 #99001f;
+                -webkit-box-shadow: 0 -2px 0 rgba(0,0,0,0.2) inset, 0 0 10px rgba(255,255,255,0.5);
+                -moz-box-shadow: 0 -2px 0 rgba(0,0,0,0.2) inset, 0 0 10px rgba(255,255,255,0.5);
+                box-shadow: 0 -2px 0 rgba(0,0,0,0.2) inset, 0 0 10px rgba(255,255,255,0.5);
+                -webkit-border-radius: 50%;
+                -moz-border-radius: 50%;
+                border-radius: 50%;
+                z-index: 50;
+            }
+
+            /* End of css rules adapted from acm2010 for Keisei Semantic-phonetic composition */
+            /* End of rules that must be licensed under GPL V3 */
+
+            /*=== End of Keisei Semantic-Phonetic Composition ===*/
+
+            /*=== Pitch information ===*/
+
+            #WkitTopBar .WkitTooltipContent .WkitPitchInfoContainer {
+                display: table;
+                border-collapse: separate;
+                border-spacing: 5px;
+            }
+
+            #WkitTopBar .WkitPitchInfo {
+                display: table-cell;
+                padding: 5px;
+                border-radius: 3px;
+            }
+
+            #WkitTopBar.WkitLight .WkitPitchInfo {
+                background-image: linear-gradient(0deg, #48af1b, #348613);
+                background-color: #2bef35;
+                color: var(--wkit-text-color-light);
+            }
+
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitPitchInfo {
+                background-image: linear-gradient(0deg, #48af1b, #348613);
+                background-color: #2bef35;
+                color: var(--wkit-text-color-dark);
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitPitchInfo {
+                background-color: #2bef35;
+                color: var(--inverted-text-color);
+            }
+
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitPitchInfo {
+                background-color: #2bef35;
+                color: var(--wkit-text-color-dark);
+            }
+
+            #WkitTopBar .WkitFirstPitchInfo {
+                text-align: center;
+            }
+
+            #WkitTopBar .WkitPitchInfoReading {
+                margin-top: 3px;
+                font-weight: bolder;
+            }
+
+            #WkitTopBar .WkitCharactersPitch {
+                display: table-cell;
+                width: 100%;
+                border-radius: 3px;
+                vertical-align: middle;
+            }
+
+            #WkitTopBar.WkitLight .WkitCharactersPitch {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1),var(--Wkit-grad-voc-color2));
+                background-color: var(--color-vocabulary);
+                color: var(--wkit-text-color-light);
+            }
+
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitCharactersPitch {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
+                background-color: var(--color-vocabulary);
+                color: var(--wkit-text-color-dark);
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitCharactersPitch {
+                background-color: var(--vocabulary-color);
+                color: var(--inverted-text-color);
+            }
+
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitCharactersPitch {
+                background-color: var(--vocabulary-color);
+                color: var(--inverted-text-color);
+            }
+
+            #WkitTopBar .WkitPitchInfoContainer .WkitCharactersPitch span {
+                word-break: keep-all;
+                font-size: 40px;
+                margin: 0px;
+                background-color: unset;
+            }
+
+            #WkitTopBar .svgPitchDiagram { stroke: currentcolor; fill: currentcolor; }
+
+            /*=== End of Pitch information ===*/
+
+            /*=== Beginning of rendaku information ===*/
+
+            #WkitTopBar .WkitRendakuPopup {
+                display: none;
+                visibility: hidden;
+                white-space: normal;
+                position: absolute;
+                left: 10px;
+                top: 75px;
+                background-color: var(--wkit-backgound-explain);
+                border-radius: 5px;
+                width: calc(100% - 47px);
+                padding: 8px;
+                z-index: 100;
+            }
+
+            #WkitTopBar .WkitStrokeOrderHover:not(.WkitCharactersPitch) .WkitRendakuPopup {
+                top: 58px;
+            }
+
+            #WkitTopBar .WkitPitchInfo .WkitRendakuPopup span,
+            #WkitTopBar .WkitStrokeOrderHover .WkitRendakuPopup span,
+            #WkitTopBar .WkitCharactersPitch .WkitRendakuPopup span {
+                display: inline;
+                font-size: 16px;
+                line-height: 1.2em;
+            }
+
+            #WkitTopBar.WkitLight .WkitPitchInfo .WkitRendakuPopup span,
+            #WkitTopBar.WkitLight .WkitStrokeOrderHover .WkitRendakuPopup span,
+            #WkitTopBar.WkitLight .WkitCharactersPitch .WkitRendakuPopup span {
+                color: var(--wkit-text-color-light) !important;
+            }
+
+            #WkitTopBar.WkitDark .WkitPitchInfo .WkitRendakuPopup span,
+            #WkitTopBar.WkitDark .WkitStrokeOrderHover .WkitRendakuPopup span,
+            #WkitTopBar.WkitDark .WkitCharactersPitch .WkitRendakuPopup span {
+                color: var(--wkit-text-color-dark-theme) !important;
+            }
+
+            #WkitTopBar .WkitCharactersPitch:hover .WkitRendakuPopup,
+            #WkitTopBar .WkitStrokeOrderHover:hover .WkitRendakuPopup,
+            #WkitTopBar .WkitPitchInfo:hover .WkitRendakuPopup {
+                display: block;
+                visibility: visible;
+            }
+
+            /*=== End of rendaku information ===*/
+
+
+            /*=== Kanji stroke order svg images ===*/
+
+            #WkitTopBar .WkitTooltipContent .WkitStrokeOrderContainer {
+                display: table;
+                border-collapse: separate;
+                border-spacing: 5px;
+            }
+
+            #WkitTopBar .WkitTooltipContent .WkitCharactersStrokeOrder {
+                display: table-cell;
+                vertical-align: middle;
+            }
+
+            #WkitTopBar .WkitTooltipContent .WkitCharactersStrokeOrder span {
+                font-size: 40px;
+                padding: 13px;
+            }
+
+            #WkitTopBar .WkitTooltipContent .WkitStrokeOrderImage {
+                display: table-cell;
+                background-color: #dedede;
+            }
+
+            /*=== End of kanji stroke order svg images ===*/
+
+            /*=== Stroke Order Popups ===*/
+
+            #WkitTopBar .WkitStrokeOrderPopup {
+                visibility: hidden;
+                position: absolute;
+                bottom: 35px;
+                left: 0px;
+                width: max-content;
+                border-style: solid;
+                border-color: black;
+                border-width: 10px;
+                border-radius: 10px;
+                background-color: black;
+                z-index: 100;
+            }
+
+            #WkitTopBar .WkitLeftItem .WkitStrokeOrderPopup.kana_vocabulary,
+            #WkitTopBar .WkitLeftItem .WkitStrokeOrderPopup.vocabulary {
+                left: 0px;
+                right: unset;
+            }
+
+            #WkitTopBar .WkitCenterItem .WkitStrokeOrderPopup.kana_vocabulary,
+            #WkitTopBar .WkitCenterItem .WkitStrokeOrderPopup.vocabulary {
+                left: 50%;
+                right: unset;
+                transform: translateX(calc(-50% - 10px));
+            }
+
+            #WkitTopBar .WkitRightItem .WkitStrokeOrderPopup.kana_vocabulary,
+            #WkitTopBar .WkitRightItem .WkitStrokeOrderPopup.vocabulary {
+                right: 0px;
+                left: unset;
+            }
+
+            #WkitTopBar .WkitTooltip .WkitTooltipContent .WkitStrokeOrderPopup span {
+                font-family: "KanjiStrokeOrders";
+                font-size: 160px;
+                line-height: 1em;
+                border-radius: 5px;
+                margin: 0px;
+                width: max-content;
+                height: max-content;
+            }
+
+            #WkitTopBar .WkitPitchInfo:hover .WkitStrokeOrderPopup,
+            #WkitTopBar .WkitStrokeOrderHover:hover .WkitStrokeOrderPopup {
+                visibility: visible;
+                transition-delay: 0.25s;
+            }
+
+            #WkitTopBar .WkitTooltipContent > .WkitStrokeOrderHover span {
+                margin: 5px;
+            }
+
+            /*=== End of Stroke Order Popups ===*/
+
+            /* ------------------------------------------------------- */
+            /* End of visual elements in the top of popups */
+
+            /* --------------------------- */
+            /* Mini icons and their popups */
+
+            #WkitTopBar .WkitMiniContainer {
+                display: block;
+                position: relative;
+            }
+
+            #WkitTopBar .WkitMiniIcon {
+                position: relative;
+                display: inline-block;
+                font-size: 14px;
+                vertical-align: middle;
+                text-align:center;
+                margin: 2px;
+                height: fit-content;
+                width: max-content;
+                padding: 3px;
+                border-radius: 3px;
+                -webkit-text-size-adjust: none;
+                text-size-adjust: none;
+            }
+
+            #WkitTopBar.WkitLight .WkitMiniIcon.radical,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.radical {
+                background: var(--color-radical);
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.radical,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.radical {
+                background: var(--radical-color);
+            }
+
+            #WkitTopBar.WkitLight .WkitMiniIcon.kanji,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.kanji {
+                background: var(--color-kanji);
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.kanji,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.kanji {
+                background: var(--kanji-color);
+            }
+
+            #WkitTopBar.WkitLight .WkitMiniIcon.vocabulary,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.vocabulary {
+                background: var(--color-vocabulary);
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.vocabulary,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.vocabulary {
+                background: var(--vocabulary-color);
+            }
+
+            #WkitTopBar.WkitLight .WkitMiniIcon.trad_rad,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.trad_rad {
+                background: var(--Wkit-base-trad-color);
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.trad_rad,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.trad_rad {
+                background: var(--Wkit-baseBD-trad-color);
+            }
+
+            #WkitTopBar.WkitLight .WkitMiniIcon.radical a,
+            #WkitTopBar.WkitLight .WkitMiniIcon.kanji a,
+            #WkitTopBar.WkitLight .WkitMiniIcon.vocabulary a,
+            #WkitTopBar.WkitLight .WkitMiniIcon.trad_rad a {
+                color: var(--wkit-text-color-light) !important;
+                text-decoration: none;
+            }
+
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.radical a,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.kanji a,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.vocabulary a,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.trad_rad a {
+                color: var(--wkit-text-color-dark) !important;
+                text-decoration: none;
+            }
+
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.radical a,
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.kanji a,
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.vocabulary a,
+            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.trad_rad a {
+                color: var(--inverted-text-color) !important;
+                text-decoration: none;
+            }
+
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.radical a,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.kanji a,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.vocabulary a,
+            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.trad_rad a {
+                color: var(--wkit-text-color-dark) !important;
+                text-decoration: none;
+            }
+
+            #WkitTopBar .WkitIconTooltipContent {
+                height: fit-content;
+                top: 50%;
+                right: calc(100% + 5px);
+                transform: translateY(calc(-50% - 5px));
+            }
+
+            #WkitTopBar .WkitIconTooltipContent span {
+                margin: 5px;
+            }
+
+            #WkitTopBar .WkitMiniIcon:hover .WkitIconTooltipContent {
+                visibility: visible;
+                z-index: 50;
+                transition-delay: 0.15s;
+            }
+
+            #WkitTopBar .WkitMiniIcon .WkitIconTooltipContent::after {
+                content: ' ';
+                position: absolute;
+                left: 100%;
+                top: 50%;
+                border-style: solid;
+                border-width: 5px;
+                border-color: transparent transparent transparent #fff;
+            }
+
+            /*=== The popups for the "And More" notice ===*/
+
+            #WkitTopBar .WkitIconWarning {
+                margin: auto;
+                font-weight: bold;
+            }
+
+            #WkitTopBar .WkitAndMore {
+                display: inline-block;
+                position: relative;
+            }
+
+            #WkitTopBar .WkitAndMorePopup .WkitMiniIcon {
+                position: unset;
+            }
+
+            #WkitTopBar .WkitAndMorePopup {
+                display: block;
+                visibility: hidden;
+                position: absolute;
+                right: 20%;
+                transform: translateY(-50%);
+                width: 456px;
+                transition-delay: 0.1s;
+                z-index: 150;
+            }
+
+            #WkitTopBar .WkitAndMoreInnerIcons {
+                display: block;
+                right: 0%;
+                background-color: #463838;
+                border-radius: 5px;
+                padding: 5px;
+                width: 100%;
+                height: 100%;
+                max-height: 189px;
+                overflow-y: auto;
+            }
+
+            #WkitTopBar .WkitAndMore:hover .WkitAndMorePopup{
+                visibility: visible;
+            }
+
+            #WkitTopBar .WkitAndMore .WkitAndMorePopup::after {
+                left: 100%;
+                top: 50%;
+                border-color: tranparent #463838 transparent transparent;
+            }
+
+            /* --------------------------- */
+            /* End of mini icons and their popups */
+
+            /* ----------------------------------------------------------------------- */
+            /* Popups for mnemonics, hints, context sentences, notes and user synonyms */
+
+            #WkitTopBar .WkitLabel {
+                padding: 4px;
+            }
+
+            #WkitTopBar .WkitMnemonicContainer {
+                position: relative;
+            }
+
+            #WkitTopBar .WkitMnemonic {
+                display: inline-block;
+                background-color: #463838;
+                border-radius: 3px;
+                padding: 2px;
+                margin: 0px 2px;
+            }
+
+            #WkitTopBar .WkitMnemonicPopup {
+                visibility: hidden;
+                position: absolute;
+                bottom: 100%;
+                left: 0%;
+                background-color: #5f1616;
+                border-radius: 5px;
+                max-height: 205px;
+                overflow: auto;
+                padding: 5px 8px;
+                z-index: 200;
+                transition-delay: 0.2s;
+            }
+
+            #WkitTopBar .WkitMnemonic:hover .WkitMnemonicPopup {
+                visibility: visible;
+                transition-delay: 0.2s;
+            }
+
+            #WkitTopBar .WkitMnemonic .WkitMnemonicPopup::after {
+                top: 100%;
+                border-style: solid;
+                border-width: 3px;
+                border-color: transparent transparent grey transparent;
+            }
+
+            /* ------------------------------------------------------------------------------ */
+            /* End of popups for mnemonics, hints, context sentences, notes and user synonyms */
+
+            /* ---------------- */
+            /* The kanji picker */
+
+            #wkofs_WkitKanjiPicker {
+                --Wkit-base-trad-color: #00a800;
+                --Wkit-grad-trad-color1: #0eaf0e;
+                --Wkit-grad-trad-color2: #0d9c0d;
+                --wkit-text-color-light: white;
+                --wkit-text-color-dark: black;
+                --wkit-background-light-theme: #e6e6e6;
+                --wkit-background-dark-theme: #4e4d4d;
+                --wkit-selected-light-theme: #000000;
+                --wkit-unselected-all-themes: #000000;
+                --wkit-selected-dark-theme: red;
+            }
+
+
+            #wkofs_WkitKanjiPicker .WkitKanjiPicker {
+                display: inline-block;
+                height: 100px;
+                width: 100%;
+                overflow-y: auto;
+            }
+
+            #wkofs_WkitKanjiPicker.WkitLight .WkitKanjiPicker { background-color:var(--wkit-background-light-theme); }
+            #wkofs_WkitKanjiPicker.WkitDark .WkitKanjiPicker { background-color:var(--wkit-background-dark-theme); }
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount {
+                height: 70px;
+            }
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked {
+                height: 90px;
+            }
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount {
+                display: inline-block;
+                padding: 3px;
+                border-style: solid;
+                min-width: 1.5em;
+                text-align: center;
+                text-shadow: none;
+                color: black;
+            }
+
+            #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_strokeCount .WkitStrokeCount { border-color: var(--wkit-selected-light-theme); }
+            #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_strokeCount .WkitStrokeCount { border-color: var(--wkit-selected-dark-theme); }
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount.WkitSelected { font-weight: bold; background-color: #c1bee2; }
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount:not(.WkitSelected) { font-weight: normal; background-color: #dedcf5; }
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount:not(.WkitNotPicked) { border-width: 3px; margin: 1px; }
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount.WkitNotPicked { border-width: 1px; margin: 3px; }
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking {
+                display: inline-block;
+                height: 176px;
+                width: 100%;
+                /*background-color: #e6e6e6;*/
+                overflow-y: auto;
+            }
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical {
+                display: inline-block;
+                padding: 3px;
+                line-height: 1.2em;
+                /*border-color: black;*/
+                border-style: solid;
+                min-width: 1.5em;
+                font-size: 25px;
+                text-align: center;
+                text-shadow: none;
+            }
+
+            #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical { color: var(--wkit-text-color-light); }
+            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors #WkitKanjiPicker_picking .WkitPickableRadical { color: var(--wkit-text-color-dark); }
+            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors #WkitKanjiPicker_picking .WkitPickableRadical { color: var(--inverted-text-color); }
+            #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind #WkitKanjiPicker_picking .WkitPickableRadical { color: var(--wkit-text-color-dark); }
+
+            #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani { background-color: var(--color-radical); }
+            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani { background-color: var(--color-radical); }
+            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani { background-color: var(--radical-color); }
+            #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani { background-color: var(--radical-color); }
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitTraditional { background-color: var(--Wkit-base-trad-color); }
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical svg {
+                width: 1em;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 70;
+                stroke-linecap: square;
+                stroke-miterlimit: 2;
+                vertical-align: middle;
+            }
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNotPicked) { border-width: 3px; margin: 1px; }
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitNotPicked { border-width: 1px; margin: 3px; }
+
+            #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNoyPicked) { border-color: var(--wkit-selected-light-theme); }
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitNotPicked { border-color: var(--wkit-unselected-all-themes); }
+            #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNotPicked) { border-color: var(--wkit-selected-dark-theme); }
+
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked .WkitKanjiPicked {
+                display: inline-block;
+                margin: 3px;
+                padding: 3px;
+                line-height: 1.2em;
+                border-style: solid;
+                border-width: 1px;
+                border-color: black;
+                min-width: 1.5em;
+                font-size: 25px;
+                text-align: center;
+                text-shadow: none;
+            }
+
+            #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picked .WkitKanjiPicked {
+                background-color: var(--color-kanji);
+                color: var(--wkit-text-color-light);
+            }
+
+            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors #WkitKanjiPicker_picked .WkitKanjiPicked {
+                background-color: var(--color-kanji);
+                color: var(--wkit-text-color-dark);
+            }
+
+            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors #WkitKanjiPicker_picked .WkitKanjiPicked {
+                background-color: var(--kanji-color);
+                color: var(-inverted-text-color);
+            }
+
+            #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind #WkitKanjiPicker_picked .WkitKanjiPicked {
+                background-color: var(--kanji-color);
+                color: var(--wkit-text-color-dark);
+            }
+
+
+            /* Popups in kanji picker */
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickerPopupContent,
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked .WkitPickerPopupContent {
+                position: absolute;
+                visibility: hidden;
+                height: fit-content;
+                top: 0%;
+                left: 0%;
+                font-size: 100%;
+                width: max-content;
+                text-align: left;
+                padding: 2px;
+                /*transform: translateY(calc(-50% - 5px));*/
+                transition-property: visibility;
+                transition-delay: 0.15s;
+                max-width: 235px;
+                background-color: #5f1616;
+            }
+
+
+            #wkofs_WkitKanjiPicker .WkitPickerPopupContent span {
+                margin: 5px;
+            }
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical:hover .WkitPickerPopupContent,
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked .WkitKanjiPicked:hover .WkitPickerPopupContent {
+                visibility: visible;
+                z-index: 15000;
+                transition-delay: 0.15s;
+            }
+
+            /* The table in the kanji picker popups */
+
+            #wkofs_WkitKanjiPicker table {
+                width: 100%;
+                max-width: 100%;
+                background-color: transparent;
+                border-collapse: collapse;
+                border-spacing: 0;
             }
 
             #wkofs_WkitKanjiPicker .right table {
-                  color: var(--wkit-text-color-light);
-            }
-
-            #wkofs_WkitKanjiPicker .right table{
-                  width: 100%;
-                  line-height: 1em;
-                  border-collapse: collapse !important;
+                width: 100%;
+                line-height: 1em;
+                color: var(--wkit-text-color-light);
+                border-collapse: collapse !important;
             }
 
             #wkofs_WkitKanjiPicker.WkitLight .right table {
-                  color: var(--wkit-text-color-light);
+                color: var(--wkit-text-color-light);
             }
 
             #wkofs_WkitKanjiPicker.WkitDark:not(.WkitBreeze) .right table {
-                  color: var(--wkit-text-color-dark-theme);
+                color: var(--wkit-text-color-dark-theme);
             }
 
             #wkofs_WkitKanjiPicker.WkitDark.WkitBreeze .right table {
-                  color: var(--text-color) !important;
+                color: var(--text-color) !important;
             }
 
             #wkofs_WkitKanjiPicker .WkitPickerPopupContent .left {
-                  float: unset;
-                  width: unset;
-                  margin: unset;
-           }
+                float: unset;
+                width: unset;
+                margin: unset;
+            }
 
-           #wkofs_WkitKanjiPicker .left span {
-                  font-size: 35px;
-                  line-height: 40px;
-                  display: block;
-                  align-items: center;
-                  text-align: center;
-                  border-radius: 3px;
-                  padding: 5px;
-           }
+            #wkofs_WkitKanjiPicker .left span {
+                font-size: 35px;
+                line-height: 40px;
+                display: block;
+                align-items: center;
+                text-align: center;
+                border-radius: 3px;
+                padding: 5px;
+            }
 
-           #wkofs_WkitKanjiPicker.WkitLight .left span.radical,
-           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.radical {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
-                  background-color: var(--Wkit-base-rad-color);
-           }
+            #wkofs_WkitKanjiPicker.WkitLight .left span.radical,
+            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.radical {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+                background-color: var(--color-radical);
+            }
 
-           #wkofs_WkitKanjiPicker.WkitLight .left span.kanji,
-           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.kanji {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                  background-color: var(--Wkit-base-kan-color);
-           }
+            #wkofs_WkitKanjiPicker.WkitLight .left span.kanji,
+            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.kanji {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
+                background-color: var(--color-kanji);
+            }
 
-           #wkofs_WkitKanjiPicker.WkitLight .left span.trad_rad,
-           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.trad_rad {
-                  background-image: linear-gradient(0deg, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
-                  background-color: var(--Wkit-base-trad-color);
-           }
+            #wkofs_WkitKanjiPicker.WkitLight .left span.trad_rad,
+            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.trad_rad {
+                background-image: linear-gradient(0deg, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+                background-color: var(--Wkit-base-trad-color);
+            }
 
-           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span.radical {
-                  background-color: var(--radical-color);
-           }
+            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span.radical {
+                background-color: var(--radical-color);
+            }
 
-           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span.kanji {
-                  background-color: var(--kanji-color);
-           }
+            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span.kanji {
+                background-color: var(--kanji-color);
+            }
 
-           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span.trad_rad {
-                  background-color: var(--Wkit-base-trad-color);
-           }
+            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span.trad_rad {
+                background-color: var(--Wkit-baseBD-trad-color);
+            }
 
-           #wkofs_WkitKanjiPicker.WkitLight .left span {
-                  color: var(--wkit-text-color-light);
-           }
+            #wkofs_WkitKanjiPicker.WkitLight .left span {
+                color: var(--wkit-text-color-light);
+            }
 
-           #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span,
-           #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind .left span {
-                  color: var(--wkit-text-color-dark);
-           }
+            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span,
+            #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind .left span {
+                color: var(--wkit-text-color-dark);
+            }
 
-           #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span {
-                  color: var(--inverted-text-color) !important;
-           }
+            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span {
+                color: var(--inverted-text-color) !important;
+            }
 
-           #wkofs_WkitKanjiPicker .WkitPickerPopupContent .right  {
-                  padding-left: 7px;
-                  padding-right: 7px;
-                  padding-bottom: 7px;
-           }
+            #wkofs_WkitKanjiPicker .WkitPickerPopupContent .right {
+                padding-left: 7px;
+                padding-right: 7px;
+                padding-bottom: 7px;
+            }
 
-           #wkofs_WkitKanjiPicker .right table td:first-child {
-                  padding-right: 10px;
-                  font-weight: bold;
-                  width: max-content;
-           }
+            #wkofs_WkitKanjiPicker .right table td:first-child {
+                padding-right: 10px;
+                font-weight: bold;
+                width: max-content;
+            }
 
             #wkofs_WkitKanjiPicker .right table td {
-                 padding-top: 3px;
-                 padding-bottom: 0px;
-                 margin: 0px;
-                 width: 100%;
-                 font-size: 14px;
-                 line-height: 14px;
-           }
+                padding-top: 3px;
+                padding-bottom: 0px;
+                margin: 0px;
+                width: 100%;
+                font-size: 14px;
+                line-height: 14px;
+            }
 
 
-
-           /* ------------------- */
-           /* End of kanji picker */
+            /* ------------------- */
+            /* End of kanji picker */
 
 
             /* -------------------------------------- */
@@ -2383,7 +2333,7 @@
                 padding-top: 10px;
                 background-color: Azure;
                 border-radius: 8px;
-             }
+            }
 
             /* --------------------------------------------- */
             /* End of utilities that don't fit in a category */
@@ -2921,27 +2871,27 @@
                                                 path:'@tablePresets[@active_ipreset].tooltip2', default:'None',
                                                 content:dataElementContents,
                                                },
-                                     tooltip3: {type:'dropdown',label:'Third Popup Element',hover_tip:'The third line of  data that will be displayed on the popup.',
+                                     tooltip3: {type:'dropdown',label:'Third Popup Element',hover_tip:'The third line of data that will be displayed on the popup.',
                                                 path:'@tablePresets[@active_ipreset].tooltip3', default:'None',
                                                 content:dataElementContents,
                                                },
-                                     tooltip4: {type:'dropdown',label:'Fourth Popup Element',hover_tip:'The fourth line of  data that will be displayed on the popup.',
+                                     tooltip4: {type:'dropdown',label:'Fourth Popup Element',hover_tip:'The fourth line of data that will be displayed on the popup.',
                                                 path:'@tablePresets[@active_ipreset].tooltip4', default:'None',
                                                 content:dataElementContents,
                                                },
-                                     tooltip5: {type:'dropdown',label:'Fifth Popup Element',hover_tip:'The fifth line of  data that will be displayed on the popup.',
+                                     tooltip5: {type:'dropdown',label:'Fifth Popup Element',hover_tip:'The fifth line of data that will be displayed on the popup.',
                                                 path:'@tablePresets[@active_ipreset].tooltip5', default:'None',
                                                 content:dataElementContents,
                                                },
-                                     tooltip6: {type:'dropdown',label:'Sixth Popup Element',hover_tip:'The sixth line of  data that will be displayed on the popup.',
+                                     tooltip6: {type:'dropdown',label:'Sixth Popup Element',hover_tip:'The sixth line of data that will be displayed on the popup.',
                                                 path:'@tablePresets[@active_ipreset].tooltip6', default:'None',
                                                 content:dataElementContents,
                                                },
-                                     tooltip7: {type:'dropdown',label:'Seventh Popup Element',hover_tip:'The seventh line of  data that will be displayed on the popup.',
+                                     tooltip7: {type:'dropdown',label:'Seventh Popup Element',hover_tip:'The seventh line of data that will be displayed on the popup.',
                                                 path:'@tablePresets[@active_ipreset].tooltip7', default:'None',
                                                 content:dataElementContents,
                                                },
-                                     tooltip8: {type:'dropdown',label:'Eight Popup Element',hover_tip:'The eight line of  data that will be displayed on the popup.',
+                                     tooltip8: {type:'dropdown',label:'Eight Popup Element',hover_tip:'The eight line of data that will be displayed on the popup.',
                                                 path:'@tablePresets[@active_ipreset].tooltip8', default:'None',
                                                 content:dataElementContents,
                                                },
@@ -3045,27 +2995,27 @@
                                                 path:'@vpresets[@active_vpreset].vtooltip2', default:'None',
                                                 content:dataElementContents,
                                                },
-                                     vtooltip3: {type:'dropdown',label:'Third Popup Element',hover_tip:'The third line of  data that will be displayed on the popup.',
+                                     vtooltip3: {type:'dropdown',label:'Third Popup Element',hover_tip:'The third line of data that will be displayed on the popup.',
                                                 path:'@vpresets[@active_vpreset].vtooltip3', default:'None',
                                                 content:dataElementContents,
                                                },
-                                     vtooltip4: {type:'dropdown',label:'Fourth Popup Element',hover_tip:'The fourth line of  data that will be displayed on the popup.',
+                                     vtooltip4: {type:'dropdown',label:'Fourth Popup Element',hover_tip:'The fourth line of data that will be displayed on the popup.',
                                                 path:'@vpresets[@active_vpreset].vtooltip4', default:'None',
                                                 content:dataElementContents,
                                                },
-                                     vtooltip5: {type:'dropdown',label:'Fifth Popup Element',hover_tip:'The fifth line of  data that will be displayed on the popup.',
+                                     vtooltip5: {type:'dropdown',label:'Fifth Popup Element',hover_tip:'The fifth line of data that will be displayed on the popup.',
                                                 path:'@vpresets[@active_vpreset].vtooltip5', default:'None',
                                                 content:dataElementContents,
                                                },
-                                     vtooltip6: {type:'dropdown',label:'Sixth Popup Element',hover_tip:'The sixth line of  data that will be displayed on the popup.',
+                                     vtooltip6: {type:'dropdown',label:'Sixth Popup Element',hover_tip:'The sixth line of data that will be displayed on the popup.',
                                                 path:'@vpresets[@active_vpreset].vtooltip6', default:'None',
                                                 content:dataElementContents,
                                                },
-                                     vtooltip7: {type:'dropdown',label:'Seventh Popup Element',hover_tip:'The seventh line of  data that will be displayed on the popup.',
+                                     vtooltip7: {type:'dropdown',label:'Seventh Popup Element',hover_tip:'The seventh line of data that will be displayed on the popup.',
                                                 path:'@vpresets[@active_vpreset].vtooltip7', default:'None',
                                                 content:dataElementContents,
                                                },
-                                     vtooltip8: {type:'dropdown',label:'Eight Popup Element',hover_tip:'The eight line of  data that will be displayed on the popup.',
+                                     vtooltip8: {type:'dropdown',label:'Eight Popup Element',hover_tip:'The eight line of data that will be displayed on the popup.',
                                                 path:'@vpresets[@active_vpreset].vtooltip8', default:'None',
                                                 content:dataElementContents,
                                                },
@@ -4213,7 +4163,7 @@
                 pg_fcontent['grp_'+src_name+'_ffilters'] = {type:'group', label:group_labels.basics.label, content:flt_fcontent};
                 for (var flt_name in src.filters) {
                     var flt = src.filters[flt_name];
-                    if ((flt.no_ui  || flt.type === undefined) && !(flt.item_inspector_only === true) ) continue;  // no_ui or one of Kumirei's typeless filters
+                    if ((flt.no_ui || flt.type === undefined) && !(flt.item_inspector_only === true) ) continue;  // no_ui or one of Kumirei's typeless filters
                     if (typeof wkof.ItemData.registry.sources[src_name].filters[flt_name].main_source !== 'undefined') continue;
                     let fltOrder = flt_ordering[flt_name] || dflt_ordering;
                     fltList.push({name: flt_name, filter: flt, ordering: fltOrder, kind: 'filter'});
@@ -4500,7 +4450,7 @@
     function makeIndexes(items){
          // publish data to advSearchFilters script
         if (typeof advSearchFilters === 'object'){
-            advSearchFilters.allItems =  items;
+            advSearchFilters.allItems = items;
         };
         itemsBySource.wk_items = items;
         subjectIndex = {};
@@ -4587,7 +4537,7 @@
         kanjidic2Data = JSON.parse(string);
          // publish data to advSearchFilters script
         if (typeof advSearchFilters === 'object'){
-            advSearchFilters.kanjidic2Data =  kanjidic2Data;
+            advSearchFilters.kanjidic2Data = kanjidic2Data;
         };
     };
 
@@ -4617,7 +4567,7 @@
         WkStrokeCountData = JSON.parse(string);
         // publish data to advSearchFilters script
         if (typeof advSearchFilters === 'object'){
-            advSearchFilters.WkStrokeCountData =  WkStrokeCountData;
+            advSearchFilters.WkStrokeCountData = WkStrokeCountData;
         };
     };
 
@@ -4653,7 +4603,7 @@
         traditionalRadicalsItems = Object.values(traditionalRadicals);
          // publish data to advSearchFilters script
         if (typeof advSearchFilters === 'object'){
-            advSearchFilters.traditionalRadicals =  traditionalRadicals;
+            advSearchFilters.traditionalRadicals = traditionalRadicals;
         };
         makeRadindexes();
     };
@@ -4941,9 +4891,9 @@
                              'isDate': false, 'isList': false,
                             },
                     'Type': {'exists': ((item) => {return true}),
-                             'sortkey':  ((item) => { return {'radical': 1, 'kanji': 2, 'vocabulary': 3}[item.object]}),
+                             'sortkey': ((item) => { return {'radical': 1, 'kanji': 2, 'vocabulary': 3}[item.object]}),
                              'sortOrder': 'Ascending',
-                             'sortkey2':  ((item) => { return {'radical': 1, 'kanji': 2, 'vocabulary': 3}[item.object]}),
+                             'sortkey2': ((item) => { return {'radical': 1, 'kanji': 2, 'vocabulary': 3}[item.object]}),
                              'sortOrder2': 'Ascending',
                              'title': 'Type',
                              'labelExport': '',
@@ -5215,10 +5165,10 @@
                                               'reportValue': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct + (item.object !== 'radical' ? item.review_statistics.reading_correct : 0) : 'Unavailable')}),
                                               'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString(): 'Unavailable')}),
                                              },
-                    'Percentage_Correct': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label':  '%Total ',
+                    'Percentage_Correct': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': '%Total ',
                                            'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.percentage_correct+'%' : 'Unavailable')}),
                                            'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.percentage_correct+'%' : 'Unavailable')}),
-                                           'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.percentage_correct+'%' : 'Unavailable')}),
+                                           'tooltipEntry': ((item) => {return (item.review_statistics ? item.review_statistics.percentage_correct+'%' : 'Unavailable')}),
                                            'sortkey': ((item) => {return (item.review_statistics ? item.review_statistics.percentage_correct : infinity)}),
                                            'sortOrder': 'Ascending',
                                            'sortkey2': leechScore,
@@ -5236,7 +5186,7 @@
                     'Meaning_Correct': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': '%Meaning ',
                                         'tableEntry': ((item) => {return (item.review_statistics ? MeaningCorrect(item)+'%' : 'Unavailable')}),
                                         'tableEntryMarker': ((item) => {return (item.review_statistics ? MeaningCorrect(item)+'%' : 'Unavailable')}),
-                                        'tooltipEntry':  ((item) => {return (item.review_statistics ? MeaningCorrect(item)+'%' : 'None')}),
+                                        'tooltipEntry': ((item) => {return (item.review_statistics ? MeaningCorrect(item)+'%' : 'None')}),
                                         'sortkey': ((item) => {return (item.review_statistics ? MeaningCorrect(item) : infinity)}),
                                         'sortOrder': 'Ascending',
                                         'sortkey2': leechScore,
@@ -5253,7 +5203,7 @@
                     'Reading_Correct': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'vocabulary'}), 'label': '%Reading ',
                                         'tableEntry': ((item) => {return (item.review_statistics ? ReadingCorrect(item)+'%' : 'Unavailable')}),
                                         'tableEntryMarker': ((item) => {return (item.review_statistics ? ReadingCorrect(item)+'%' : 'Unavailable')}),
-                                        'tooltipEntry':  ((item) => {return (item.review_statistics ? ReadingCorrect(item)+'%' : 'Unavailable')}),
+                                        'tooltipEntry': ((item) => {return (item.review_statistics ? ReadingCorrect(item)+'%' : 'Unavailable')}),
                                         'sortkey': ((item) => {return (item.review_statistics ? ReadingCorrect(item) : infinity)}),
                                         'sortOrder': 'Ascending',
                                         'sortkey2': leechScore,
@@ -5271,7 +5221,7 @@
                     'Percentage_Incorrect': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': '%Inc.&nbsp;Total ',
                                            'tableEntry': ((item) => {return (item.review_statistics ? (100 - item.review_statistics.percentage_correct)+'%' : 'Unavailable')}),
                                            'tableEntryMarker': ((item) => {return (item.review_statistics ? (100 - item.review_statistics.percentage_correct)+'%' : 'Unavailable')}),
-                                           'tooltipEntry':  ((item) => {return (item.review_statistics ? (100 - item.review_statistics.percentage_correct)+'%' : 'Unavailable')}),
+                                           'tooltipEntry': ((item) => {return (item.review_statistics ? (100 - item.review_statistics.percentage_correct)+'%' : 'Unavailable')}),
                                            'sortkey': ((item) => {return (item.review_statistics ? (100 - item.review_statistics.percentage_correct) : infinity)}),
                                            'sortOrder': 'Descending',
                                            'sortkey2': leechScore,
@@ -5289,7 +5239,7 @@
                     'Meaning_Incorrect': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': '%Inc.&nbsp;Meaning ',
                                         'tableEntry': ((item) => {return (item.review_statistics ? (100 - MeaningCorrect(item))+'%' : 'Unavailable')}),
                                         'tableEntryMarker': ((item) => {return (item.review_statistics ? (100 - MeaningCorrect(item))+'%' : 'Unavailable')}),
-                                        'tooltipEntry':  ((item) => {return (item.review_statistics ? (100 - MeaningCorrect(item))+'%' : 'None')}),
+                                        'tooltipEntry': ((item) => {return (item.review_statistics ? (100 - MeaningCorrect(item))+'%' : 'None')}),
                                         'sortkey': ((item) => {return (item.review_statistics ? (100 - MeaningCorrect(item)) : infinity)}),
                                         'sortOrder': 'Descending',
                                         'sortkey2': leechScore,
@@ -5306,7 +5256,7 @@
                     'Reading_Incorrect': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'vocabulary'}), 'label': '%Inc.&nbsp;Reading ',
                                         'tableEntry': ((item) => {return (item.review_statistics ? (100 - ReadingCorrect(item))+'%' : 'Unavailable')}),
                                         'tableEntryMarker': ((item) => {return (item.review_statistics ? (100 - ReadingCorrect(item))+'%' : 'Unavailable')}),
-                                        'tooltipEntry':  ((item) => {return (item.review_statistics ? (100 - ReadingCorrect(item))+'%' : 'Unavailable')}),
+                                        'tooltipEntry': ((item) => {return (item.review_statistics ? (100 - ReadingCorrect(item))+'%' : 'Unavailable')}),
                                         'sortkey': ((item) => {return (item.review_statistics ? (100 - ReadingCorrect(item)) : infinity)}),
                                         'sortOrder': 'Descending',
                                         'sortkey2': leechScore,
@@ -5324,7 +5274,7 @@
                     'Meaning_Incorrect_Answers': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Mg&nbsp;Incor. ',
                                                   'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect : 'Unavailable')}),
                                                   'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect : 'Unavailable')}),
-                                                  'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect : 'Unavailable')}),
+                                                  'tooltipEntry': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect : 'Unavailable')}),
                                                   'sortkey': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_incorrect : infinity)}),
                                                   'sortOrder': 'Descending',
                                                   'sortkey2': leechScore,
@@ -5342,7 +5292,7 @@
                     'Meaning_Correct_Answers': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Mg&nbsp;Cor. ',
                                                 'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'Unavailable')}),
                                                 'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'Unavailable')}),
-                                                'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'Unavailable')}),
+                                                'tooltipEntry': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'Unavailable')}),
                                                 'sortkey': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : infinity)}),
                                                 'sortOrder': 'Ascending',
                                                 'sortkey2': leechScore,
@@ -5360,7 +5310,7 @@
                     'Meaning_Current_Streak': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Mg&nbsp;Cur.&nbsp;Streak ',
                                                'tableEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_current_streak - 1, 0) : 'Unavailable')}),
                                                'tableEntryMarker': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_current_streak - 1, 0) : 'Unavailable')}),
-                                               'tooltipEntry':  ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_current_streak - 1, 0) : 'Unavailable')}),
+                                               'tooltipEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_current_streak - 1, 0) : 'Unavailable')}),
                                                'sortkey': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_current_streak : infinity)}),
                                                'sortOrder': 'Ascending',
                                                'sortkey2': leechScore,
@@ -5378,7 +5328,7 @@
                     'Meaning_Max_Streak': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Mg&nbsp;Max.&nbsp;Streak ',
                                            'tableEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_max_streak - 1, 0) : 'Unavailable')}),
                                            'tableEntryMarker': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_max_streak - 1, 0) : 'Unavailable')}),
-                                           'tooltipEntry':  ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_max_streak - 1, 0) : 'Unavailable')}),
+                                           'tooltipEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.meaning_max_streak - 1, 0) : 'Unavailable')}),
                                            'sortkey': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_max_streak : infinity)}),
                                            'sortOrder': 'Ascending',
                                            'sortkey2': leechScore,
@@ -5396,7 +5346,7 @@
                     'Reading_Incorrect_Answers': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'vocabulary'}), 'label': 'Rg&nbsp;Incor. ',
                                                   'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : 'Unavailable')}),
                                                   'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : 'Unavailable')}),
-                                                  'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : 'Unavailable')}),
+                                                  'tooltipEntry': ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : 'Unavailable')}),
                                                   'sortkey': ((item) => {return (item.review_statistics ? item.review_statistics.reading_incorrect : infinity)}),
                                                   'sortOrder': 'Descending',
                                                   'sortkey2': leechScore,
@@ -5414,7 +5364,7 @@
                     'Reading_Correct_Answers': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'vocabulary'}), 'label': 'Rg&nbsp;Cor. ',
                                                 'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : 'Unavailable')}),
                                                 'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : 'Unavailable')}),
-                                                'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : 'Unavailable')}),
+                                                'tooltipEntry': ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : 'Unavailable')}),
                                                 'sortkey': ((item) => {return (item.review_statistics ? item.review_statistics.reading_correct : infinity)}),
                                                 'sortOrder': 'Ascending',
                                                 'sortkey2': leechScore,
@@ -5432,7 +5382,7 @@
                     'Reading_Current_Streak': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'vocabulary'}), 'label': 'Rg&nbsp;Cur.&nbsp;Streak ',
                                                'tableEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
                                                'tableEntryMarker': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
-                                               'tooltipEntry':  ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
+                                               'tooltipEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
                                                'sortkey': ((item) => {return (item.review_statistics ? item.review_statistics.reading_current_streak : infinity)}),
                                                'sortOrder': 'Ascending',
                                                'sortkey2': leechScore,
@@ -5450,7 +5400,7 @@
                     'Reading_Max_Streak': {'exists': ((item) => {return item.object === 'kanji' || item.object !== 'vocabulary'}), 'label': 'Rg&nbsp;Max.&nbsp;Streak ',
                                            'tableEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
                                            'tableEntryMarker': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
-                                           'tooltipEntry':  ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
+                                           'tooltipEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
                                            'sortkey': ((item) => {return (item.review_statistics ? item.review_statistics.reading_max_streak : infinity)}),
                                            'sortOrder': 'Ascending',
                                            'sortkey2': leechScore,
@@ -5468,7 +5418,7 @@
                     'Minimum_Current_Streak': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Min&nbsp;Cur.&nbsp;Streak ',
                                                'tableEntry': ((item) => {return (item.review_statistics ? Math.max(Math.min(item.review_statistics.reading_current_streak, item.review_statistics.meaning_current_streak) - 1, 0) : 'Unavailable')}),
                                                'tableEntryMarker': ((item) => {return (item.review_statistics ? Math.max(Math.min(item.review_statistics.reading_current_streak, item.review_statistics.meaning_current_streak) - 1, 0) : 'Unavailable')}),
-                                               'tooltipEntry':  ((item) => {return (item.review_statistics ? Math.max(Math.min(item.review_statistics.reading_current_streak, item.review_statistics.meaning_current_streak) - 1, 0) : 'Unavailable')}),
+                                               'tooltipEntry': ((item) => {return (item.review_statistics ? Math.max(Math.min(item.review_statistics.reading_current_streak, item.review_statistics.meaning_current_streak) - 1, 0) : 'Unavailable')}),
                                                'sortkey': ((item) => {return (item.review_statistics ? Math.min(item.review_statistics.reading_current_streak, item.review_statistics.meaning_current_streak) : infinity)}),
                                                'sortOrder': 'Ascending',
                                                'sortkey2': leechScore,
@@ -5486,7 +5436,7 @@
                     'Review_Count': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Nb&nbsp;of&nbsp;Reviews ',
                                               'tableEntry': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'None')}),
                                               'tableEntryMarker': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'None')}),
-                                              'tooltipEntry':  ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'None')}),
+                                              'tooltipEntry': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : 'None')}),
                                               'sortkey': ((item) => {return (item.review_statistics ? item.review_statistics.meaning_correct : infinity)}),
                                               'sortOrder': 'Ascending',
                                               'sortkey2': leechScore,
@@ -5786,7 +5736,7 @@
                       // Miscellaneous item info
 
                     'Part_Of_Speech': {'exists': ((item) => {return item.object === 'vocabulary' || item.object === 'kana_vocabulary'}), 'label': 'Part&nbsp;of&nbsp;Sp.',
-                                       'tooltipEntry':  ((item) => {return item.data.parts_of_speech.join(', ')}),
+                                       'tooltipEntry': ((item) => {return item.data.parts_of_speech.join(', ')}),
                                        'title': 'Part of Speech',
                                        'labelExport': 'Part of Speech: ',
                                        'needQuotes': true,
@@ -5795,10 +5745,10 @@
                                        'isDate': false, 'isList': true,
                                       },
                     'Block_List': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Block&nbsp;List',
-                                   'tooltipEntry':  ((item) => {return makeAuxMeaningList(item.data.auxiliary_meanings, 'blacklist')}),
-                                   'sortkey':  ((item) => {return 0}),
+                                   'tooltipEntry': ((item) => {return makeAuxMeaningList(item.data.auxiliary_meanings, 'blacklist')}),
+                                   'sortkey': ((item) => {return 0}),
                                    'sortOrder': 'Ascending',
-                                   'sortkey2':  ((item) => {return 0}),
+                                   'sortkey2': ((item) => {return 0}),
                                    'sortOrder2': 'Ascending',
                                    'title': 'Block List',
                                    'labelExport': 'Block List: ',
@@ -5808,10 +5758,10 @@
                                    'isDate': false, 'isList': true,
                                   },
                     'Allow_List': {'exists': ((item) => {return item.object !== 'trad_rad'}), 'label': 'Allow&nbsp;List',
-                                   'tooltipEntry':  ((item) => {return makeAuxMeaningList(item.data.auxiliary_meanings, 'whitelist')}),
-                                   'sortkey':  ((item) => {return 0}),
+                                   'tooltipEntry': ((item) => {return makeAuxMeaningList(item.data.auxiliary_meanings, 'whitelist')}),
+                                   'sortkey': ((item) => {return 0}),
                                    'sortOrder': 'Ascending',
-                                   'sortkey2':  ((item) => {return 0}),
+                                   'sortkey2': ((item) => {return 0}),
                                    'sortOrder2': 'Ascending',
                                    'title': 'Allow List',
                                    'labelExport': 'Allow List: ',
@@ -5822,12 +5772,12 @@
                                   },
                     'Joyo': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad' && item.object !== 'kana_vocabulary'}),
                                    'label': 'Joyo',
-                                   'tableEntry':  makeJoyoData || "Unavailable",
-                                   'tableEntryMarker':  makeJoyoData || "Unavailable",
-                                   'tooltipEntry':  makeJoyoData,
-                                   'sortkey':  makeJoyoSortData,
+                                   'tableEntry': makeJoyoData || "Unavailable",
+                                   'tableEntryMarker': makeJoyoData || "Unavailable",
+                                   'tooltipEntry': makeJoyoData,
+                                   'sortkey': makeJoyoSortData,
                                    'sortOrder': 'Ascending',
-                                   'sortkey2':  ((item) => {return item.data.level}),
+                                   'sortkey2': ((item) => {return item.data.level}),
                                    'sortOrder2': 'Ascending',
                                    'title': 'Joyo Grade',
                                    'labelExport': 'Joyo Grade: ',
@@ -5840,12 +5790,12 @@
                                   },
                     'JLPT': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad' && item.object !== 'kana_vocabulary'}),
                                    'label': 'JLPT&nbsp;by&nbsp;kan&nbsp;lvl',
-                                   'tableEntry':  makeJlptData || "Unavailable",
-                                   'tableEntryMarker':  makeJlptData || "Unavailable",
-                                   'tooltipEntry':  makeJlptData,
+                                   'tableEntry': makeJlptData || "Unavailable",
+                                   'tableEntryMarker': makeJlptData || "Unavailable",
+                                   'tooltipEntry': makeJlptData,
                                    'sortkey': makeJlptSortData,
                                    'sortOrder': 'Descending',
-                                   'sortkey2':  ((item) => {return item.data.level}),
+                                   'sortkey2': ((item) => {return item.data.level}),
                                    'sortOrder2': 'Ascending',
                                    'title': 'JLPT (by kan lvl)',
                                    'labelExport': 'JLPT (by kan lvl): ',
@@ -5857,12 +5807,12 @@
                                    'reportString': ((num) => {return (typeof num === 'number' ? 'N' + Math.round(num).toString(): 'Unavailable')}),
                                   },
                     'JLPT_Waller': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad'}), 'label': 'JLPT&nbsp;by&nbsp;voc&nbsp;lvl',
-                                   'tableEntry':  makeJlptWallerData || "Unavailable",
-                                   'tableEntryMarker':  makeJlptWallerData || "Unavailable",
-                                   'tooltipEntry':  makeJlptWallerData,
+                                   'tableEntry': makeJlptWallerData || "Unavailable",
+                                   'tableEntryMarker': makeJlptWallerData || "Unavailable",
+                                   'tooltipEntry': makeJlptWallerData,
                                    'sortkey': makeJlptWallerSortData,
                                    'sortOrder': 'Descending',
-                                   'sortkey2':  ((item) => {return item.data.level}),
+                                   'sortkey2': ((item) => {return item.data.level}),
                                    'sortOrder2': 'Ascending',
                                    'title': 'JLPT (by voc lvl)',
                                    'labelExport': 'JLPT (by voc lvl): ',
@@ -5875,12 +5825,12 @@
                                   },
                     'Frequency': {'exists': ((item) => {return item.object !== 'radical' && item.object !== 'trad_rad' && item.object !== 'kana_vocabulary'}),
                                    'label': 'Frequency',
-                                   'tableEntry':  makeFrequencyData || "Unavailable",
-                                   'tableEntryMarker':  makeFrequencyData || "Unavailable",
-                                   'tooltipEntry':  makeFrequencyData,
+                                   'tableEntry': makeFrequencyData || "Unavailable",
+                                   'tableEntryMarker': makeFrequencyData || "Unavailable",
+                                   'tooltipEntry': makeFrequencyData,
                                    'sortkey': makeFrequencySortData,
                                    'sortOrder': 'Ascending',
-                                   'sortkey2':  ((item) => {return item.data.level}),
+                                   'sortkey2': ((item) => {return item.data.level}),
                                    'sortOrder2': 'Ascending',
                                    'title': 'Frequency',
                                    'labelExport': 'Frequency: ',
@@ -5893,12 +5843,12 @@
                                   },
                     'Stroke_Count': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'radical' || item.object === 'trad_rad'}),
                                      'label': 'Stroke&nbsp;Count',
-                                     'tableEntry':  makeStrokeCountData || "Unavailable",
-                                     'tableEntryMarker':  makeStrokeCountData || "Unavailable",
-                                     'tooltipEntry':  makeStrokeCountData,
+                                     'tableEntry': makeStrokeCountData || "Unavailable",
+                                     'tableEntryMarker': makeStrokeCountData || "Unavailable",
+                                     'tooltipEntry': makeStrokeCountData,
                                      'sortkey': ((item) => ((item.object === 'kanji' || item.object === 'radical' || item.object === 'trad_rad') ? makeStrokeCountData(item) : infinity)),
                                      'sortOrder': 'Ascending',
-                                     'sortkey2':  ((item) => {return item.data.level}),
+                                     'sortkey2': ((item) => {return item.data.level}),
                                      'sortOrder2': 'Ascending',
                                      'title': 'Stroke Count',
                                      'labelExport': 'Stroke Count: ',
@@ -6671,7 +6621,7 @@
                     readings.push('&emsp;'+reading);
                 };
                 let positionInReading = 0;
-                for (let i=0, l=characters.length; i<l;  i++){
+                for (let i=0, l=characters.length; i<l; i++){
                     let character = characters.charAt(i);
                     if (character === '々') {
                         positionInReading += readingLength; // reuse readingLength from previous kanji
@@ -7027,7 +6977,7 @@
                 case 'stroke_dist_db': // has scrores
                     for (let similar of similarData){
                         score = similar.score + source.base_score;
-                        old_score = (similar.kan in similar_kanji ? similar_kanji[similar.kan].score :  0.0);
+                        old_score = (similar.kan in similar_kanji ? similar_kanji[similar.kan].score : 0.0);
                         if ((score > threshold || (score > 0.0 && old_score > 0.0)) && kanjiIndex[similar.kan] !== undefined){
                             similar_kanji[similar.kan] = {kan: similar.kan, score: score};
                         } else if (score < 0) {
@@ -7039,7 +6989,7 @@
                 case 'old_script_db': // no scores
                     score = source.base_score;
                     for (let similar of similarData){
-                        old_score = (similar in similar_kanji ? similar_kanji[similar].score :  0.0);
+                        old_score = (similar in similar_kanji ? similar_kanji[similar].score : 0.0);
                         if (kanjiIndex[similar] !== undefined){
                             similar_kanji[similar] = {kan: similar, score: score};
                         } else if (score < 0) {
@@ -8155,7 +8105,7 @@
         KeiseiDB.prototype.kanji_db = JSON.parse(string);
         // publish data to advSearchFilters script
         if (typeof advSearchFilters === 'object'){
-            advSearchFilters.kanji_db =  KeiseiDB.prototype.kanji_db;
+            advSearchFilters.kanji_db = KeiseiDB.prototype.kanji_db;
         };
     };
 
@@ -8166,7 +8116,7 @@
         KeiseiDB.prototype.phonetic_db = JSON.parse(string);
         // publish data to advSearchFilters script
         if (typeof advSearchFilters === 'object'){
-            advSearchFilters.phonetic_db =  KeiseiDB.prototype.phonetic_db;
+            advSearchFilters.phonetic_db = KeiseiDB.prototype.phonetic_db;
         };
     };
 
@@ -8177,7 +8127,7 @@
         KeiseiDB.prototype.wk_kanji_db = JSON.parse(string);
          // publish data to advSearchFilters script
         if (typeof advSearchFilters === 'object'){
-            advSearchFilters.wk_kanji_db =  KeiseiDB.prototype.wk_kanji_db;
+            advSearchFilters.wk_kanji_db = KeiseiDB.prototype.wk_kanji_db;
         };
    };
 
@@ -8302,7 +8252,7 @@
         result.push('</span>');
         result.push('</div>');
         for (let kanji of keiseiDB.getPNonCompounds(phon)) pushKanjiData({kanji: kanji, badges: ''}, result);
-        return {html: result.join(''), explanation:  WK_Keisei.explanation_non_compound({kan:phon, phon: phon})};
+        return {html: result.join(''), explanation: WK_Keisei.explanation_non_compound({kan:phon, phon: phon})};
 
     };
 
@@ -9652,7 +9602,7 @@
     const notesLabel = {meaning_note: 'Meaning Note', reading_note: 'Reading Note', meaning_synonyms: 'Synonyms', };
     function makePopupNotes(item, element, stringList){
         if (item.object === 'trad_rad') return;
-        if (!item.study_materials || !item.study_materials[element]  || (element === 'meaning_synonyms' && item.study_materials[element].length === 0)) return false;
+        if (!item.study_materials || !item.study_materials[element] || (element === 'meaning_synonyms' && item.study_materials[element].length === 0)) return false;
         stringList.push('<div class="WkitMnemonic">');
         stringList.push('<div class="WkitMnemonicPopup">');
         stringList.push('<p>');
@@ -11840,10 +11790,10 @@
         let html = '<textarea id="'+areaId+'" rows="2"></textarea>';
         let searchTermHovertip = ''+
             'List your search terms separated by commas. Latin, hiragana and kanji accepted\n\n'+
-            '*  selects items where "Search In" information is PRESENT *and* NON EMPTY.\n'+
+            '* selects items where "Search In" information is PRESENT *and* NON EMPTY.\n'+
             '!* selects items where "Search In" information is ABSENT *or* EMPTY.\n\n'+
             'Valid parts of speech are:\n'+
-            'adjective adverb conjunction counter expression godan verb  ichican verb\n'+
+            'adjective adverb conjunction counter expression godan verb ichidan verb\n'+
             'interjection intransitive verb noun numeral prefix pronoun proper noun suffix\n'+
             'transitive verb い adjective な adjective の adjective する verb';
 
@@ -12034,7 +11984,7 @@
             };
 
             if (searchIn.meanings) {
-                if (searchTerm === all)  {reportMatchResult(item, searchTerm, 'meanings'); return true;};
+                if (searchTerm === all) {reportMatchResult(item, searchTerm, 'meanings'); return true;};
                 if (searchTerm !== none) {
                     for (var meaning of item.data.meanings){
                         if (acceptedAnswer && !meaning.accepted_answer) continue;
@@ -12105,7 +12055,7 @@
                     if (searchIn.nanori) reading = 'nanori';
                     if (searchIn.kunyomi) reading = 'kunyomi';
                     if (searchIn.onyomi) reading = 'onyomi';
-                    if (searchTerm === none)  {reportMatchResult(item, searchTerm, reading); return true;};
+                    if (searchTerm === none) {reportMatchResult(item, searchTerm, reading); return true;};
                 };
             };
 
@@ -13329,9 +13279,9 @@
         wkof.Menu.insert_script_link({
             script_id: scriptId,
             name: scriptId,
-            submenu:   'Settings',
-            title:     'Item Inspector',
-            on_click:  open_quiz_settings
+            submenu: 'Settings',
+            title: 'Item Inspector',
+            on_click: open_quiz_settings
         });
     }
 
@@ -13376,7 +13326,7 @@
             '<div id="leech_table">'+waitMessage+'</div>';
 
         if (quiz.settings.position === undefined) {quiz.settings.position = 2};
-        let position = [".progress-and-forecast", '.progress-and-forecast', '.srs-progress',  '.span12 .row', '.span12 .row:last-of-type',][quiz.settings.position];
+        let position = [".progress-and-forecast", '.progress-and-forecast', '.srs-progress', '.span12 .row', '.span12 .row:last-of-type',][quiz.settings.position];
         if (quiz.settings.position == 0){
             $(position).before(sectionContainer);
         } else {
@@ -13625,7 +13575,7 @@
                                   itemList: 'item_list_filter', blockList: 'blacklist_filter', partOfSpeech: 'pos_filter',
                                   joyoJpltFrequency: 'JJFFilters', visSim: 'VSKFilter'};
 
-         return  forceCacheDeleteIfNeeded()
+         return forceCacheDeleteIfNeeded()
                      .then(function(){return loadAllItemsFiltersAndDb()});
 
         // settings defaults are not initialized when loadFilters is called - We need to manually check for undefined
@@ -13763,7 +13713,7 @@
         };
         if ($('#selfstudyquiz_script_link a').length === 0) {
             script_name = 'Wanikani Item Inspector';
-            response = confirm(script_name + ' requires  Self Study Quiz.\nWithout this script the two quiz buttons will not work.\n\n Click "OK" to be forwarded to installation instructions.');
+            response = confirm(script_name + ' requires Self Study Quiz.\nWithout this script the two quiz buttons will not work.\n\n Click "OK" to be forwarded to installation instructions.');
             if (response) {
                 window.location.href = 'https://community.wanikani.com/t/userscript-self-study-quiz/13191';
             };
@@ -13775,7 +13725,7 @@
         //    notAdditionalFilters = true;
         if (!window.wkof.ItemData.registry.sources.wk_items.filters.additionalFilters_leechTraining) {
             script_name = 'Wanikani Item Inspector';
-            response = confirm(script_name + ' requires  WaniKani Open Framework Additional Filters.\nIf you have already installed it please enable the filters in the settings.\n Click "OK" to be forwarded to installation instructions.');
+            response = confirm(script_name + ' requires WaniKani Open Framework Additional Filters.\nIf you have already installed it please enable the filters in the settings.\n Click "OK" to be forwarded to installation instructions.');
             if (response) {
                 window.location.href = 'https://community.wanikani.com/t/userscript-wanikani-open-framework-additional-filters-recent-lessons-leech-training-related-items-and-more/30512';
             };
@@ -13802,7 +13752,7 @@
             for (let val of quiz.settings.vpresets) {
                 if (val.vshowStrokeOrder) console.log("Item Inspector - stroke order set in", val.name);
             };
-            response = confirm(script_name + ' requires  Kanji Stroke Order Font.\nWithout this font the Kanji Stroke Order popups\nwill not show the stroke order.\n\n Click "OK" to be forwarded to installation instructions.');
+            response = confirm(script_name + ' requires Kanji Stroke Order Font.\nWithout this font the Kanji Stroke Order popups\nwill not show the stroke order.\n\n Click "OK" to be forwarded to installation instructions.');
             if (response) {
                 window.location.href = 'https://www.nihilist.org.uk/';
             };
