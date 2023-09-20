@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.24.0
+// @version       1.25.0
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -4529,6 +4529,12 @@
     // SVG images for radicals without characters
     // ----------------------------------------------------------------------
 
+    // TofuguScott wants us to use web components for SVG files with inline styling
+    // He removed the SVG files without styling from the API so they are no longer available
+    // Unfortunately the provided web components breaks the css of item inspector with no hope of finding a fix
+    // I decided to strip the syling from the SVG and use them without styling
+    // This works like a charm
+
     function loadSvgForRadicals(){
         return wkof.file_cache.load(Wkit_SVGforRadicals)
                    .then(function(data){svgForRadicals = data})
@@ -4542,9 +4548,15 @@
             let promiseList = [];
             for (let radical of Object.values(subjectIndexRad)){
                 if (radical.data.characters === null){
-                    let svgForRadicalsFile = radical.data.character_images.find((file) => (file.content_type === 'image/svg+xml' && (!file.metadata.inline_styles))).url;
+                    let svgForRadicalsFile = radical.data.character_images.find((file) => (file.content_type === 'image/svg+xml')).url;
                     promiseList.push(wkof.load_file(svgForRadicalsFile, false)
-                                         .then((function(data){svgForRadicals[radical.id] = data;}))
+                                         .then((function(data){let processed = data
+                                                               processed = processed.replace(/\<defs\>.*\<\/defs\>/, '');
+                                                               processed = processed.replace(/style="(.*?)"/g, '');
+                                                               processed = processed.replace(/class="(.*?)"/g , "");
+                                                               processed = processed.replace(/\<svg/ , '<svg class="radical"');
+                                                               svgForRadicals[radical.id] = processed;
+                                                               console.log('SVG file', data);}))
                                     );
                 };
             };
