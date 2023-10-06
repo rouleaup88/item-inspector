@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.25.0
+// @version       1.25.1
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -4506,7 +4506,8 @@
                                                                processed = processed.replace(/class="(.*?)"/g , "");
                                                                processed = processed.replace(/\<svg/ , '<svg class="radical"');
                                                                svgForRadicals[radical.id] = processed;
-                                                               console.log('SVG file', data);}))
+                                                              }
+                                                ))
                                     );
                 };
             };
