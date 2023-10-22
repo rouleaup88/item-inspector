@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.25.1
+// @version       1.26.0
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -6238,12 +6238,15 @@
     function formatDate(d, is_next_date, show_year){
         var s = '';
         var now = new Date();
+        var YYnow = now.getFullYear(),
+            MMnow = now.getMonth();
         var YY = d.getFullYear(),
             MM = d.getMonth(),
             DD = d.getDate(),
             hh = d.getHours(),
             mm = d.getMinutes(),
             one_day = 24*60*60*1000;
+        var showYear = show_year || YYnow !== YY || Math.abs(MMnow - MM) > 2;
 
         if (is_next_date && d < now) return "Available Now";
         var same_day = ((YY == now.getFullYear()) && (MM == now.getMonth()) && (DD == now.getDate()) ? 1 : 0);
@@ -6252,7 +6255,7 @@
         //    otherwise: "Wed, Apr 15, 8:15pm"
         if (same_day) {
             s += 'Today ';
-        } else if (show_year){
+        } else if (showYear){
             s += d.toISOString().slice(0, 10) + ' ';
         } else {
             s += ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+', '+
@@ -6547,10 +6550,15 @@
                         '猿真似': 'さるまね: 猿: さる: kun, 真: ま: kun, 似: ね: exception',
                         '由緒': 'ゆいしょ, 由: ゆい: on, 緒: しょ: on',
                         '由緒正しい': 'ゆいしょただ, 由: ゆい: on, 緒: しょ:on, 正: ただ: kun',
+                        '上手い': 'うまい: exception',
+                        '立場': 'たちば, たち, exception, ば: kun:',
+                        '一昨年': 'おととし, おと: exception, とし: kun',
+                        '梅雨': 'つゆ: exception',
+                        '炒飯': 'ちゃーはん, ちゃー: exception, はん: on',
                        };
 
     // Readings that may morph into something with a little っ
-    const littleTsu = {'いち': 'いっ', 'いつ': 'いっ', 'うつ': 'うっ', 'えつ': 'えっ', 'あき': 'あっ', 'あつ': 'あっ',
+    const littleTsu = {'いち': 'いっ', 'いつ': 'いっ', 'うつ': 'うっ', 'えつ': 'えっ', 'あき': 'あっ', 'あつ': 'あっ', 'あく': 'あっ',
                        'か': 'かっ',  'かつ': 'かっ', 'かく': 'かっ', 'き': 'きっ', 'きつ': 'きっ', 'けつ': 'けっ', 'こく': 'こっ', 'こつ': 'こっ',
                        'がく': 'がっ', 'げつ': 'げっ','きゃく': 'きゃっ',
                        'さ': 'さっ', 'さく': 'さっ', 'せつ': 'せっ', 'ざつ': 'ざっ', 'ぜつ': 'ぜっ',
@@ -6681,6 +6689,7 @@
 
 
                         };
+                        console.log('reading', characters, kanjiReading, k, kanjiReadings);
                         readings.push(character + ': ' + kanjiReading + ': ' + shortLabel[kanjiReadings[k].type]);
                         positionInReading += readingLength;
                     } else {
