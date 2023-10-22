@@ -6689,7 +6689,7 @@
 
 
                         };
-                        console.log('reading', characters, kanjiReading, k, kanjiReadings);
+                        // console.log('reading', characters, kanjiReading, k, kanjiReadings);
                         readings.push(character + ': ' + kanjiReading + ': ' + shortLabel[kanjiReadings[k].type]);
                         positionInReading += readingLength;
                     } else {
