@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.26.1
+// @version       1.26.2
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -6555,6 +6555,12 @@
                         '一昨年': 'おととし, おと: exception, とし: kun',
                         '梅雨': 'つゆ: exception',
                         '炒飯': 'ちゃーはん, ちゃー: exception, はん: on',
+                        '十分間': 'じゅ: on, ぷん: on, かん: on',
+                        '明後日': 'あさって: exception',
+                        '流石': 'さすが: exception',
+                        '素人': 'しろうと: exception',
+                        '為替': 'かわせ: exception',
+                        '親父': 'おや: kun, じ: exception',
                        };
 
     // Readings that may morph into something with a little っ
