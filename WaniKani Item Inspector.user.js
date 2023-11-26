@@ -223,7 +223,8 @@
         };
     };
 
-    var userstyleItemTextColor = $('.subject-character__characters').css('color'); // If the userstyle changes the text color of items, we detect this and use that color
+	// If the userstyle changes the text color of items without using the provided css variable, we detect this and use that color
+	var userstyleItemTextColor = $('.subject-character__characters').css('color');
     function table_css(){
         var leechTableCss = `
 
@@ -250,7 +251,7 @@
                 --Wkit-grad-trad-color2: #0d9c0d;
                 --wkit-text-color-light: white;
                 --wkit-text-color-dark: black;
-                --wkit-text-color-item: ${userstyleItemTextColor};
+                --wkit-text-color-item: var(--color-character-text, ${userstyleItemTextColor}, ${isDarkTheme() ? 'black' : 'white'});
                 --wkit-text-color-dark-theme: rgb(188, 188, 188);
                 --wkit-kanji-text-color-dark: hsl(0 0% 18% / 1);
                 --wkit-text-sec-color-light: gainsboro;
