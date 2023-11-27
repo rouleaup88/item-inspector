@@ -3,13 +3,15 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.26.3
+// @version       1.26.4
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
 // @run-at        document-end
 // @grant         none
+// @downloadURL https://update.greasyfork.org/scripts/406404/WaniKani%20Item%20Inspector.user.js
+// @updateURL https://update.greasyfork.org/scripts/406404/WaniKani%20Item%20Inspector.meta.js
 // ==/UserScript==
 // @include       https://www.wanikani.com/dashboard
 // @include       https://www.wanikani.com/
@@ -251,7 +253,7 @@
                 --Wkit-grad-trad-color2: #0d9c0d;
                 --wkit-text-color-light: white;
                 --wkit-text-color-dark: black;
-                --wkit-text-color-item: var(--color-character-text, ${userstyleItemTextColor}, ${isDarkTheme() ? 'black' : 'white'});
+                --wkit-text-color-item: var(--color-character-text, ${userstyleItemTextColor}, ${is_dark_theme() ? 'black' : 'white'});
                 --wkit-text-color-dark-theme: rgb(188, 188, 188);
                 --wkit-kanji-text-color-dark: hsl(0 0% 18% / 1);
                 --wkit-text-sec-color-light: gainsboro;
