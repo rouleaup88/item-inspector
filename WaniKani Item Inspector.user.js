@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.26.4
+// @version       1.26.5
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -916,7 +916,7 @@
             #WkitTopBar .WkitItemListed span {
                 border-radius: 5px;
                 line-height: 1em;
-                padding: 6px;
+                padding: 3px;
                 margin: 0;
                 box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
             }
