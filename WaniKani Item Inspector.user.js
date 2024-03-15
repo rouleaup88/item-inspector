@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.26.5
+// @version       1.27.0
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -359,19 +359,23 @@
             #WkitTopBar.WkitDark.WkitBreeze .WkitTitle { color: var(--text-color, --wkit-text-color-dark-theme); }
 
             #WkitTopBar .WkitButton {
-                display: inline;
+                display: inline-block;
                 float: left;
                 vertical-align: middle;
                 border-width: 1px;
                 border-radius: 3px;
                 border-color: #010101; /* original: rgb(118, 118, 118); changed to match dropdowns */
                 text-align: center;
+                font-size: 20px;
                 min-width: 30px;
                 width: max-content;
                 height: 30px;
                 margin: 2px;
                 margin-top: 5px;
                 margin-bottom: 5px;
+                paddding: 0px;
+                padding-inline-end: 1px;
+                padding-inline-start: 1px;
             }
 
             #WkitTopBar.WkitLight .WkitButton:not(.WkitActive) { background-color: #efefef; }
@@ -916,7 +920,7 @@
             #WkitTopBar .WkitItemListed span {
                 border-radius: 5px;
                 line-height: 1em;
-                padding: 3px;
+                padding: 3px 6px;
                 margin: 0;
                 box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
             }
@@ -2326,6 +2330,15 @@
                 stroke-miterlimit: 2;
                 vertical-align: middle;
                 pointer-events: none; /* remove the effect of the title tag within these images */
+            }
+
+            /* SVG images for button icons */
+            #WkitTopBar svg.WkitButtonIcon {
+                width: 1em;
+                height: 1em;
+                fill: currentcolor;
+                stroke: currentColor;
+                vertical-align: middle;
             }
 
             /* Messages showing when data is not displayed */
@@ -4018,6 +4031,7 @@
                               item: {label: 'Items and Information'}, item_trad_rad: {label: 'Items and Information'},
                               item_trad_rad: {label: 'Items and Information'},
                               stats: {label: 'Statistics', section: 'Statistics Filters Are Applicable Only to Wanikani Items',},
+                              debug: {label: 'debugging tool', section: 'Tools to display useful debugging information'},
                               other: {label: 'Uncategorized Filters', section: 'Uncategorised Filters May or May Not Use Traditional Radicals',}};
         const flt_ordering = {item_type: {group: 'basics', order: 10, suborder: 10}, level: {group: 'basics', order: 10, suborder: 20},
                               srs: {group: 'basics', order: 10, suborder: 30},
@@ -4089,6 +4103,7 @@
                               statsFilters_bothCurStrGteq: {group: 'stats', order: 2000, suborder: 250}, statsFilters_bothCurStrLteq: {group: 'stats', order: 2000, suborder: 260},
                               statsFilters_numReviewsLteq: {group: 'stats', order: 2000, suborder: 270}, statsFilters_numReviewsGteq: {group: 'stats', order: 2000, suborder: 280},
 
+                              debugFilters_SvgRadicals: {group: 'debug', order: 2200, suborder: 100},
                              };
         const dflt_ordering = {group: 'other', order: 100000, suborder: 100000};
 
@@ -13212,6 +13227,36 @@
 
 	// END Statistics
 
+    // BEGIN Debug
+
+    function registerDebugFilters(){
+        waitForItemDataRegistry()
+            .then(registerSvgRadicalsFilter)
+            .then(function(){return Promise.resolve()})
+    }
+
+	function registerSvgRadicalsFilter() {
+        var filterNamePrefixDebug = 'debugFilters_';
+        var SvgRadicalsFilterName = filterNamePrefixDebug + 'SvgRadicals';
+        let SvgRadicalsFilterHover_tip = 'If checked selects radical items that have SVG images.\nIf unchecked selects the items that are not radicals with SVG images.';
+
+		wkof.ItemData.registry.sources.wk_items.filters[SvgRadicalsFilterName] = {
+			type: 'checkbox',
+			label: 'Is Radical with SVG',
+			default: true,
+			filter_func: SvgRadicalsFilter,
+			set_options: function(options) { return },
+			hover_tip: SvgRadicalsFilterHover_tip,
+		};
+	}
+
+	function SvgRadicalsFilter(filterValue, item) {
+		return filterValue === (item.object === 'radical'&& item.data.characters === null) ;
+	}
+
+    // END Debug
+
+
     // ===========================================================
     // End of Built-in filters
     //------------------------------------------------------------
@@ -13311,21 +13356,106 @@
         /* build containers for the table elements */
         const helpURL = 'https://community.wanikani.com/t/userscript-wanikani-item-inspector/44564';
         let sectionContainer = '<div id="WkitTopBar" class="WkitTopBar"></div> ';
+        let SVGforButtonIcons = {
+            'cloud' : '<svg viewBox="0 0 512 512" class="WkitButtonIcon" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">'+
+                           '<ellipse cx="251.5" cy="358.5" rx="208.5" ry="63.5"/>'+
+                           '<ellipse cx="253" cy="230" rx="104" ry="92"/>'+
+                           '<ellipse cx="374" cy="280" rx="87" ry="85" transform="matrix(1 0 0 1 0 0)"/>'+
+                           '<ellipse cx="131" cy="275" rx="73" ry="51"/>'+
+                       '</svg>',
+            'desktop' : '<svg viewBox="0 0 512 512" class="WkitButtonIcon" xmlns="http://www.w3.org/2000/svg">'+
+                              '<rect fill-opacity="0.02" height="175" stroke-linejoin="bevel" stroke-width="23" transform="matrix(1 0 0 1 0 0)" width="351" x="85" y="111"/>'+
+                              '<rect height="66" stroke-linejoin="bevel" transform="matrix(1 0 0 1 0 0)" width="109" x="205" y="293"/>'+
+                              '<line fill="none" fill-opacity="0.02" id="svg_8" stroke-linejoin="bevel" stroke-width="29" x1="92" x2="430" y1="261" y2="261"/>'+
+                        '</svg>',
+            'first' : '<svg viewBox="0 0 512 512" class="WkitButtonIcon" xmlns="http://www.w3.org/2000/svg">'+
+                            '<polygon cx="283" cy="151" edge="203.97" orient="x" points="160.8,245 280.1,383.0 280.1,107.0 160.8,245 " shape="regularPoly" sides="3" stroke-width="25" transform="matrix(1 0 0 1 0 0)"/>'+
+                            '<polygon cx="283" cy="151" edge="203.97" orient="x" points="306.9,245.0 410.2,380.0 410.2,110.0 306.8,245.0 " shape="regularPoly" sides="3" stroke-width="25"/>'+
+                            '<line fill="none" stroke-width="39" x1="124" x2="124" y1="88" y2="417"/>'+
+                      '</svg>',
+            'fork' : '<svg viewBox="0 0 512 512" class="WkitButtonIcon" xmlns="http://www.w3.org/2000/svg">'+
+                           '<line fill="none" fill-opacity="0.01" id="svg_1" stroke-width="30" x1="167" x2="167" y1="140" y2="375"/>'+
+                           '<path d="m165,328c57,-31 104,-66 104,-66c0,0 50,-45 50,-45c0,0 31,-44 31,-44" fill="#000000" fill-opacity="0.01" id="svg_2" stroke-width="30"/>'+
+                           '<ellipse cx="165" cy="103" fill="#000000" fill-opacity="0.01" id="svg_3" rx="39" ry="39" stroke-width="20"/>'+
+                           '<ellipse cx="368" cy="137" fill="#000000" fill-opacity="0.01" id="svg_4" rx="39" ry="39" stroke-width="20"/>'+
+                           '<ellipse cx="168" cy="406" fill="#000000" fill-opacity="0.01" id="svg_5" rx="39" ry="39" stroke-width="20"/>'+
+                      '</svg>',
+            'gear' : '<svg viewBox="0 0 512 512" class="WkitButtonIcon" xmlns="http://www.w3.org/2000/svg">'+
+                           '<rect fill="#000000" height="60" width="51" x="224" y="77"/>'+
+                           '<rect fill="#000000" height="60" transform="matrix(1 0 0 1 0 0)" width="51" x="227" y="380"/>'+
+                           '<rect fill="#000000" height="60" transform="matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="377" y="225"/>'+
+                           '<rect fill="#000000" height="60" transform="matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="384" y="527.92"/>'+
+                           '<rect fill="#000000" height="60" transform="rotate(44.5019 145.5 150) matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="277.11" y="484.03"/>'+
+                           '<rect fill="#000000" height="60" transform="rotate(44.5019 358.501 367) matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="489.85" y="266.77"/>'+
+                           '<rect fill="#000000" height="60" transform="matrix(1 0 0 1 0 0) rotate(-38.9673 363.5 158) matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="280.79" y="265.91"/>'+
+                           '<rect fill="#000000" height="60" transform="matrix(0.61336 0.789803 -0.789803 0.61336 229.775 -358.965)" width="51" x="491.36" y="483.16"/>'+
+                           '<ellipse cx="250" cy="256.5" fill="none" rx="94" ry="92.5" stroke-width="71"/>'+
+                       '</svg>',
+            'last' : '<svg viewBox="0 0 512 512" class="WkitButtonIcon" xmlns="http://www.w3.org/2000/svg">'+
+                          '<polygon cx="283" cy="151" edge="203.97" orient="x" points="391.8,240.0 252.1,378.0 252.1,102.0 391.8,240.0 " shape="regularPoly" sides="3" stroke-width="25" transform="matrix(1 0 0 1 0 0)"/>'+
+                          '<polygon cx="283" cy="151" edge="203.97" orient="x" points="225.8,237.0 98.2,376.0 98.2,98.0 225.9,237.0 " shape="regularPoly" sides="3" stroke-width="25" transform="matrix(1 0 0 1 0 0)"/>'+
+                          '<line fill="none" stroke-width="39" x1="425" x2="425" y1="78" y2="407"/>'+
+                      '</svg>',
+            'order' : '<svg viewBox="0 0 512 512" class="WkitButtonIcon" xmlns="http://www.w3.org/2000/svg">'+
+                           '<line fill="none" fill-opacity="0.01" stroke-width="60" x1="200" x2="438" y1="314" y2="314"/>'+
+                           '<line fill="none" fill-opacity="0.01" stroke-width="60" transform="matrix(1 0 0 1 0 0)" x1="201" x2="481" y1="422" y2="422"/>'+
+                           '<line fill="none" fill-opacity="0.01" stroke-width="60" transform="matrix(1 0 0 1 0 0)" x1="97" x2="97" y1="74" y2="386"/>'+
+                           '<polygon cx="257" cy="269" edge="14.06" fill="none" orient="x" points="60.5,401.7 34.4,401.6 47.5,389.5 60.5,401.7 " shape="regularPoly" sides="3" stroke-width="60" transform="matrix(1 0 0 1 0 0) matrix(-0.999896 0.0144218 -0.0144218 -0.999896 154.376 814.887)"/>'+
+                           '<line fill="none" fill-opacity="0.01" stroke-width="60" transform="matrix(1 0 0 1 0 0)" x1="202" x2="381" y1="215" y2="215"/>'+
+                           '<line fill="none" fill-opacity="0.01" stroke-width="60" x1="200" x2="323" y1="112" y2="112"/>'+
+                       '</svg>',
+            'random' : '<svg viewBox="0 0 512 512" class="WkitButtonIcon" xmlns="http://www.w3.org/2000/svg">'+
+                             '<line fill="none" fill-opacity="0.01" stroke-width="60" x1="64" x2="446" y1="118" y2="118"/>'+
+                             '<line fill="none" fill-opacity="0.01" stroke-width="60" x1="65" x2="447" y1="401" y2="401"/>'+
+                             '<line fill="none" fill-opacity="0.01" stroke-width="60" transform="matrix(1 0 0 1 0 0)" x1="416" x2="416" y1="98" y2="272"/>'+
+                             '<line fill="none" fill-opacity="0.01" stroke-width="60" x1="95" x2="95" y1="234" y2="412"/>'+
+                             '<polygon cx="257" cy="269" edge="14.06" fill="none" orient="x" points="108.3,254.1 82.2,254 95.3,241.9 108.3,254.1 " shape="regularPoly" sides="3" stroke-width="60"/>'+
+                             '<polygon cx="257" cy="269" edge="14.06" fill="none" orient="x" points="428.3,270.1 402.2,270 415.31,257.9 428.3,270.1 " shape="regularPoly" sides="3" stroke-width="60" transform="rotate(179.174 415.25 264)"/>'+
+                       '</svg>',
+            'table' : '<svg viewBox="0 0 512 512" class="WkitButtonIcon" xmlns="http://www.w3.org/2000/svg">'+
+                            '<rect fill="none" fill-opacity="0.02" height="409" stroke-linejoin="bevel" stroke-width="26" transform="matrix(1 0 0 1 0 0)" width="425" x="45" y="67"/>'+
+                            '<line fill="none" fill-opacity="0.02" stroke-linejoin="bevel" stroke-width="26" x1="57" x2="457" y1="92" y2="92"/>'+
+                            '<rect fill="none" fill-opacity="0.02" height="382" stroke-linejoin="bevel" stroke-width="25" transform="matrix(1 0 0 1 0 0)" width="144" x="188" y="85"/>'+
+                            '<rect fill="none" fill-opacity="0.02" height="121" stroke-linejoin="bevel" stroke-width="25" width="420" x="48" y="228"/>'+
+                            '<line fill="none" fill-opacity="0.02" stroke-linejoin="bevel" stroke-width="25" x1="52" x2="458" y1="113" y2="113"/>'+
+                       '</svg>',
+            'target' : '<svg viewBox="0 0 512 512" class="WkitButtonIcon" xmlns="http://www.w3.org/2000/svg">' +
+                           '<!-- Created with SVG-edit - https://github.com/SVG-Edit/svgedit-->'+
+                           //'<ellipse cx="256" cy="256" fill="#000000" fill-opacity="0.01" rx="200" ry="200" stroke="#000000" stroke-width="50"/>'+
+                           '<ellipse cx="256" cy="256" fill-opacity="0.01" rx="200" ry="200" stroke-width="50"/>'+
+                           //'<ellipse cx="256" cy="256" fill="#000000" fill-opacity="0.01" rx="115" stroke="#000000" stroke-width="50"/>'+
+                           '<ellipse cx="256" cy="256" fill-opacity="0.01" rx="115" stroke-width="50"/>'+
+                           //'<ellipse cx="256" cy="256" fill="#000000" rx="50" stroke="#000000"/>'+
+                           '<ellipse cx="256" cy="256" rx="50"/>'+
+                         '</svg>',
+        };
         let topBlock = '<div id="WkitControlBar" class="WkitControlBar">' +
             '<div class="WkitHeader">' +
             '<div class="WkitControlLeft">'+
-            '<button id="WkitFirstButton" type="button" class="WkitButton WkitButtonleft fa fa-fast-backward"></button>' +
-            '<button id="WkitBackwardButton" type="button" class="WkitButton WkitButtonleft" style="padding-right: 8px; padding-bottom: 3px;">&#9668</button>' +
-            '<button id="WkitForwardButton" type="button" class="WkitButton WkitButtonleft" style="padding-left: 7px; padding-bottom: 3px;">&#9658</button>' +
-            '<button id="WkitLastButton" type="button" class="WkitButton WkitButtonleft fa fa-fast-forward"></button>' +
+            '<button id="WkitFirstButton" type="button" class="WkitButton WkitButtonleft">'+
+                     SVGforButtonIcons.first +
+            '</button>' +
+            '<button id="WkitBackwardButton" type="button" class="WkitButton WkitButtonleft" style="padding-right: 8px; padding-bottom: 3px; font-size:18px">&#9668</button>' +
+            '<button id="WkitForwardButton" type="button" class="WkitButton WkitButtonleft" style="padding-left: 7px; padding-bottom: 3px; font-size:18px">&#9658</button>' +
+            '<button id="WkitLastButton" type="button" class="WkitButton WkitButtonleft">'+
+                     SVGforButtonIcons.last +
+            '</button>' +
             '<select id="WkitTableSelector" class="WkitSelector" title="Choose the table you want to display"></select>'+
-            '<button id="WkitToogleDisplay" type="button" class="WkitButton WkitButtonleft fa fa-bullseye" title="Toggles between Tables and Lists of icons"icon-bullseye></button>' +
+            '<button id="WkitToogleDisplay" type="button" class="WkitButton WkitButtonleft title="Toggles between Tables and Lists of icons">'+
+                     SVGforButtonIcons.target +
+            '</button>' +
             '<button id="WkitToogleLanguage" type="button" class="WkitButton WkitButtonleft" title="Toggles the current page between English and Japanese\nPages other than the current one are unaffected." style="font-size:18px; font-weight: 500;"　lang="JP"></button>' +
             '<button id="WkitToogleAudio" type="button" class="WkitButton WkitButtonleft" title="Turns on/off clicking on vocabulary items to play audio.\nAudio is automalically turned off when you click on a button that may change the screen." style="font-size:15px; font-weight: bold; padding-bottom: 1px"></button>' +
             '<div class="WkitSpacer"><span>x</span></div>'+
-            '<button id="WkitLeechTraining" type="button" class="WkitButton WkitButtonleft fa fa-code-fork" title="Leech Training Emulation.\nPermits quizzes similar to those provided by the Leech Trainer script.\n\nSelects items randomly.\nItems are selected at most once before next review.\nAt most three visually similar items are added with each random item."></button>' +
-            '<button id="WkitRandomSelection" type="button" class="WkitButton WkitButtonleft fa fa-retweet" title="Fill the screen with randomly chosen items.\nPermits to be quized on randomly picked items.\nClick again to return to whole table."></button>' +
-            '<button id="WkitDateOrdering" type="button" class="WkitButton WkitButtonleft fa fa-sort-amount-asc " title="Toggles the ordering of items by date and time.\nEnables navigation over time ranges.\nPermits to be quized on items selected by date.\nClick again to return to whole table,"></button>' +
+            '<button id="WkitLeechTraining" type="button" class="WkitButton WkitButtonleft title="Leech Training Emulation.\nPermits quizzes similar to those provided by the Leech Trainer script.\n\nSelects items randomly.\nItems are selected at most once before next review.\nAt most three visually similar items are added with each random item.">' +
+                     SVGforButtonIcons.fork +
+            '</button>' +
+            '<button id="WkitRandomSelection" type="button" class="WkitButton WkitButtonleft title="Fill the screen with randomly chosen items.\nPermits to be quized on randomly picked items.\nClick again to return to whole table.">' +
+                     SVGforButtonIcons.random +
+            '</button>' +
+            '<button id="WkitDateOrdering" type="button" class="WkitButton WkitButtonleft" title="Toggles the ordering of items by date and time.\nEnables navigation over time ranges.\nPermits to be quized on items selected by date.\nClick again to return to whole table,">' +
+                     SVGforButtonIcons.order +
+            '</button>' +
             '<div class="WkitSpacer"><span>x</span></div>'+
             '<select id="WkitFilterSelector" class="WkitSelector" title="Choose the temporary filter you want to apply"></select>'+
             '<select id="WkitViewSelector" class="WkitSelector" title="Choose the view or report you want to apply"></select>'+
@@ -13333,11 +13463,19 @@
             '<p class="WkitTitle"><b>Wanikani Item Inspector</b></p>' +
             '<div class="WkitControlRight">'+
             '<button id="WkitDocumentation"type="button" class="WkitButton WkitButtonRight" title="Go to Item Inspector Page" style="font-size:22px; font-weight: bold; padding: 4px"><a href="'+helpURL+'" target="_blank">?</a></button>' +
-            '<button id="WkitSettings" type="button" class="WkitButton WkitButtonRight fa fa-gear" title="Settings" style="font-size:20px;"></button>' +
-            '<button id="WkitWordExport" type="button" class="WkitButton WkitButtonRight fa fa-cloud" title="Export items\nSuitable for word clouds."></button>' +
+            '<button id="WkitSettings" type="button" class="WkitButton WkitButtonRight" title="Settings">'+
+                     SVGforButtonIcons.gear +
+            '</button>' +
+            '<button id="WkitWordExport" type="button" class="WkitButton WkitButtonRight" title="Export items\nSuitable for word clouds.">'+
+                     SVGforButtonIcons.cloud +
+            '</button>' +
             '<button id="WkitExport" type="button" class="WkitButton WkitButtonRight" title="Export to format csv.\nSuitable for spreasheet, Anki and Kitsun." style="font-size:20px;">&#8686;</button>' +
-            '<button id="WkitQuizSelection" type="button" class="WkitButton WkitButtonRight fa fa-desktop" title="Quiz on items shown on the screen.\nUse navigation and random selection options\n to control which items are displayed."></button>' +
-            '<button id="WkitQuizTable" type="button" class="WkitButton WkitButtonRight fa fa-table" title="Quizzes on the whole table.\nWhen a random selection is activee quizzes on the selection."></button>' +
+            '<button id="WkitQuizSelection" type="button" class="WkitButton WkitButtonRight" title="Quiz on items shown on the screen.\nUse navigation and random selection options\n to control which items are displayed.">'+
+                     SVGforButtonIcons.desktop +
+            '</button>' +
+            '<button id="WkitQuizTable" type="button" class="WkitButton WkitButtonRight" title="Quizzes on the whole table.\nWhen a random selection is activee quizzes on the selection.">'+
+                     SVGforButtonIcons.table +
+            '</button>' +
             '</div>' +
             '</div>' +
             '</div>' +
@@ -13621,6 +13759,7 @@
             if (settings.optionalFilters === undefined || !settings.optionalFilters.searchFilters) promiseList.push(registerSearchFilters());
             if (settings.optionalFilters === undefined || !settings.optionalFilters.kanjidic2_trad_rad) promiseList.push(registerKanjidic2Filters());
             if (settings.optionalFilters === undefined || !settings.optionalFilters.joyoJpltFrequency) promiseList.push(registerJLPTFilters());
+            promiseList.push(registerDebugFilters());
             promiseList.push(registerItemInspectorFilter());
             promiseList.push(registerKanjiPickerFilters());
 
