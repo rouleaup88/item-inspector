@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.27.0
+// @version       1.27.1
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -13381,14 +13381,14 @@
                            '<ellipse cx="168" cy="406" fill="#000000" fill-opacity="0.01" id="svg_5" rx="39" ry="39" stroke-width="20"/>'+
                       '</svg>',
             'gear' : '<svg viewBox="0 0 512 512" class="WkitButtonIcon" xmlns="http://www.w3.org/2000/svg">'+
-                           '<rect fill="#000000" height="60" width="51" x="224" y="77"/>'+
-                           '<rect fill="#000000" height="60" transform="matrix(1 0 0 1 0 0)" width="51" x="227" y="380"/>'+
-                           '<rect fill="#000000" height="60" transform="matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="377" y="225"/>'+
-                           '<rect fill="#000000" height="60" transform="matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="384" y="527.92"/>'+
-                           '<rect fill="#000000" height="60" transform="rotate(44.5019 145.5 150) matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="277.11" y="484.03"/>'+
-                           '<rect fill="#000000" height="60" transform="rotate(44.5019 358.501 367) matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="489.85" y="266.77"/>'+
-                           '<rect fill="#000000" height="60" transform="matrix(1 0 0 1 0 0) rotate(-38.9673 363.5 158) matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="280.79" y="265.91"/>'+
-                           '<rect fill="#000000" height="60" transform="matrix(0.61336 0.789803 -0.789803 0.61336 229.775 -358.965)" width="51" x="491.36" y="483.16"/>'+
+                           '<rect height="60" width="51" x="224" y="77"/>'+
+                           '<rect height="60" transform="matrix(1 0 0 1 0 0)" width="51" x="227" y="380"/>'+
+                           '<rect height="60" transform="matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="377" y="225"/>'+
+                           '<rect height="60" transform="matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="384" y="527.92"/>'+
+                           '<rect height="60" transform="rotate(44.5019 145.5 150) matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="277.11" y="484.03"/>'+
+                           '<rect height="60" transform="rotate(44.5019 358.501 367) matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="489.85" y="266.77"/>'+
+                           '<rect height="60" transform="matrix(1 0 0 1 0 0) rotate(-38.9673 363.5 158) matrix(-0.0197981 0.999804 -0.999804 -0.0197981 665.419 -142.373)" width="51" x="280.79" y="265.91"/>'+
+                           '<rect height="60" transform="matrix(0.61336 0.789803 -0.789803 0.61336 229.775 -358.965)" width="51" x="491.36" y="483.16"/>'+
                            '<ellipse cx="250" cy="256.5" fill="none" rx="94" ry="92.5" stroke-width="71"/>'+
                        '</svg>',
             'last' : '<svg viewBox="0 0 512 512" class="WkitButtonIcon" xmlns="http://www.w3.org/2000/svg">'+
