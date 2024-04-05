@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.27.1
+// @version       1.27.2
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -9794,13 +9794,13 @@
             if (gender == 'male' || gender == 'random'){
                 let soundUrlmpeg = item.data.pronunciation_audios.find(a=>a.content_type=="audio/mpeg"&&a.metadata.gender==='male');
                 if (soundUrlmpeg != undefined){soundUrlmpeg = soundUrlmpeg.url};
-                let soundUrlogg = item.data.pronunciation_audios.find(a=>a.content_type=="audio/ogg"&&a.metadata.gender==='male');
-                if (soundUrlogg != undefined){soundUrlogg = soundUrlogg.url};
-                if (soundUrlmpeg != undefined && soundUrlogg != undefined){
-                    if(soundUrlogg != undefined) stringList.push('<link ref="prefetch" href="'+soundUrlogg+'">');
+                let soundUrlwebm = item.data.pronunciation_audios.find(a=>a.content_type=="audio/webm"&&a.metadata.gender==='male');
+                if (soundUrlwebm != undefined){soundUrlwebm = soundUrlwebm.url};
+                if (soundUrlmpeg != undefined || soundUrlwebm != undefined){
+                    if(soundUrlwebm != undefined) stringList.push('<link ref="prefetch" href="'+soundUrlwebm+'">');
                     if(soundUrlmpeg != undefined) stringList.push('<link ref="prefetch" href="'+soundUrlmpeg+'">');
                     stringList.push('<audio id="'+audioId+'male">');
-                    if(soundUrlogg != undefined) stringList.push('<source src="'+soundUrlogg+'" type="audio/ogg"></source>');
+                    if(soundUrlwebm != undefined) stringList.push('<source src="'+soundUrlwebm+'" type="audio/webm"></source>');
                     if(soundUrlmpeg != undefined) stringList.push('<source src="'+soundUrlmpeg+'" type="audio/mpeg"></source>');
                     stringList.push('</audio>');
                 }
@@ -9809,13 +9809,13 @@
             if (gender == 'female' || gender == 'random'){
                 let soundUrlmpeg = item.data.pronunciation_audios.find(a=>a.content_type=="audio/mpeg"&&a.metadata.gender==='female');
                 if (soundUrlmpeg != undefined){soundUrlmpeg = soundUrlmpeg.url};
-                let soundUrlogg = item.data.pronunciation_audios.find(a=>a.content_type=="audio/ogg"&&a.metadata.gender==='female');
-                if (soundUrlogg != undefined){soundUrlogg = soundUrlogg.url};
-                if (soundUrlmpeg != undefined && soundUrlogg != undefined){
-                    if(soundUrlogg != undefined) stringList.push('<link ref="prefetch" href="'+soundUrlogg+'">');
+                let soundUrlwebm = item.data.pronunciation_audios.find(a=>a.content_type=="audio/webm"&&a.metadata.gender==='female');
+                if (soundUrlwebm != undefined){soundUrlwebm = soundUrlwebm.url};
+                if (soundUrlmpeg != undefined || soundUrlwebm != undefined){
+                    if(soundUrlwebm != undefined) stringList.push('<link ref="prefetch" href="'+soundUrlwebm+'">');
                     if(soundUrlmpeg != undefined) stringList.push('<link ref="prefetch" href="'+soundUrlmpeg+'">');
                     stringList.push('<audio id="'+audioId+'female">');
-                    if(soundUrlogg != undefined) stringList.push('<source src="'+soundUrlogg+'" type="audio/ogg"></source>');
+                    if(soundUrlwebm != undefined) stringList.push('<source src="'+soundUrlwebm+'" type="audio/webm"></source>');
                     if(soundUrlmpeg != undefined) stringList.push('<source src="'+soundUrlmpeg+'" type="audio/mpeg"></source>');
                     stringList.push('</audio>');
                 }
