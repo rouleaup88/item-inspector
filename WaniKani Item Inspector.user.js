@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.27.2
+// @version       1.28.0
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -13,8 +13,6 @@
 // @downloadURL https://update.greasyfork.org/scripts/406404/WaniKani%20Item%20Inspector.user.js
 // @updateURL https://update.greasyfork.org/scripts/406404/WaniKani%20Item%20Inspector.meta.js
 // ==/UserScript==
-// @include       https://www.wanikani.com/dashboard
-// @include       https://www.wanikani.com/
 
 // ===============================================================
 // Software Licence
@@ -58,6 +56,7 @@
     /* eslint-disable no-return-assign */
     /* eslint-disable no-loop-func */
     /* eslint-disable no-eval */
+    /* eslint-disable dot-notation */
 
 
 (function() {
@@ -226,7 +225,7 @@
     };
 
 	// If the userstyle changes the text color of items without using the provided css variable, we detect this and use that color
-	var userstyleItemTextColor = $('.subject-character__characters').css('color');
+    var userstyleItemTextColor = getComputedStyle(document.querySelector('.subject-character__characters'))['color'];
     function table_css(){
         var leechTableCss = `
 
@@ -397,6 +396,7 @@
 
             #WkitTopBar .WkitSelector {
                 display: inline;
+                font-size: 14px;
                 float: left;
                 vertical-align: middle;
                 margin-right: 3px;
@@ -405,12 +405,15 @@
                 margin-bottom: 5px;
                 border-width: 1px;
                 border-color: Black;
-                width: 181px;
-                background-color: #efefef;
+                border-radius: 3px;
+                width: 160px;
+                height: 31px;
             }
 
-            #WkitTopBar.WkitLight .WkitSelector { color: var(--wkit-text-color-dark); }
+            #WkitTopBar.WkitLight .WkitSelector {background-color: #efefef; color: var(--wkit-text-color-dark); }
             #WkitTopBar.WkitDark .WkitSelector { background-color: var(--wkit-backgound-widgets-dark); color: var(--wkit-text-color-dark-theme); }
+
+            #WkitTopBar #WkitFilterSelector { width: 178px; }
 
             /* ------------------------------ */
             /* End of Control Bar and widgets */
@@ -2349,6 +2352,8 @@
                 padding-top: 10px;
                 background-color: Azure;
                 border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
             }
 
             /* --------------------------------------------- */
@@ -10164,7 +10169,8 @@
     script +=      'document.getElementById(id).play();';
     script += '};';
     script += '</script>';
-    var $script = $(script);
+    var $script = document.createElement('script');
+    $script.textContent = script;
 
     const numberOfTables = 3;
     var itemPer;
@@ -13483,8 +13489,8 @@
             '<div id="leech_table">'+waitMessage+'</div>';
 
         if (quiz.settings.position === undefined) {quiz.settings.position = 2};
-        let position = [".progress-and-forecast", '.progress-and-forecast', '.srs-progress', '.span12 .row', '.span12 .row:last-of-type',][quiz.settings.position];
-        if (quiz.settings.position == 0){
+        let position = ['.dashboard__content', '.srs-progress', '.srs-progress', '.community-banner', '.dashboard__content'][quiz.settings.position];
+        if (quiz.settings.position == 0 || quiz.settings.position == 1 || quiz.settings.position == 3){
             $(position).before(sectionContainer);
         } else {
             $(position).after(sectionContainer);
@@ -13957,14 +13963,14 @@
         };
     };
 
-    wkof.include('ItemData, Menu, Settings');
+    wkof.include('ItemData, Menu, Settings, Jquery');
 
     // parallelism to reduce startup latency, especially if network transfer are involved
     // There is not much to gain because this is mostly disk access on the same disk
     // but every little gain counts.
     Promise.all([loadPrerequisiteScripts(),
                  wkof.ready('Settings').then(function(){return wkof.Settings.load(scriptId)}),
-                 wkof.ready('ItemData, Menu'),
+                 wkof.ready('ItemData, Menu, Jquery'),
                 ])
         .then(loadItemsFiltersAndDb) // must be after prerequisite scripts, ItemData, and loaded settings
         .then(initSequence)
