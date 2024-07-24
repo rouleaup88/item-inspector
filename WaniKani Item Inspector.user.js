@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.28.0
+// @version       1.28.1
 // @match         https://www.wanikani.com/dashboard
 // @match         https://www.wanikani.com/
 // @copyright     2020+, Paul Rouleau
@@ -503,6 +503,16 @@
 
             /* The tables */
 
+            #WkitTopBar .WkitSpan4 {
+                display: inline-block;
+                width: 366px;
+                margin-right: 24px;
+            }
+
+            #WkitTopBar .WkitFirstTable {
+                margin-left: 29px;
+            }
+
             #WkitTopBar .WkitTableList {
                 position: relative;
                 margin: 0 0 30px;
@@ -700,6 +710,7 @@
                 position: relative;
                 display: inline-block;
                 width: 30px;
+                height: 25px;
             }
 
             #WkitTopBar .WkitTooltip2 .WkitEnlargedTooltip {
@@ -10222,15 +10233,22 @@
 
         //Create tables
         if (quiz.settings.audioMode) elemenentsList.push($script);
+        let firstTable = true;
+        let $tableColumn;
         for (var i = 0; i < nrOfTables; i++){
             //In case there are less than the requested amount of items
             if(items.length <= endNumberTable){
                 endNumberTable = items.length;
                 nrOfTables = i - 1;
             };
-            let $tableColumn = $('<div class="span4" style="width=290px;"></div>');
+            if (firstTable) {
+                $tableColumn = $('<div class="WkitSpan4 WkitFirstTable"></div>');
+                firstTable = false;
+            } else {
+                $tableColumn = $('<div class="WkitSpan4"></div>');
+            };
             let $currentElement = $tableColumn;
-            let $tempElement = $('<div class="WkitTableList" style="position: relative;"></div>');
+            let $tempElement = $('<div class="WkitTableList"></div>');
             $currentElement.append($tempElement);
             $currentElement = $tempElement;
             $tempElement = $('<table></table>');
