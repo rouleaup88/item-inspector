@@ -3,9 +3,8 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.28.1
-// @match         https://www.wanikani.com/dashboard
-// @match         https://www.wanikani.com/
+// @version       1.29.0
+// @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
 // @run-at        document-end
@@ -182,9 +181,10 @@
 
     // A mutation observer detects the change of style and set classes accordingly
 
+    var themeWatcher;
     function setThemeWatcher(){
         setThemeClasses(null, null)
-        let themeWatcher = new MutationObserver(setThemeClasses);
+        themeWatcher = new MutationObserver(setThemeClasses);
         themeWatcher.observe($('html')[0], {childList: true, subtree: false, attributes: false, characterData: false});
         themeWatcher.observe($('head')[0], {childList: true, subtree: false, attributes: false, characterData: false});
     };
@@ -197,7 +197,13 @@
 
         let is_dark = is_dark_theme();
         let elem = document.getElementById('WkitTopBar');
-        if (!is_dark){
+        if (elem === null){
+            // Turbo has changed page, the observer must be stopped
+            if (themeWatcher !== null) {
+                themeWatcher.disconnect();
+                themeWatcher = null;
+            };
+        } else if (!is_dark){
             elem.classList.remove('WkitDark', 'WkitAzure', 'WkitBreeze', 'WkitBreezeColors', 'WkitColorBlind');
             elem.classList.add('WkitLight', 'WkitVanillaColors');
         } else {
@@ -224,8 +230,6 @@
         };
     };
 
-	// If the userstyle changes the text color of items without using the provided css variable, we detect this and use that color
-    var userstyleItemTextColor = getComputedStyle(document.querySelector('.subject-character__characters'))['color'];
     function table_css(){
         var leechTableCss = `
 
@@ -252,7 +256,7 @@
                 --Wkit-grad-trad-color2: #0d9c0d;
                 --wkit-text-color-light: white;
                 --wkit-text-color-dark: black;
-                --wkit-text-color-item: var(--color-character-text, ${userstyleItemTextColor}, ${is_dark_theme() ? 'black' : 'white'});
+                --wkit-text-color-item: var(--color-character-text, ${is_dark_theme() ? 'black' : 'white'});
                 --wkit-text-color-dark-theme: rgb(188, 188, 188);
                 --wkit-kanji-text-color-dark: hsl(0 0% 18% / 1);
                 --wkit-text-sec-color-light: gainsboro;
@@ -2365,6 +2369,14 @@
                 border-radius: 8px;
                 font-size: 16px;
                 font-weight: bold;
+            }
+
+            textarea#advSearchFilters_advSearch {
+                width : 100%;
+            }
+
+            textarea#advSearchFilters_relSearch {
+                width : 100%;
             }
 
             /* --------------------------------------------- */
@@ -13925,12 +13937,12 @@
         let tableUseStrokeOrder = quiz.settings.tablePresets.reduce(((acc, val)=>(val.showStrokeOrder || acc)), false);
         let viewUseStrokeOrder = quiz.settings.vpresets.reduce(((acc, val)=>(val.vshowStrokeOrder || acc)), false);
         if ((!doesFontExist('KanjiStrokeOrders')) && (tableUseStrokeOrder || viewUseStrokeOrder)) {
-            console.log ('Item Inspector checking tables');
+            console.log ('Item Inspector - checking tables');
             for (let idx in quiz.settings.tablePresets) {
                 let val = quiz.settings.tablePresets[idx];
                 if (val.showStrokeOrder) console.log("Item Inspector - stroke order set in", quiz.settings.ipresets[idx].name);
             };
-            console.log ('Item Inspector checking views');
+            console.log ('Item Inspector - checking views');
             for (let val of quiz.settings.vpresets) {
                 if (val.vshowStrokeOrder) console.log("Item Inspector - stroke order set in", val.name);
             };
@@ -13957,6 +13969,43 @@
 
     };
 
+    //-----------------------------------------
+    // Turbo event handler
+    //-----------------------------------------
+
+    // Initialize the document with item inspector data
+    function displayItemInspector(){
+        install_menu();
+        insertContainer();
+        setThemeWatcher();
+        eventHandlers();
+        dataReload('table').then(function(){dataReady = true;});
+    };
+
+    // the Turbo event listener
+    //
+    function addTurboEventListener(){
+
+        // turbo:load is the event that is fired only once per load. Othee turbo events such as
+        // turbo:render are fired once for the cache and once for the real page causing problems.
+
+        addEventListener("turbo:load", (e) => {
+
+            // Turbo events are fired too early, leaving work in the event queue
+            // scheduled to be executed after the turbo event lister runs
+
+            setTimeout(delayedExecution, 0); // delay execution to the end of the event queue
+        });
+
+        function delayedExecution(){
+             if (document.querySelector('.dashboard') !== null) {
+                 let elem = document.getElementById('WkitTopBar');
+                 if (elem !== null) elem.remove();
+                 fetch_all_items().then(displayItemInspector); //must fetch items because they may be modified by reviews or lessons in a previous page.
+             };
+        };
+    };
+
     //------------------------------------------
     // Starting the program
     // at the end to ensure the global variables are initialized
@@ -13971,13 +14020,10 @@
             setup_quiz_settings();
             install_css();
             table_css();
-            install_menu();
             initCurrentItem();
             setNumberOfLines();
-            insertContainer();
-            setThemeWatcher();
-            eventHandlers();
-            dataReload('table').then(function(){dataReady = true;})
+            if (document.querySelector('.dashboard') !== null){displayItemInspector();};
+            addTurboEventListener();
         };
     };
 
