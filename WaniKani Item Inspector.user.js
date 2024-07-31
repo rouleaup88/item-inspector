@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.29.0
+// @version       1.29.1
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -13776,7 +13776,7 @@
             let promiseList = [];
             let settings = wkof.settings[scriptId];
 
-            promiseList.push(fetch_all_items());
+            if (document.querySelector('.dashboard') !== null) promiseList.push(fetch_all_items());
             promiseList.push(loadSvgForRadicals());
             promiseList.push(initLastSelectionRecorded());
 
@@ -13932,6 +13932,7 @@
         script_name = 'Wanikani Item Inspector';
 
         check_additional_filters();
+        if (document.querySelector('.dashboard') === null) return;
         check_Self_Study_Quiz();
 
         let tableUseStrokeOrder = quiz.settings.tablePresets.reduce(((acc, val)=>(val.showStrokeOrder || acc)), false);
