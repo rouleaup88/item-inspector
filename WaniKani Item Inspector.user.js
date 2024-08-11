@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.29.1
+// @version       1.29.2
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -687,7 +687,7 @@
 
             #WkitTopBar .WkitTableList .WkitTooltip:hover .WkitTooltipContent {
                 visibility: visible;
-                z-index: 50;
+                z-index: 20000;
                 transition-delay: 0.1s;
             }
 
@@ -728,7 +728,7 @@
                 bottom: 30px;
                 left: 0%;
                 padding: 2px;
-                z-index: 1;
+                z-index: 20001;
             }
 
             #WkitTopBar.WkitLight .WkitTooltip2 .WkitEnlargedTooltip { color: var(--wkit-text-color-light); }
@@ -739,7 +739,7 @@
             #WkitTopBar .WkitTooltip2:hover div.WkitEnlargedTooltip {
                 visibility: visible;
                 display: inline-block;
-                z-index: 50;
+                z-index: 20050;
             }
 
             #WkitTopBar .WkitTooltip2 .WkitEnlargedTooltip::after {
@@ -1038,7 +1038,7 @@
             #WkitTopBar .WkitItemList .WkitTooltip:hover div.WkitTooltipContent {
                 visibility: visible;
                 display: inline-block;
-                z-index: 50;
+                z-index: 20000;
                 transition-delay: 0.5s;
             }
 
@@ -1102,7 +1102,7 @@
                 background-color: black;
                 max-width: 650px;
                 min-width: 350px;
-                z-index: 1;
+                z-index: 20000;
             }
 
             #WkitTopBar .WkitTooltip .WkitIconTooltipContent,
@@ -1124,7 +1124,7 @@
             #WkitTopBar.WkitDark .WkitTooltip .WkitIconTooltipContent,
             #WkitTopBar.WkitDark .WkitTooltip .WkitTooltipContent { color: var(--wkit-text-color-dark-theme); }
 
-            #WkitTopBar .WkitTooltip .WkitIconTooltipContent { max-width: 235px; z-index: 2; }
+            #WkitTopBar .WkitTooltip .WkitIconTooltipContent { max-width: 235px; z-index: 20000; }
             #WkitTopBar.WkitLight .WkitTooltip .WkitIconTooltipContent { background-color: #5f1616; }
             #WkitTopBar.WkitDark .WkitTooltip .WkitIconTooltipContent { background-color: #421010; }
 
@@ -1405,7 +1405,7 @@
                 border-radius: 5px;
                 width: calc(100% - 47px);
                 padding: 8px;
-                z-index: 100;
+                z-index: 20100;
             }
 
             #WkitTopBar .WkitVisualDataContainer .keiseiExplanations span,
@@ -1593,7 +1593,7 @@
                 -webkit-border-radius: 50%;
                 -moz-border-radius: 50%;
                 border-radius: 50%;
-                z-index: 50;
+                z-index: 20050;
             }
 
             /* End of css rules adapted from acm2010 for Keisei Semantic-phonetic composition */
@@ -1699,7 +1699,7 @@
                 border-radius: 5px;
                 width: calc(100% - 47px);
                 padding: 8px;
-                z-index: 100;
+                z-index: 20100;
             }
 
             #WkitTopBar .WkitStrokeOrderHover:not(.WkitCharactersPitch) .WkitRendakuPopup {
@@ -1774,7 +1774,7 @@
                 border-width: 10px;
                 border-radius: 10px;
                 background-color: black;
-                z-index: 100;
+                z-index: 20100;
             }
 
             #WkitTopBar .WkitLeftItem .WkitStrokeOrderPopup.kana_vocabulary,
@@ -1929,7 +1929,7 @@
 
             #WkitTopBar .WkitMiniIcon:hover .WkitIconTooltipContent {
                 visibility: visible;
-                z-index: 50;
+                z-index: 20050;
                 transition-delay: 0.15s;
             }
 
@@ -1967,7 +1967,7 @@
                 transform: translateY(-50%);
                 width: 456px;
                 transition-delay: 0.1s;
-                z-index: 150;
+                z-index: 20150;
             }
 
             #WkitTopBar .WkitAndMoreInnerIcons {
@@ -2024,7 +2024,7 @@
                 max-height: 205px;
                 overflow: auto;
                 padding: 5px 8px;
-                z-index: 200;
+                z-index: 20200;
                 transition-delay: 0.2s;
             }
 
@@ -2210,7 +2210,7 @@
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical:hover .WkitPickerPopupContent,
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked .WkitKanjiPicked:hover .WkitPickerPopupContent {
                 visibility: visible;
-                z-index: 15000;
+                z-index: 25000;
                 transition-delay: 0.15s;
             }
 
