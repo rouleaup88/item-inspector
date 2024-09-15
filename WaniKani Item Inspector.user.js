@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.29.2
+// @version       1.29.7
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -3221,7 +3221,10 @@
                                     warning: {type: 'html', html:'<p>Use only if you are affected by the bugs, otherwise the bug fix may break your Item Inspector. The bug description is in the workaround hover tip.</p>'},
                                     div_ctnts5:{type: 'divider'},
                                     clickTwiceFirefoxMac: {type: 'checkbox', label: 'Random Clicks - Firefox/MacOS', default: false, validate: warnAboutRefresh,
-                                                           hover_tip: 'OS: Mac OS -- Browser: Firefox\nBug: Clicking on temporary filters dropdown\nyields random results. Sometimes the\nclick works, sometimes it doesn\'t.',
+                                                           hover_tip: 'OS: Mac OS -- Browser: Firefox\nBug: Clicking on temporary filters dropdown\nyields random results. Sometimes the\nclick works, sometimes it doesn\'t.\n\nThis workaround has no effect when\nClick Missed - Safari/MacOS is selected',
+                                                          },
+                                    clickMissedSafariMac: {type: 'checkbox', label: 'Click Missed - Safari/MacOS', default: false, validate: warnAboutRefresh,
+                                                           hover_tip: 'OS: Mac OS -- Browser: Safari - Chrome\nBug: Clicking on temporary filters dropdown\ndoesn\'t work. A second click may make it work\nbut only when the work around\nRandom Clicks - Firefox/MacOS\nis selected.\n\nSelecting search filters twice in a row\nwithout intervening filter selection doesn\'t\nwork with this workaround',
                                                           },
                                 }
                                }
@@ -9496,7 +9499,7 @@
 
         function temporaryFilter(){
             quiz.unfilteredItems = quiz.items;
-            if (quiz.settings.active_fpreset !== 0) return applyTemporaryFilter();
+            if (quiz.settings.active_fpreset !== 0){return applyTemporaryFilter()};
         };
 
         function wrapPromise(f){
@@ -13574,7 +13577,7 @@
         let activeFilter = quiz.settings.active_fpreset;
         var fpresets = quiz.settings.fpresets;
         for (table of fpresets) {
-            tableList += '<option>' + table.name.replace(/</g,'&lt;').replace(/>/g,'&gt;') +'</option>'
+            tableList += '<option class="WkitTempFilter">' + table.name.replace(/</g,'&lt;').replace(/>/g,'&gt;') +'</option>'
         };
         dropdown = $('#WkitFilterSelector');
         dropdown.html(tableList);
@@ -13617,13 +13620,24 @@
         $("#WkitExport").click(exportTable);
         $("#WkitSettings").click(open_quiz_settings);
 
-        // handy little trick to permit to select more than once the same option on a dropdown
+        // handy little trick to permit to select more than once in a row the same option on a dropdown
+
         var $select = $('#WkitFilterSelector'); // configured for the temporary filter selector
+
+        // work around for MacOS users
+        // MacOS doesn't deliver events click, mouseup and mousedown on a Select element
+        // therefore the trick cannot be implemented for those users
+        if (quiz.settings.clickMissedSafariMac) {
+            $select.on("change", selectTemporaryFilter)
+            return;
+        }
 
         if (quiz.settings.clickTwiceFirefoxMac){
             // Works around a bug that affects Firefox on Mac where the click handler is intermitent.
             // The workaround doesn't work on Chrome because On Chrome the mousedown handler is intermittent.
             // I don't test for browser/OS because I can't test this kind of code, no access to the devices required
+            //
+            // NOTE: this workaround may be obsolete with newer versions of Firefox.
             $select.mousedown(function(){
                 var $this = $(this);
                 if ($this.hasClass('open')) {
