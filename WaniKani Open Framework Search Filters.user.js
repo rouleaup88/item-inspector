@@ -3,7 +3,7 @@
 // @namespace     https://www.wanikani.com
 // @description   Additional Search filters for the WaniKani Open Framework
 // @author        prouleau
-// @version       1.4.0
+// @version       1.4.1
 // @match         https://www.wanikani.com/*
 // @license       MIT; http://opensource.org/licenses/MIT
 // @grant         none
@@ -154,9 +154,9 @@
             for (var meaning of item.data.meanings){
                 if (meaning.accepted_answer && meaning.meaning.toLowerCase().indexOf(searchTerm) >= 0){return true};
             };
-            if (item.object === 'kanji' || item.object === 'vocabulary'){
-                for (var reading of item.data.readings){
-                    if (reading.accepted_answer && reading.reading.indexOf(searchTerm) >= 0){return true};
+            if (item.object !== 'radical' && item.object !== 'kana_vocabulary'){
+                for (let reading of item.data.readings){
+                    if (reading.reading.indexOf(searchTerm) >= 0) {return true;};
                 };
             };
         };
@@ -197,9 +197,9 @@
                     if (searchTerm === word){return true};
                 }
             };
-            if (item.object === 'kanji' || item.object === 'vocabulary'){
-                for (var reading of item.data.readings){
-                    if (reading.accepted_answer && searchTerm === reading.reading){return true};
+            if (item.object !== 'radical' && item.object !== 'kana_vocabulary'){
+                for (let reading of item.data.readings){
+                    if (searchTerm === reading.reading) {return true;};
                 };
             };
         };
