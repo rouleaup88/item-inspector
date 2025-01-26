@@ -3,7 +3,7 @@
 // @namespace     https://www.wanikani.com
 // @description   Kanjidic2 and traditional radicals filters for the WaniKani Open Framework
 // @author        prouleau
-// @version       1.3.0
+// @version       1.4.0
 // @match         https://www.wanikani.com/*
 // @license       GPLV3; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with an exception described in comments
 // @grant         none
@@ -1716,15 +1716,15 @@ var advSearchFilters = {};
         wkof.settings[settingsScriptId].explicitList = $.extend(true, {}, explicitList_defaults, get_value(path));
 
         let areaIdRadical = settingsScriptId+'_radical';
-        let html_radical = '<textarea id="'+areaIdRadical+'" rows="2"></textarea>';
+        let html_radical = '<textarea id="'+areaIdRadical+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
         let areaIdKanji = settingsScriptId+'_kanji';
-        let html_kanji = '<textarea id="'+areaIdKanji+'" rows="2"></textarea>';
+        let html_kanji = '<textarea id="'+areaIdKanji+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
         let areaIdVocabulary = settingsScriptId+'_vocabulary';
-        let html_vocabulary = '<textarea id="'+areaIdVocabulary+'" rows="2"></textarea>';
+        let html_vocabulary = '<textarea id="'+areaIdVocabulary+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
         let areaIdKana_Vocabulary = settingsScriptId+'_kana_vocabulary';
-        let html_kana_vocabulary = '<textarea id="'+areaIdKana_Vocabulary+'" rows="2"></textarea>';
+        let html_kana_vocabulary = '<textarea id="'+areaIdKana_Vocabulary+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
         let areaIdTrad_rad = settingsScriptId+'_trad_rad';
-        let html_trad_rad = '<textarea id="'+areaIdTrad_rad+'" rows="2"></textarea>';
+        let html_trad_rad = '<textarea id="'+areaIdTrad_rad+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
         let downloadText = '<button><a download="Filter Item List.txt" id="'+settingsScriptId+'_itemList_link" style="text-decoration:none;color:#000000;">Download Configured Items</a></button>';
         let inputFile = '<input id="'+settingsScriptId+'_inputFile" type="file" title="Select a file for uploading items with the button above.">';
 
@@ -2028,18 +2028,21 @@ var advSearchFilters = {};
         wkof.settings[settingsScriptId] = wkof.settings[settingsScriptId] || {};
         wkof.settings[settingsScriptId].explicitBlock = $.extend(true, {}, explicitBlock_defaults, get_value(path));
 
-        let areaIdRadical = settingsScriptId+'_radicalBlock';
-        let html_radical = '<textarea id="'+areaIdRadical+'" rows="2"></textarea>';
-        let areaIdKanji = settingsScriptId+'_kanjiBlock';
-        let html_kanji = '<textarea id="'+areaIdKanji+'" rows="2"></textarea>';
-        let areaIdVocabulary = settingsScriptId+'_vocabularyBlock';
-        let html_vocabulary = '<textarea id="'+areaIdVocabulary+'" rows="2"></textarea>';
-        let areaIdKanaVocabulary = settingsScriptId+'_kana_vocabularyBlock';
-        let html_kana_vocabulary = '<textarea id="'+areaIdKanaVocabulary+'" rows="2"></textarea>';
-        let areaIdTrad_rad = settingsScriptId+'_trad_radBlock';
-        let html_trad_rad = '<textarea id="'+areaIdTrad_rad+'" rows="2"></textarea>';
-        let downloadText = '<button><a download="Filter Item List.txt" id="'+settingsScriptId+'_itemList_linkBlock" style="text-decoration:none;color:#000000;">Download Configured Items</a></button>';
-        let inputFile = '<input id="'+settingsScriptId+'_inputFileBlock" type="file" title="Select a file for uploading items with the button above.">';
+        // The width styling attribute must be in-line in textareas otherwise the dialog box won't be positionned properly
+        // at the center of the screen. In that case the save button will be outsie the visible area forcing the user to
+        // manually replace the dialog to access this button.
+        let areaIdRadical = settingsScriptId+'_radical';
+        let html_radical = '<textarea id="'+areaIdRadical+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
+        let areaIdKanji = settingsScriptId+'_kanji';
+        let html_kanji = '<textarea id="'+areaIdKanji+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
+        let areaIdVocabulary = settingsScriptId+'_vocabulary';
+        let html_vocabulary = '<textarea id="'+areaIdVocabulary+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
+        let areaIdKana_Vocabulary = settingsScriptId+'_kana_vocabulary';
+        let html_kana_vocabulary = '<textarea id="'+areaIdKana_Vocabulary+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
+        let areaIdTrad_rad = settingsScriptId+'_trad_rad';
+        let html_trad_rad = '<textarea id="'+areaIdTrad_rad+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
+        let downloadText = '<button><a download="Filter Item List.txt" id="'+settingsScriptId+'_itemList_link" style="text-decoration:none;color:#000000;">Download Configured Items</a></button>';
+        let inputFile = '<input id="'+settingsScriptId+'_inputFile" type="file" title="Select a file for uploading items with the button above.">';
 
         let dialogConfig = {
             script_id: settingsScriptId,
@@ -2095,7 +2098,7 @@ var advSearchFilters = {};
         $label.children('label').css('text-align', 'left');
         $label.attr('title', itemlHovertip);
 
-        let $explicitBlock_kana_vocabulary = $('#'+areaIdKanaVocabulary);
+        let $explicitBlock_kana_vocabulary = $('#'+areaIdKana_Vocabulary);
         $explicitBlock_kana_vocabulary.val(wkof.settings[settingsScriptId].explicitBlock.explicitBlock_kana_vocabulary);
         $explicitBlock_kana_vocabulary.change(kana_vocabularyChanged);
         $label = $explicitBlock_kana_vocabulary.prev();
@@ -2155,7 +2158,6 @@ var advSearchFilters = {};
         };
     };
 
-    //function setDownloadLink(name, value, config){
     function setDownloadLinkBlock(){
         let radicalElem = $('#'+settingsScriptId+'_radicalBlock');
         let kanjiElem = $('#'+settingsScriptId+'_kanjiBlock');
