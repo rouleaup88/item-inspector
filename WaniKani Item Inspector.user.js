@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.29.7
+// @version       1.30.0
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -2379,17 +2379,28 @@
                 width : 100%;
             }
 
+            #wkof_ds #wkofs_Item_Inspector :not(.pre_list_btn_grp) > button,
+            #wkof_ds #wkofs_advSearchFilters button {
+                background-color: #d0d0d0;
+                border-color: black;
+                border-width: 1px;
+                border-radius: 3px;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+
+
             /* --------------------------------------------- */
             /* End of utilities that don't fit in a category */
-`
+`;
 
         var leechStyling = document.createElement('style');
         leechStyling.type='text/css';
-        if(leechStyling.styleSheet){
+        if (leechStyling.styleSheet) {
             leechStyling.styleSheet.cssText = leechTableCss;
-        }else{
+        } else {
             leechStyling.appendChild(document.createTextNode(leechTableCss));
-        }
+        };
         $('head').append(leechStyling);
     };
 
@@ -2538,7 +2549,8 @@
                                    'Last_Review_Date':'Last Review Date', 'Review_Date':'Review Date', 'Review_Wait':'Review Wait Time',
                                    'Passed_Date':'Passed Guru Date', 'Burned_Date':'Burned Date', 'Resurrected_Date': 'Resurrected Date',
                                    'Lesson_Date':'Lesson Date', 'Unlock_Date': 'Unlock Date',
-                                   'Joyo': 'Joyo Grade', 'JLPT': 'JLPT (voc by kanji lvl)', 'JLPT_Waller': 'JLPT (voc by vocabulary lvl)', 'Frequency': 'Frequency', };
+                                   'Joyo': 'Joyo Grade', 'JLPT': 'JLPT (voc by kanji lvl)', 'JLPT_Waller': 'JLPT (voc by vocabulary lvl)',
+                                   'Frequency': 'Frequency', };
 
         let viewSortElementContents = {'Same': 'Same as Without View' ,'Default':'Default', 'Type':'Item Type (Rad, Kan, Voc)',
                                        'Meaning_Brief':'Meaning Brief', 'Meaning_Full':'Meaning Full', 'Kanjidic2_Meaning': 'Kanjidict2 Meaning',
@@ -2560,7 +2572,8 @@
                                        'Last_Review_Date':'Last Review Date', 'Review_Date':'Review Date',
                                        'Passed_Date':'Passed Guru Date', 'Burned_Date':'Burned Date', 'Resurrected_Date': 'Resurrected Date',
                                        'Lesson_Date':'Lesson Date', 'Unlock_Date': 'Unlock Date',
-                                       'Joyo': 'Joyo Grade', 'JLPT': 'JLPT (voc by kanji lvl)', 'JLPT_Waller': 'JLPT (voc by vocabulary lvl)', 'Frequency': 'Frequency', };
+                                       'Joyo': 'Joyo Grade', 'JLPT': 'JLPT (voc by kanji lvl)', 'JLPT_Waller': 'JLPT (voc by vocabulary lvl)',
+                                       'Frequency': 'Frequency', };
 
         let wordCloudContents = {'No Repeat': 'Don\'t Repeat', 'Leech':'Leech Value', 'Stroke_Count': 'Stroke Count',
                                  'Meaning_Correct_Answers': 'Meaning Correct Answers', 'Reading_Correct_Answers': 'Reading Correct Answers',
@@ -2602,7 +2615,8 @@
                                      'Components': 'Components of Item', 'Used_In': 'Items Where Used', 'Item_Page': 'URL of Item Page',
                                      'Joyo': 'Joyo Grade', 'JLPT': 'JLPT (voc by kanji lvl)', 'JLPT_Waller': 'JLPT (voc by vocabulary lvl)', 'Frequency': 'Frequency',
                                      'mMnemonics' : 'Meaning Mnemonics', 'rMnemonics' : 'Reading Mnemonics', 'mHints' : 'Meaning Hints', 'rHints' : 'Reading Hints',
-                                     'Context_Sentences': 'Context Sentences', 'mNotes' : 'Meaning Notes', 'rNotes' : 'Reading Notes', 'Synonyms': 'User Synonyms',
+                                     'Context_Sentences': 'Context Sentences', 'mNotes' : 'Meaning Notes', 'rNotes' : 'Reading Notes',
+                                     'Synonyms': 'User Synonyms',
                                     };
 
         let reportKeyContents = {'Type':'Item Type (Rad, Kan, Voc)', 'Stroke_Count': 'Stroke Count', 'Leech':'Leech Value',
@@ -2941,7 +2955,7 @@
                                                },
                                      sect_tbl_Graphical:{type:'section',label:'Graphical Information'},
                                      showStrokeOrder: {type: 'checkbox', label:'Show Stroke Order Popups', hover_tip:'Show stroke order in popups when\nmoving the mouse over kanji and vocabulary.',
-                                                   path:'@tablePresets[@active_ipreset].showStrokeOrder', default: true, },
+                                                   path:'@tablePresets[@active_ipreset].showStrokeOrder', default: true, refresh_on_change:true, },
                                      showRadical: {type: 'dropdown', label:'Radical Visual Information', hover_tip:'The visual information for radical popups.',
                                                    path:'@tablePresets[@active_ipreset].showRadical', default: 'Keisei',
                                                    content: {'Item': 'Item Only', 'Keisei': 'Keisei Semantic-Phonetic Composition'}},
@@ -2960,6 +2974,8 @@
                                                         path:'@tablePresets[@active_ipreset].enlargingTooltip', default: false, },
                                      showMarkers: {type: 'checkbox', label:'Show Markers', hover_tip:'Show the markers for the table data in list of icons.',
                                                    path:'@tablePresets[@active_ipreset].showMarkers', default: true, },
+                                     showCountersInMarkers: {type: 'checkbox', label:'Show Counters in Markers', hover_tip:'Show a count of items the marker is applied to.',
+                                                   path:'@tablePresets[@active_ipreset].showCountersInMarkers', default: false, },
                                      showMarkersDate: {type: 'checkbox', label:'Show Markers in Date Selection', hover_tip:'Show the markers for the table data in list of icons when ordered by date.',
                                                    path:'@tablePresets[@active_ipreset].showMarkersDate', default: false, },
                                      showHours: {type: 'checkbox', label:'Show Hours in Markers', hover_tip:'Show the hours and minutes for dates in list of icons markers',
@@ -3065,7 +3081,7 @@
                                                },
                                      sect_view_Graphical:{type:'section',label:'Graphical Information'},
                                      vshowStrokeOrder: {type: 'checkbox', label:'Show Stroke Order Popups', hover_tip:'Show stroke order in popups when\nmoving the mouse over kanji and vocabulary.',
-                                                   path:'@vpresets[@active_vpreset].vshowStrokeOrder', default: true, },
+                                                   path:'@vpresets[@active_vpreset].vshowStrokeOrder', default: true, refresh_on_change:true,},
                                      vshowRadical: {type: 'dropdown', label:'Radical Visual Information', hover_tip:'The visual information for radical popups.',
                                                    path:'@vpresets[@active_vpreset].vshowRadical', default: 'Keisei',
                                                    content: {'Item': 'Item Only', 'Keisei': 'Keisei Semantic-Phonetic Composition'}},
@@ -3084,6 +3100,8 @@
                                                         path:'@vpresets[@active_vpreset].venlargingTooltip', default: false, },
                                      vshowMarkers: {type: 'checkbox', label:'Show Markers', hover_tip:'Show the markers for the table data in list of icons.',
                                                    path:'@vpresets[@active_vpreset].vshowMarkers', default: true, },
+                                     vshowCountersInMarkers: {type: 'checkbox', label:'Show Counters in Markers', hover_tip:'Show a count of items the marker is applied to.',
+                                                   path:'@vpresets[@active_vpreset].vshowCountersInMarkers', default: false, },
                                      vshowMarkersDate: {type: 'checkbox', label:'Show Markers in Date Selection', hover_tip:'Show the markers for the table data in list of icons when ordered by date.',
                                                    path:'@vpresets[@active_vpreset].vshowMarkersDate', default: false, },
                                      vshowHours: {type: 'checkbox', label:'Show Hours in Markers', hover_tip:'Show the hours and minutes for dates in list of icons markers',
@@ -3183,6 +3201,9 @@
                                                                                  'Color_Blind': 'Color Blind Option',},
                                                  },
                                     sect_tbl_cnts2:{type:'section',label:'Feature Selection'},
+                                    disableStrokeOrderFont: {type: 'button', label: ' ', text: 'Disable Stroke Order Font Alert', on_click: disableStrokeOrderFont,
+                                                             hover_tip: 'Disable the stroke order checkbox in every table and view\n'+
+                                                                        'This will remove the stroke order font not installed alert'},
                                     restoreMissingDefaults: {type: 'button', label: ' ', text: 'Restore Missing Defaults', on_click: restoreMissingDefaults,
                                                              hover_tip: 'Checks your tables and temporary filters.\nRecreates any defaults that are missing.\n'+
                                                                         'Doesn\'t change existing defaults that\nhave been user modified.'},
@@ -3248,6 +3269,8 @@
                                                      sect_ipre_name: {type:'section',label:'Table Name'},
                                                      ipre_name: {type:'text',label:'Edit Table Name',on_change:refresh_ipresets,refresh_on_change:true,
                                                                  path:'@ipresets[@active_ipreset].name',hover_tip:'Enter a name for the selected table'},
+                                                     ipre_ask: {type:'checkbox',label:'Ask Before Filtering', default: false,
+                                                                path:'@ipresets[@active_ipreset].ask',hover_tip:'Ask for the filters parameters\nbefore filtering.'},
 
                                                      sect_ipre_srcs: {type:'section',label:'Table Settings'},
                                                      ipre_srcs: {type:'tabset',
@@ -3268,7 +3291,7 @@
                                                      fpre_name: {type:'text',label:'Edit Filter Set Name', on_change: refresh_fpresets,refresh_on_change:true,
                                                                  path:'@fpresets[@active_fpreset].name',hover_tip:'Enter a name for the selected filter set.'},
                                                      fpre_ask: {type:'checkbox',label:'Ask Before Filtering', default: false, on_change: noTemporaryFilterAsk,
-                                                                path:'@fpresets[@active_fpreset].ask',hover_tip:'Ask for the filter parameters\nbefore filtering.'},
+                                                                path:'@fpresets[@active_fpreset].ask',hover_tip:'Ask for the filters parameters\nbefore filtering.'},
 
                                                      sect_fpre_srcs: {type:'section',label:'Filter Set Settings'},
                                                      fpre_srcs: {type:'tabset', content:{},
@@ -3303,6 +3326,19 @@
         populate_items_config(config);
 
         quiz.settings_dialog = new wkof.Settings(config);
+    };
+
+    function disableStrokeOrderFont(){
+        for (let preset of quiz.settings.tablePresets) preset.showStrokeOrder = false;
+        for (let preset of quiz.settings.vpresets) preset.vshowStrokeOrder = false;
+        $('#Item_Inspector_showStrokeOrder').prop('checked', false);
+        $('#Item_Inspector_vshowStrokeOrder').prop('checked', false);
+        alert('The stroke order alert has been disabled');
+    };
+
+    function deleteCacheAndReport(){
+        deleteFilesFromCache();
+        alert('The cache has been deleted.\n\nThe new cache will take effect\non next refresh of the browser.');
     };
 
     function warnAboutRefresh(){
@@ -3379,51 +3415,91 @@
         wkof.settings.Item_Inspector = quiz.settings = settings;
 
         let ipresets_defaults = [
-            {name:'Leeches', content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,mast:true}}
+            {name:'Leeches', ask: false, content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,mast:true}}
                                                                       ,additionalFilters_leechTraining:{enabled:true,value:1}},
                                                 sources:{wk_items: true, trad_rad: false,},},
                                      trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Failed Last Review', content:{wk_items:{enabled:true,filters:{additionalFilters_failedLastReview:{enabled:true,value:24}},
+            {name:'Failed Last Review', ask: false, content:{wk_items:{enabled:true,filters:{additionalFilters_failedLastReview:{enabled:true,value:24}},
                                                            sources:{wk_items: true, trad_rad: false,},},
                                                 trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Current Level SRS', content:{wk_items:{enabled:true,filters:{level:{enabled:true,value:"+0"},
+            {name:'Current Level SRS', ask: false, content:{wk_items:{enabled:true,filters:{level:{enabled:true,value:"+0"},
                                                                                 srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,
                                                                                                          mast:true,enli:true,burn:true}}},
                                                           sources:{wk_items: true, trad_rad: false,},},
                                                 trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Previous Level SRS', content:{wk_items:{enabled:true,filters:{level:{enabled:true,value:"-1"},
+            {name:'Previous Level SRS', ask: false, content:{wk_items:{enabled:true,filters:{level:{enabled:true,value:"-1"},
                                                                                  srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,
                                                                                                           mast:true,enli:true,burn:true}}},
                                                            sources:{wk_items: true, trad_rad: false,},},
                                                 trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Burned Items', content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{burn:true}}},
+            {name:'Burned Items', ask: false, content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{burn:true}}},
                                                      sources:{wk_items: true, trad_rad: false,},},
                                            trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'All Learned Items', content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,
+            {name:'All Learned Items', ask: false, content:{wk_items:{enabled:true,filters:{srs:{enabled:true,value:{appr1:true,appr2:true,appr3:true,appr4:true,guru1:true,guru2:true,
                                                                                                          mast:true,enli:true,burn:true}}},
                                                           sources:{wk_items: true, trad_rad: false,},},
                                                 trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'All Wanikani Items', content:{wk_items:{enabled:true,filters:{},sources:{wk_items: true, trad_rad: false,},},
+            {name:'All Wanikani Items', ask: false, content:{wk_items:{enabled:true,filters:{},sources:{wk_items: true, trad_rad: false,},},
                                                  trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'All Wanikani Items and Traditional Radicals', content:{wk_items:{enabled:true,filters:{},sources:{wk_items: true, trad_rad: true,},},
+            {name:'All Wanikani Items and Traditional Radicals', ask: false, content:{wk_items:{enabled:true,filters:{},sources:{wk_items: true, trad_rad: true,},},
                                                                           trad_rad:{enabled:true,filters:{}}},
+            },
+            {name:'Review Sum. - Failed Items', ask: true, content:{wk_items:{enabled:true,filters:{additionalFilters_failedLastReview:{enabled:true,value:2},},
+                                                                                  sources:{wk_items: true, trad_rad: false,},},
+                                                 trad_rad:{enabled:false,filters:{}}},
+            },
+            {name:'Review Sum. - Succeeded Items', ask: true, content:{wk_items:{enabled:true,filters:{itemInspectorSucceededLastReview:{enabled:true,value:2},},
+                                                                                  sources:{wk_items: true, trad_rad: false,},},
+                                                  trad_rad:{enabled:false,filters:{}}},
+            },
+            {name:'Lesson Summary', ask: false, content:{wk_items:{enabled:true,filters:{additionalFilters_recentLessons:{enabled:true,value:12},},
+                                                                                  sources:{wk_items: true, trad_rad: false,},},
+                                                  trad_rad:{enabled:false,filters:{}}},
+            },
+            {name:'Side-By-Side Comparison', ask: true, content:{wk_items:{enabled:true,filters:{item_type:{enabled:true,value:{}},
+                                                                                                 searchFilters_exactSearch:{enabled:true,value:''},},
+                                                                                  sources:{wk_items: true, trad_rad: false,},},
+                                                  trad_rad:{enabled:false,filters:{}}},
+            },
+            {name:'S.-by-S. Based On Substrings', ask: true, content:{wk_items:{enabled:true,filters:{item_type:{enabled:true,value:{}},
+                                                                                                      searchFilters_globalSearch:{enabled:true,value:''},},
+                                                                                  sources:{wk_items: true, trad_rad: false,},},
+                                                  trad_rad:{enabled:false,filters:{}}},
+            },
+            {name:'S.by-S. Radicals in Common', ask: true, content:{wk_items:{enabled:true,filters:{itemInspectorKanjiPicker:{enabled:true,value:kanjiPickerDefault},},
+                                                                    sources:{wk_items: true, trad_rad: false,},},
+                                                          trad_rad:{enabled:false,filters:{}}},
+            },
+              {name:'Burned Items By Level', ask: true, content:{wk_items:{enabled:true,filters:{item_type:{enabled:true,value:{}},
+                                                                                               level:{enabled:true, value:"1"},
+                                                                                               srs:{enabled:true,value:{burn:true}},},
+                                                                         sources:{wk_items: true, trad_rad: false,},},
+                                           trad_rad:{enabled:false,filters:{}}},
+            },
+            {name:'Typed In Items', ask: true, content:{wk_items:{enabled:true,filters:{advSearchFilters_explicitList:{enabled:true,value:{}},},
+                                                                sources:{wk_items: true, trad_rad: true,},},
+                                           trad_rad:{enabled:false,filters:{}}},
             },
         ];
 
         let tablePresetsDefault = [
             {name:'Leeches', tableContents:{currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                            tooltip1:"Meaning_Full",tooltip2:"Reading_Full",enlargingTooltip:true,
+                                            tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",tooltip5:"Block_List",
+                                            tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
+                                            enlargingTooltip:true,
                                             showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
                                             showRendaku: 'Pitch Info',}},
             {name:'Failed Last Review', tableContents:{currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                       tooltip1:"Meaning_Full",tooltip2:"Reading_Full",enlargingTooltip:true,
+                                                       tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",tooltip5:"Block_List",
+                                                       tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
+                                                       enlargingTooltip:true,
                                                        showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
                                                        showRendaku: 'Pitch Info',}},
             {name:'Current Level SRS', tableContents:{currentItem:0,table_data:"Srs",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
@@ -3435,30 +3511,73 @@
                                                        showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
                                                        showRendaku: 'Pitch Info',}},
             {name:'Burned Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                 tooltip1:"Meaning_Full",tooltip2:"Reading_Full",enlargingTooltip:true,
+                                                 tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",tooltip5:"Block_List",
+                                                 tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
+                                                 enlargingTooltip:true,
                                                  showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
                                                  showRendaku: 'Pitch Info',}},
             {name:'All Learned Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                      tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
-                                                      tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
+                                                      tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",tooltip5:"Block_List",
+                                                      tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
                                                       showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
                                                       showRendaku: 'Pitch Info',}},
             {name:'All Wanikani Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                       tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
-                                                       tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
+                                                       tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",tooltip5:"Block_List",
+                                                       tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
                                                        showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
                                                        showRendaku: 'Pitch Info',}},
             {name:'All Wanikani Items and Traditional Radicals',
                                                  tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                                                                tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Srs",tooltip4:"Unlock_Date",tooltip5:"Lesson_Date",
-                                                                tooltip6:"Passed_Date",tooltip7:"Burned_Date",tooltip8:"Leech",
+                                                                tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",
+                                                                tooltip5:"Block_List",tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
                                                                 showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
                                                                 showRendaku: 'Pitch Info',}},
+            {name:'Review Sum. - Failed Items', tableContents:{currentItem:0,table_data:"Srs",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                                   tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",tooltip5:"Block_List",
+                                                   tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
+                                                   showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                                   showRendaku: 'Pitch Info', showCountersInMarkers:true,}},
+            {name:'Review Sum. - Succeeded Items', tableContents:{currentItem:0,table_data:"Srs",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                                                     tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",
+                                                                     tooltip5:"Block_List",tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
+                                                                     showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                                                     showRendaku: 'Pitch Info', showCountersInMarkers:true,}},
+            {name:'Lesson Summary', tableContents:{currentItem:0,table_data:"Srs",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                                   tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",tooltip5:"Block_List",
+                                                   tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
+                                                   showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                                   showRendaku: 'Pitch Info',showMarkers: false,}},
+            {name:'Side-By-Side Comparison', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                             tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",tooltip5:"Block_List",
+                                             tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
+                                             showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                             showRendaku: 'Pitch Info',}},
+            {name:'S.-by-S. Based On Substrings', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                                  tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",tooltip5:"Block_List",
+                                                  tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
+                                                  showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                                  showRendaku: 'Pitch Info',}},
+            {name:'S.by-S. Radicals in Common', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                                  tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",tooltip5:"Block_List",
+                                                  tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
+                                                  showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                                  showRendaku: 'Pitch Info',}},
+            {name:'Burned Items By Level', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                           tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",tooltip5:"Block_List",
+                                           tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
+                                           showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                           showRendaku: 'Pitch Info'}},
+            {name:'Typed In Items', tableContents:{currentItem:0,table_data:"Level",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
+                                    tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",tooltip5:"Block_List",
+                                    tooltip6:"Part_Of_Speech",tooltip7:"Mnemonics",tooltip8:"Notes",
+                                    showStrokeOrder:true,showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info',
+                                    showRendaku: 'Pitch Info',}},
             ];
 
         table_defaults = {currentItem:0,table_data:"Leech",sort1:"Default",sortOrder1:'Default',sort2:"Default",sortOrder2:'Default',
-                          tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"None",tooltip4:"None",tooltip5:"None",tooltip6:"None",tooltip7:"None",tooltip8:"None",
-                          displayMeaning:false, enlargingTooltip:false, showMarkers:true, showMarkersDate:false, showHours:false, leechStreakLimit:0,
+                          tooltip1:"Meaning_Full",tooltip2:"Reading_Full",tooltip3:"Components",tooltip4:"Allow_List",tooltip5:"Block_List",tooltip6:"Part_Of_Speech",
+                          tooltip7:"Mnemonics",tooltip8:"Notes",
+                          displayMeaning:false, enlargingTooltip:false, showMarkers:true,showCountersInMarkers:false, showMarkersDate:false, showHours:false, leechStreakLimit:0,
                           showStrokeOrder:true, showRadical: 'Keisei', showKanji: 'Keisei', showVocabulary: 'Pitch Info', showRendaku: 'Pitch Info',
                           visSimTreshold:0.0, visSimTresholdNiai:0.3, niaiAlternate:false,
                           randomSelection: 0, navigationDate:'Lesson_Date',
@@ -3498,7 +3617,13 @@
                                                                         sources:{wk_items: true, trad_rad: false,},},
                                                               trad_rad:{enabled:false,filters:{}}},
             },
-            {name:'Global Search', ask: true, content:{wk_items:{enabled:true,filters:{searchFilters_globalSearch:{enabled:true,value:''},},
+            {name:'Global Search', ask: true, content:{wk_items:{enabled:true,filters:{item_type:{enabled:true,value:{}},
+                                                                                       searchFilters_globalSearch:{enabled:true,value:''},},
+                                                                 sources:{wk_items: true, trad_rad: false,},},
+                                                       trad_rad:{enabled:false,filters:{}}},
+            },
+            {name:'Exact Search', ask: true, content:{wk_items:{enabled:true,filters:{item_type:{enabled:true,value:{}},
+                                                                                      searchFilters_exactSearch:{enabled:true,value:''},},
                                                                  sources:{wk_items: true, trad_rad: false,},},
                                                        trad_rad:{enabled:false,filters:{}}},
             },
@@ -3538,7 +3663,7 @@
                                   vtooltip5: 'Meaning_Incorrect', vtooltip6: 'Reading_Incorrect', vtooltip7: 'Percentage_Incorrect',
                                   vtooltip8: 'Review_Count', vshowStrokeOrder: false, vshowRendaku: 'Pitch Info',
                                   vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
                                   column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
@@ -3551,7 +3676,7 @@
                                   vtooltip5: 'Burned_Date', vtooltip6: 'Resurrected_Date', vtooltip7: 'Last_Review_Date', vtooltip8: 'Review_Date',
                                   vshowStrokeOrder: false, vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
                                   vshowRendaku: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
                                   column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
@@ -3563,19 +3688,43 @@
                                   vtooltip1: 'Components', vtooltip2: 'Vis_Sim_Kanji', vtooltip3: 'Lars_Yencken', vtooltip4: 'Niai',
                                   vtooltip5: 'Used_In', vtooltip6: 'Part_Of_Speech', vtooltip7: 'Allow_List', vtooltip8: 'Block_List',
                                   vshowStrokeOrder: false, vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
                                   column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
                                   column8: 'None', column9: 'None',
                                   rhoursInDate: {'Review_Date': true, 'Last_Review_Date': true,},
                                   },
+                                 {name: 'Item Studying View', type: 'view',
+                                  vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
+                                  vtooltip1: 'Meaning_Full', vtooltip2: 'Reading_Full', vtooltip3: 'Components', vtooltip4: 'Allow_List',
+                                  vtooltip5: 'Block_List', vtooltip6: 'Part_Of_Speech', vtooltip7: 'Mnemonics', vtooltip8: 'Notes',
+                                  vshowStrokeOrder: false, vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
+                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
+                                  vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
+                                  report_key: 'Leech', rsortOrder1: 'Default',
+                                  column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
+                                  column8: 'None', column9: 'None',
+                                  rhoursInDate: {'Review_Date': true, 'Last_Review_Date': true,},
+                                 },
+                                 {name: 'Complement View', type: 'view',
+                                  vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
+                                  vtooltip1: 'Meaning_Full', vtooltip2: 'Reading_by_Type', vtooltip3: 'Level', vtooltip4: 'Srs',
+                                  vtooltip5: 'Used_In', vtooltip6: 'Vis_Sim_Kanji', vtooltip7: 'Lars_Yencken', vtooltip8: 'Niai',
+                                  vshowStrokeOrder: false, vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
+                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
+                                  vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
+                                  report_key: 'Leech', rsortOrder1: 'Default',
+                                  column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
+                                  column8: 'None', column9: 'None',
+                                  rhoursInDate: {'Review_Date': true, 'Last_Review_Date': true,},
+                                 },
                                  {name: 'Leech Stats Report', type: 'report',
                                   vtable_data: 'Same', vsort1: 'Same', vsortOrder1: 'Same', vsort2: 'Same', vsortOrder2: 'Same',
                                   vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
                                   vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
                                   vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
                                   column1: 'Level', column2: 'Srs', column3: 'Meaning_Current_Streak', column4: 'Reading_Current_Streak',
@@ -3588,7 +3737,7 @@
                                   vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
                                   vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
                                   vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Level', rsortOrder1: 'Default',
                                   column1: 'Leech', column2: 'Srs', column3: 'Meaning_Current_Streak', column4: 'Reading_Current_Streak',
@@ -3601,7 +3750,7 @@
                                   vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
                                   vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
                                   vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Level', rsortOrder1: 'Default',
                                   column1: 'Srs', column2: 'Review_Count', column3: 'Unlock_Date', column4: 'Lesson_Date',
@@ -3617,7 +3766,7 @@
                             vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
                             vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: true,
                             vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
-                            venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
+                            venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
                             vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                             report_key: 'Leech', rsortOrder1: 'Default',
                             column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
@@ -3634,6 +3783,12 @@
             settings.tablePresets = x;
         };
 
+        // add the ask and showCountersInMarkers settings to existing tables
+        for (let table of settings.ipresets) {
+            if ((typeof table.ask) === 'undefined' ) table.ask = false;
+            if ((typeof table.showCountersInMarkers) === 'undefined' ) table.showCountersInMarkers = false;
+        };
+
         // define defaults if fpresets not yet defined or empty
         if (settings.fpresets === undefined || !settings.fpresets.length) {
             settings.active_fpreset = 0;
@@ -3646,7 +3801,12 @@
             settings.vpresets = vpresets_defaults;
         };
 
-        for (var idx in settings.ipresets) {
+        // add the showCountersInMarkers settings to existing tables
+        for (let table of settings.vpresets) {
+            if ((typeof table.vshowCountersInMarkers) === 'undefined' ) table.vshowCountersInMarkers = false;
+        };
+
+         for (var idx in settings.ipresets) {
             settings.ipresets[idx] = $.extend(true, {}, ipreset_defaults, settings.ipresets[idx]);
             settings.ipresets[idx].content = $.extend(true, {}, ipre_defaults, settings.ipresets[idx].content);
         };
@@ -3669,6 +3829,12 @@
         lackDefaults = lackDefaultsInternal;
 
         function restoreMissingDefaultsInternal(){
+            var settings = quiz.settings;
+            let showStrokeOrdeAsSet = settings.tablePresets.reduce(((acc, preset) => acc || preset.showStrokeOrder), false);
+            showStrokeOrdeAsSet = showStrokeOrdeAsSet || (settings.ipresets.length === 1 && settings.ipresets[0].name === '<untitled>');
+            let vshowStrokeOrdeAsSet = settings.vpresets.reduce(((acc, preset) => acc || preset.vshowStrokeOrder), false);
+            let showStrokeOrderSetting = { showStrokeOrder: showStrokeOrdeAsSet || vshowStrokeOrdeAsSet};
+            let vshowStrokeOrderSetting = { vshowStrokeOrder: showStrokeOrdeAsSet || vshowStrokeOrdeAsSet};
             let somethingNotFound = false;
             for (var idx in ipresets_defaults){
                 let tableData = ipresets_defaults[idx];
@@ -3678,7 +3844,7 @@
                 somethingNotFound = somethingNotFound || !found;
                 if (found !== true) {
                     settings.ipresets.push($.extend(true, {}, {name: name, content: ipre_defaults}, tableData));
-                    settings.tablePresets.push($.extend(true, {}, table_defaults, tablePresetsDefault[idx].tableContents));
+                    settings.tablePresets.push($.extend(true, {}, table_defaults, tablePresetsDefault[idx].tableContents, showStrokeOrderSetting));
                 };
             };
             for (var tableData of fpresets_defaults){
@@ -3693,11 +3859,12 @@
                 let found = false;
                 settings.vpresets.forEach((config) => {if (config.name === name) found = true;});
                 somethingNotFound = somethingNotFound || !found;
-                if (found !== true) settings.vpresets.push($.extend(true, {}, vpreset_defaults, tableData));
+                if (found !== true) settings.vpresets.push($.extend(true, {}, vpreset_defaults, tableData, vshowStrokeOrderSetting));
             };
             refresh_ipresets();
             refresh_fpresets();
             refresh_vpresets();
+            refresh_quiz_settings();
             if (somethingNotFound){
                 alert('Your missing defaults have been restored.');
             } else {
@@ -3756,8 +3923,8 @@
         var btn_grp =
             '<div class="pre_list_btn_grp">'+
             '<button type="button" ref="###" action="new" class="ui-button ui-corner-all ui-widget" title="Create a new table">New</button>'+
-            '<button type="button" ref="###" action="up" class="ui-button ui-corner-all ui-widget" title="Move the selected table up in the list"><span class="icon-arrow-up"></span></button>'+
-            '<button type="button" ref="###" action="down" class="ui-button ui-corner-all ui-widget" title="Move the selected table down in the list"><span class="icon-arrow-down"></span></button>'+
+            '<button type="button" ref="###" action="up" class="ui-button ui-corner-all ui-widget" title="Move the selected table up in the list">Up</button>'+
+            '<button type="button" ref="###" action="down" class="ui-button ui-corner-all ui-widget" title="Move the selected table down in the list">Down</span></button>'+
             '<button type="button" ref="###" action="delete" class="ui-button ui-corner-all ui-widget" title="Delete the selected table">Delete</button>'+
             '</div>';
 
@@ -3822,7 +3989,7 @@
         function noTemporaryFilterSourceChanges(e){
             if ($('#Item_Inspector_active_fpreset').prop('selectedIndex') === 0) $('#Item_Inspector_f_wk_items_sources *').prop('selected', true);
         };
-    }
+    };
 
     //========================================================================
     // open_quiz_settings()
@@ -3866,14 +4033,14 @@
         wkof.set_state(Wkit_navigation, 'Pending');
         wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')});
         dataReload('table');
-     }
+    };
 
     //========================================================================
     // close_quiz_settings()
     //------------------------------------------------------------------------
     function close_quiz_settings(settings) {
         quiz.settings = wkof.settings[scriptId]; // working around an obscure bug
-    }
+    };
 
     //========================================================================
     // refresh_quiz_settings()
@@ -3888,7 +4055,7 @@
             $('#Item_Inspector_fpre_name').val(name);
             preset.ask = false;
             $('#Item_Inspector_fpre_ask').val(false);
-        }
+        };
 
        function performRefresh(i,e){
            var row = $(e);
@@ -3921,7 +4088,7 @@
     function refresh_ipresets() {
         var settings = quiz.settings;
         populate_presets($('#Item_Inspector_active_ipreset'), settings.ipresets, settings.active_ipreset);
-    }
+    };
 
     //========================================================================
     // refresh_fpresets()
@@ -3929,7 +4096,7 @@
     function refresh_fpresets() {
         var settings = quiz.settings;
         populate_presets($('#Item_Inspector_active_fpreset'), settings.fpresets, settings.active_fpreset);
-    }
+    };
 
     //========================================================================
     // refresh_vpresets()
@@ -3937,7 +4104,7 @@
     function refresh_vpresets() {
         var settings = quiz.settings;
         populate_presets($('#Item_Inspector_active_vpreset'), settings.vpresets, settings.active_vpreset);
-    }
+    };
 
     //========================================================================
     // event handlers for the buttons managing tables and temporary filters
@@ -4075,7 +4242,7 @@
                               dateFilters_burnedAfter: {group: 'burned', order: 30, suborder: 20}, dateFilters_burnedBefore: {group: 'burned', order: 30, suborder: 30},
 
                               additionalFilters_recentLessons: {group: 'review', order: 40, suborder: 10}, additionalFilters_timeUntilReview: {group: 'review', order: 40, suborder: 20},
-                              additionalFilters_failedLastReview: {group: 'review', order: 40, suborder: 30},
+                              itemInspectorSucceededLastReview: {group: 'review', order: 40, suborder: 25}, additionalFilters_failedLastReview: {group: 'review', order: 40, suborder: 30},
 
                               dateFilters_hadLastReviewScheduled: {group: 'date', order: 50, suborder: 4},
                               dateFilters_lastReviewAfter: {group: 'date', order: 50, suborder: 6}, dateFilters_lastReviewBefore: {group: 'date', order: 50, suborder: 8},
@@ -4314,18 +4481,18 @@
             if ($('#Item_Inspector_active_fpreset').prop('selectedIndex') === 0){
                 enabled = false;
                 row.find('.enable input[type="checkbox"]').prop('checked', false);
-            }
-        }
+            };
+        };
 
         if (enabled) {
             row.addClass('checked');
         } else {
             row.removeClass('checked');
-        }
+        };
         try {
             preset[source].filters[filter_name].enabled = enabled;
         } catch(e) {}
-    }
+    };
 
     //========================================================================
     // populates lists of tables and temporary filters with settings values
@@ -4343,20 +4510,20 @@
                 $('#Item_Inspector_fpre_name').val(name);
                 preset.ask = false;
                 $('#Item_Inspector_fpre_ask').val(false);
-            }
+            };
             if ((idx === '0') && (idx === active_preset) && is_vpresets){
                 name = noViewNoReportName;
                 preset.name = name;
                 $('#Item_Inspector_vpre_name').val(name);
                 preset.type = 'view';
                 $('#Item_Inspector_vpre_type').val('view');
-            }
+            };
             html += '<option name="'+idx+'">'+name+'</option>';
-        }
+        };
         elem.html(html);
         elem.children().eq(active_preset).prop('selected', true);
 
-    }
+    };
 
     //========================================================================
     // css specific to the settings
@@ -4399,7 +4566,7 @@
 
             '</style>'
         );
-    }
+    };
 
     //======================================================================
     // End of the settings
@@ -5447,7 +5614,7 @@
                                                'reportValue': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_current_streak - 1, 0) : 'Unavailable')}),
                                                'reportString': ((num) => {return (typeof num === 'number' ? (Math.round(100 * num) / 100).toLocaleString() : 'Unavailable')}),
                                               },
-                    'Reading_Max_Streak': {'exists': ((item) => {return item.object === 'kanji' || item.object !== 'vocabulary'}), 'label': 'Rg&nbsp;Max.&nbsp;Streak ',
+                    'Reading_Max_Streak': {'exists': ((item) => {return item.object === 'kanji' || item.object === 'vocabulary'}), 'label': 'Rg&nbsp;Max.&nbsp;Streak ',
                                            'tableEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
                                            'tableEntryMarker': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
                                            'tooltipEntry': ((item) => {return (item.review_statistics ? Math.max(item.review_statistics.reading_max_streak - 1, 0) : 'Unavailable')}),
@@ -6171,9 +6338,6 @@
         return formatDateMarker(new Date(item.assignments.available_at), true, /* is_next_date */);
     };
 
-    const regularSrsIntervals = [0, 4, 8, 23, 47, 167, 335, 719, 2879];
-    const acceleratedSrsIntervals = [0, 2, 4, 8, 23, 167, 335, 719, 2879];
-    const acceleratedLevels = [1, 2];
     function computeLastReviewDate(item){
         let srsStage = item.assignments.srs_stage;
         if (srsStage === 0 || srsStage === 9) return -infinity;
@@ -6350,12 +6514,12 @@
                     meanings += ', ' + item.data.meanings[k].meaning;
                 } else {
                     meanings = item.data.meanings[k].meaning;
-                }
-            }
-        }
+                };
+            };
+        };
         if (meanings.length != 0){meaningsPrimary = meaningsPrimary + ', ' + meanings}
         return meaningsPrimary;
-    }
+    };
 
 
     function meaningsBrief(item){
@@ -6363,7 +6527,7 @@
         var meanings = item.data.meanings[0].meaning;
         for (var k = 0; k < item.data.meanings.length; k++){if (item.data.meanings[k].primary){return item.data.meanings[k].meaning}};
         return meanings;
-    }
+    };
 
     function makeAuxMeaningList(list, type){
         if (list.length === 0) return '--Empty--';
@@ -6867,7 +7031,7 @@
             if (data.score >= threshold && kanjiIndex[data.kan] !== undefined) acc.push(nameItem(kanjiIndex[data.kan])); // test because some Lars Yencken kanji are not in WK
         };
         return acc.join(', ');
-    }
+    };
 
     function makeItemListVisSimKan(visuallySimilarData, thresholdProvided){
         if (visuallySimilarData === undefined) return [];
@@ -6878,7 +7042,7 @@
             if (data.score >= threshold && kanjiIndex[data.kan] !== undefined) acc.push(kanjiIndex[data.kan]); // test because some Lars Yencken kanji are not in WK
         };
         return acc;
-    }
+    };
 
     function makeIdListVisSimKan(visuallySimilarData){
         if (visuallySimilarData === undefined) return [];
@@ -6888,7 +7052,7 @@
             if (data.score >= threshold && kanjiIndex[data.kan] !== undefined) acc.push(kanjiIndex[data.kan].id); // test because some Lars Yencken kanji are not in WK
         };
         return acc;
-    }
+    };
 
     // END Support of Lars Yencken visually similar kanji
 
@@ -6987,7 +7151,7 @@
             if (kanji in visuallySimilarData) return true;
         };
         return false;
-    }
+    };
 
     // function makeKanjiListNiai includes bits of code borrowed from @acm2010 Niai Visually Similar Kanji script
     // Must be licensed under GPL V3 or later
@@ -7262,7 +7426,7 @@
         if (!frequency) return 'None';
         frequency = frequency.frequency;
         return (frequency ? frequency : 'None');
-    }
+    };
 
     function makeFrequencyData(item) {
         if (item.object === 'radical' || item.object === 'trad_rad') return '';
@@ -7274,14 +7438,14 @@
             if (isKanji(char)) result.push(char+': '+frequencyDataKanji(char));
         };
         return (result === '' ? 'None' : result.join(', '))
-    }
+    };
 
     function frequencySortDataKanji(characters) {
         var frequency = jlptJoyoFreqdata[characters];
         if (!frequency) return 3000;
         frequency = frequency.frequency;
         return (frequency ? frequency : 3000);
-    }
+    };
 
     function makeFrequencySortData(item) {
         if (item.object === 'radical' || item.object === 'trad_rad') return infinity;
@@ -7293,7 +7457,7 @@
             if (isKanji(char)) result = Math.min(result, frequencySortDataKanji(char) * 0x8000 + characters.charCodeAt(idx));
         };
         return result
-    }
+    };
 
     function makeFrequencyReportValue(item) {
         if (item.object === 'radical' || item.object === 'trad_rad') return 'Unavailable';
@@ -7308,7 +7472,7 @@
             };
         };
         return (result < 2501 ? result : 'Unavailable');
-    }
+    };
 
     // END Support of JLPT, Joyo and Frequency
 
@@ -8202,7 +8366,7 @@
         promiseList.push(wkof.file_cache.delete(phonetic_db));
         promiseList.push(wkof.file_cache.delete(wk_kanji_db));
         return Promise.all(promiseList);
-    }
+    };
 
     // Functions to display Keisei semantic-phonetic information in popups
 
@@ -8298,7 +8462,7 @@
             result.push('</div>');
         };
         return {html: result.join(''), explanation: explanationList.join('<br>')};
-    }
+    };
 
     function makeKeiseiIconsNonCompounds(phon){
         if (!keiseiDB.checkPhonetic(phon)) phon = keiseiDB.getKPhonetic(phon)[0];
@@ -8329,7 +8493,7 @@
         for (compound of makeLabeledCompoundList(phon)){
             pushKanjiData(compound, result);
             if (explanations.length === 0 || compound.explanations !== explanations[explanations.length-1]) explanations.push(compound.explanations);
-        }
+        };
         return {html: result.join(''), explanation: explanations.join('<br>')};
     };
 
@@ -8477,7 +8641,7 @@
         nextCurrentItem = quiz.settings.tablePresets[quiz.settings.active_ipreset].nextCurrentItem;
         if (nextCurrentItem == undefined){nextCurrentItem = currentItem;};
         nbItems = 3 * quiz.settings.numberOfLines;
-    }
+    };
 
     const Wkit_navigation = 'Wkit_navigation';
 
@@ -8507,7 +8671,7 @@
             });
         };
         return
-    }
+    };
 
     // Event handler for go backward button
     function clickedBackward(event) {
@@ -8542,12 +8706,12 @@
                                 wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
                                 displayItems()
                                 dataReady = true;
-                            }
+                            };
                 });
-            }
+            };
         };
         return
-    }
+    };
 
     // Event handler for go forward button
     function clickedForward(event) {
@@ -8573,7 +8737,7 @@
             };
         };
         return
-    }
+    };
 
     // Event handler for go to end of table button
     function clickedLast(event) {
@@ -8608,29 +8772,89 @@
                             displayItems();
                             direction = 'Forward';
                             dataReady = true;
-                        }
+                        };
             });
         };
         return
-    }
+    };
 
     // Event handler for table selection dropdown
+    var saveIsClicked, oldSettings;
     function selectTable(event) {
         dataReady = false;
         document.getElementById("WkitTableSelector").blur();
         wkof.wait_state(Wkit_navigation, 'Ready')
             .then(function(){
-                    quiz.settings.audioMode = false;
-                    formatControlBar();
-                    resetTemporaryFilters();
-                    quiz.savedItems = [];
-                    let selected = quiz.settings.active_ipreset = $('#WkitTableSelector').prop('selectedIndex');
-                    setSelectionButtonsColors()
-                    wkof.set_state(Wkit_navigation, 'Pending')
-                    wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
-                    dataReload('table').then(function(){dataReady = true;})
+                    let settings = quiz.settings
+                    //oldActive_ipreset = settings.active_ipreset;
+                    oldSettings = $.extend(true, {}, quiz.settings);
+                    saveIsClicked = false;
+                    settings.active_ipreset = $('#WkitTableSelector').prop('selectedIndex');
+                    if (!settings.ipresets[settings.active_ipreset].ask) {
+                        doSelectTable();
+                    } else {
+                        askQuestionsAndProceedToDisplay();
+                    };
         });
     };
+
+    function askQuestionsAndProceedToDisplay (){
+        var filters_cfg = {};
+
+        let filters = quiz.settings.ipresets[quiz.settings.active_ipreset].content.wk_items.filters
+        let flt_content;
+        for (var filterName in filters){
+            let filter = filters[filterName];
+            if (!filter.enabled) continue;
+            let flt = wkof.ItemData.registry.sources.wk_items.filters[filterName];
+            flt_content = getFilterInformation(flt);
+            filters_cfg['fflt_'+filterName] = $.extend(true, {}, flt_content);
+            filters_cfg['fflt_'+filterName].path = '@ipresets[@active_ipreset].content.wk_items.filters["'+filterName+'"].value';
+        };
+
+        let filterKeys = Object.keys(filters_cfg);
+        if (filterKeys.length === 1 && filters_cfg[filterKeys[0]].callable_dialog){
+            let filter_cfg = filters_cfg[filterKeys[0]];
+            let config = {on_save: doSelectTable, on_close: restoreSettings,
+                          path: filter_cfg.path, script_id: scriptId,};
+            filter_cfg.on_click('None', config, function(){return;});
+        } else {
+            var config = {
+                script_id: scriptId,
+                title: 'Type in Your Filtering Criteria.',
+                on_save: doSelectTable,
+                on_close: restoreSettings,
+                no_bkgd: true,
+                settings: {grp_fpre_temp: {type:'group',label:'Selected Filters', content: filters_cfg},
+                          },
+            };
+            let dialog = new wkof.Settings(config);
+            dialog.open();
+        };
+
+    };
+
+    function doSelectTable() {
+        saveIsClicked = true
+        quiz.settings.audioMode = false;
+        formatControlBar();
+        resetTemporaryFilters();
+        quiz.savedItems = [];
+        setSelectionButtonsColors()
+        wkof.set_state(Wkit_navigation, 'Pending')
+        wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
+                    dataReload('table').then(function(){dataReady = true;})
+    };
+
+    function restoreSettings() {
+        if (saveIsClicked) return;
+         wkof.settings[scriptId] = quiz.settings = oldSettings;
+        $('#WkitTableSelector').prop('selectedIndex', quiz.settings.active_ipreset);
+        wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')})
+                    dataReload('table').then(function(){dataReady = true;})
+        return;
+    };
+    // end of event handler for table selection dropdown
 
     // Event handler for toggling between table mode and icon list mode
     function toggleDisplay(event) {
@@ -8760,12 +8984,7 @@
             shuffle(quiz.items);
             currentItem = 0;
             nextCurrentItem = Math.min(presets.trainingSelection, quiz.items.length);
-        //} else if (settings.listMode){
-        //    createItemList(quiz.items, true); // find out how many items fit the screen
-        //} else {
-        //    nextCurrentItem = Math.min(currentItem + nbItems, quiz.items.length);
         };
-
         let selectedCount = 0;
         for (let i = currentItem; (i < nextCurrentItem); i++){
             let item = quiz.items[i];
@@ -8931,7 +9150,7 @@
                         };
                     };
                     break;
-            };
+                };
         };
     };
 
@@ -9176,12 +9395,15 @@
     };
 
     // event handler for temporary filter selection dropdown
+    var saveButtonClicked, oldSettings2;
     function selectTemporaryFilter(event) {
         document.getElementById("WkitFilterSelector").blur();
         dataReady = false;
         wkof.wait_state(Wkit_navigation, 'Ready')
             .then(function(){
+                    saveButtonClicked = false
                     let settings = quiz.settings = wkof.settings[scriptId]; // must rebind wkof.settings to work around an obscure Chrome bug
+                    oldSettings2 = $.extend(true, {}, settings);
                     settings.active_fpreset = $('#WkitFilterSelector').prop('selectedIndex');
                     let selected = settings.active_fpreset;
                     settings.audioMode = false;
@@ -9244,10 +9466,12 @@
             presets.currentItem = currentItem = presets.savedCurrentItem;
             presets.nextCurrentItem = nextCurrentItem = presets.savedNextCurrentItem;
             $('#WkitFilterSelector').prop('selectedIndex', 0);
+            quiz.settings.active_fpreset = 0;
         };
     };
 
     function applyFiltersAndDisplay(){
+        saveButtonClicked = true
         let settings = quiz.settings;
         let presets = settings.tablePresets[settings.active_ipreset];
         presets.currentItem = currentItem = 0;
@@ -9275,7 +9499,7 @@
         let filterKeys = Object.keys(filters_cfg);
         if (filterKeys.length === 1 && filters_cfg[filterKeys[0]].callable_dialog){
             let filter_cfg = filters_cfg[filterKeys[0]];
-            let config = {on_save: applyFiltersAndDisplay, on_cancel: cancelFiltering,
+            let config = {on_save: applyFiltersAndDisplay, on_close: cancelFiltering,
                           path: filter_cfg.path, script_id: scriptId,};
             filter_cfg.on_click('None', config, function(){return;});
         } else {
@@ -9283,7 +9507,7 @@
                 script_id: scriptId,
                 title: 'Type in Your Filtering Criteria.',
                 on_save: applyFiltersAndDisplay,
-                on_cancel: cancelFiltering,
+                on_close: cancelFiltering,
                 no_bkgd: true,
                 settings: {grp_fpre_temp: {type:'group',label:'Selected Filters', content: filters_cfg},
                           },
@@ -9293,7 +9517,10 @@
         };
 
         function cancelFiltering(){
-            resetTemporaryFilters()
+            if (saveButtonClicked) return;
+            resetTemporaryFilters();
+            wkof.settings[scriptId] = quiz.settings = oldSettings2;
+            $('#WkitFilterSelector').prop('selectedIndex', quiz.settings.active_fpreset);
             wkof.set_state(Wkit_navigation, 'Pending');
             wkof.Settings.save(scriptId).then(function(){wkof.set_state(Wkit_navigation, 'Ready')});
             dataReload('table');
@@ -9412,7 +9639,7 @@
         let leechStreakLimit = quiz.settings.tablePresets[quiz.settings.active_ipreset].leechStreakLimit;
         if (leechStreakLimit != 0) {
             quiz.items = quiz.items.filter((item => {return ((item.review_statistics != undefined) ?
-                                                             ((item.review_statistics.meaning_current_streak < (leechStreakLimit+1)) || (item.review_statistics.reading_current_streak < (leechStreakLimit+1))) : false)}));
+                                                            ((item.review_statistics.meaning_current_streak < (leechStreakLimit)) || (item.review_statistics.reading_current_streak < (leechStreakLimit))) : false)}));
         };
 
         let sorting = findSortOrder();
@@ -10345,6 +10572,7 @@
         let active_vpreset = quiz.settings.active_vpreset;
         let vpreset = quiz.settings.vpresets[active_vpreset];
         if (active_vpreset !== 0 && vpreset.vtable_data !== 'Same') get_table_data = metadata[vpreset.vtable_data].tableEntryMarker;
+        let showCountInMarkers = presets.showCountersInMarkers || vpreset.vshowCountersInMarkers;
         audioCounter = 0;
         initTooltipGlobals();
 
@@ -10440,8 +10668,12 @@
             if (newMarker !== oldMarker){
                 oldMarker = newMarker;
                 if (showMarkers && newMarker !== ''){
-                    makeMarkerElement(newMarker, meaningMode, htmlList);
                     markerString = (typeof newMarker === 'number' ? newMarker.toString() : newMarker);
+                    if (showCountInMarkers) {
+                        var countInMarker = getCountInMarker(i, newMarker);
+                        markerString = countInMarker.toString() + ' | ' + markerString;
+                    };
+                    makeMarkerElement(markerString, meaningMode, htmlList);
                     charCount += (markerString.length * markerFactor) + markerOverhead;
                 };
             };
@@ -10470,7 +10702,36 @@
             } else {
                 charCount += (items[i].data.characters === undefined || items[i].data.characters === null ? 1 + overheadOther : (items[i].data.characters.length === 1 ? 1 + overheadOther : items[i].data.characters.length + overheadVocab));
             };
-        }
+        };
+
+        function getCountInMarker(i, marker) {
+            let counter = 1;
+            let newMarker = marker;
+            let index;
+            if (i === currentItem && i !== 0) {
+                index = i - 1;
+                while (index >= 0) {
+                    newMarker = get_table_data(items[index]);
+                    if (newMarker === marker){
+                        counter++;
+                        index--;
+                    } else {
+                        break;
+                    };
+                };
+            };
+            index = i + 1;
+            while (index < quiz.items.length) {
+                newMarker = get_table_data(items[index]);
+                if (newMarker === marker){
+                    counter++;
+                    index++;
+                } else {
+                    break;
+                };
+            };
+            return counter;
+        };
 
         function makeListElement(item, selected_table, charCount, itemClass, stringList){
             let stringList2 = [' class="'];
@@ -10510,7 +10771,7 @@
             if (position.top > 350) elem.addClass("WkitLatestItem");
             elem.addClass(position.left < 280 ? "WkitLeftItem" : position.left < 840 ? "WkitCenterItem" : "WkitRightItem");
             elem.addClass(position.left < 560 ? "WkitLeftSide" : "WkitRightSide");
-        }
+        };
     };
 
     // Make and publish the statistiscs report
@@ -11221,7 +11482,7 @@
             navigator.clipboard.writeText(text)
                 .then(function(){alert(exportCount+' items have been exported to the clipboard.');})
                 .then(function(){return dataReload('table');})
-        }
+        };
 
         function downloadlHandler(e){
             $("#WkitDialogContainer").html('');
@@ -11230,7 +11491,7 @@
             delete quiz.exportBackup;
             alert(exportCount+' items are being downloaded.')
             dataReload('table');
-        }
+        };
 
         function cancelHandler(e){
             $("#WkitDialogContainer").html('');
@@ -11238,8 +11499,8 @@
             quiz.items = quiz.exportBackup;
             delete quiz.exportBackup;
             dataReload('table');
-        }
-    }
+        };
+    };
 
 
     // ===========================================================
@@ -11251,14 +11512,17 @@
     //------------------------------------------------------------
 
     // -----------------------------------------------------------
-    // BEGIN kanji picker
 
-    function registerKanjiPickerFilters(){
+    function registerItemInspectorNativeFilters(){
         waitForItemDataRegistry()
             .then(wkof.wait_state('Wkit_trad_rad', 'ready'))
             .then(function(){registerPickerFilter()})
+            .then(registerSuccededLastReviewFilter)
             .then(function(){return Promise.resolve()})
     };
+
+    //------------------------------------------------------------
+    // BEGIN kanji picker
 
     let kanjiPickerHover_tip = 'Find out kanji by picking the component radicals.';
 
@@ -11599,12 +11863,98 @@
         return filterValue.indexOf(item.id) >= 0;
     };
 
+    // END Kanji Picker
+
+    // BEGIN Succeeded Last Review
+
+    const succeededLastReviewSummaryHoverTip = 'Only include items where the most recent review was a success.';
+	const succeededLastReviewHoverTip = succeededLastReviewSummaryHoverTip + '\nOnly look at items whose most recent review was in the last X hours.';
+
+    var msPerHour = 3600000;
+
+    var nowForSucceededLastReview;
+	const regularSrsIntervals = [0, 4, 8, 23, 47, 167, 335, 719, 2879];
+	const acceleratedSrsIntervals = [0, 2, 4, 8, 23, 167, 335, 719, 2879];
+	const acceleratedLevels = [1, 2];
+
+	function getSrsIntervalInHours(srsStage, level) {
+		var srsInvervals = acceleratedLevels.includes(level) ? acceleratedSrsIntervals : regularSrsIntervals;
+		return srsInvervals[srsStage];
+    };
+
+    var succeededLastReviewName = 'itemInspectorSucceededLastReview';
+	function registerSuccededLastReviewFilter() {
+		wkof.ItemData.registry.sources.wk_items.filters[succeededLastReviewName] = {
+			type: 'number',
+			label: 'Succeeded Last Review',
+			default: 24,
+			placeholder: '24',
+			prepare: succeededLastReviewPrepare,
+			filter_func: succeededLastReviewFilter,
+			set_options: function(options) { options.review_statistics = true; options.assignments = true; },
+			hover_tip: succeededLastReviewHoverTip
+		};
+	};
+
+	function succeededLastReviewPrepare() {
+		// Only set "now" once so that all items use the same value when filtering.
+		nowForSucceededLastReview = Date.now();
+	};
+
+	function succeededLastReviewFilter(filterValue, item) {
+		// review_statistics is undefined for new lessons.
+		if (item.assignments === undefined || item.review_statistics === undefined) {
+			return false;
+		}
+
+		var assignments = item.assignments;
+		var srsStage = assignments.srs_stage;
+
+		if (srsStage === 0) {
+			return false;
+		}
+
+		if (srsStage === 9) {
+			return false;
+		}
+
+		if (!succeededLastReview(item.review_statistics)) {
+			return false;
+		}
+
+		var srsInvervalInHours = getSrsIntervalInHours(srsStage, item.data.level);
+		var lastReviewTimeInMs = getLastReviewTimeInMs(srsInvervalInHours, assignments.available_at);
+		var hoursSinceLastReview = (nowForSucceededLastReview - lastReviewTimeInMs) / msPerHour;
+
+		return hoursSinceLastReview <= filterValue;
+	};
+
+	function succeededLastReview(reviewStats) {
+        return (isSuccessStreak(reviewStats.meaning_current_streak, reviewStats.meaning_incorrect) &&
+                isSuccessStreak(reviewStats.reading_current_streak,reviewStats.reading_incorrect)
+               );
+    };
+
+    function isSuccessStreak(current_streak, total_incorrect) {
+        // A successful review just after a lesson has a streak of 1, otherwise the streak >= 2
+		return ((current_streak >= 2) || (current_streak === 1 && total_incorrect === 0))
+	};
+
+	function getLastReviewTimeInMs(srsInvervalInHours, reviewAvailableAt) {
+		var srsIntervalInMs = srsInvervalInHours * msPerHour;
+
+		return Date.parse(reviewAvailableAt) - srsIntervalInMs;
+	}
+
+    // END Succeeded Last Review
+
     // -----------------------------------------------------------
     // BEGIN Kanjidic2 and Traditional radicals
 
     function registerKanjidic2Filters(){
         waitForItemDataRegistry()
             .then(wkof.wait_state('Wkit_trad_rad', 'ready'))
+            .then(function(){registerExplicitListFilter()})
             .then(function(){registerExtensiveSearchFilter()})
             .then(function(){registerAdvancedSearchFilter()})
             .then(function(){registerRelatedSearchFilter()})
@@ -11699,9 +12049,324 @@
         return result.join('');
     };
 
-    function reportExtensiveSearchResult(item, match, place){
-        item.report = 'Search term '+match+' matches at '+place;
+
+    // BEGIN Explicit List
+    let explicitListHover_tip = 'Enter explicit list of items.';
+    var explicitListFilterName = 'advSearchFilters_explicitList';
+    var settingsScriptId = 'advSearchFilters';
+
+    function registerExplicitListFilter() {
+        const registration = {
+            type: 'button',
+            label: 'Explicit List',
+            default: explicitList_defaults,
+            callable_dialog: true,
+            on_click: explicitListDialog,
+            filter_value_map: prepareValueExplicitList,
+            filter_func: explicitListFilter,
+            set_options: function(options) { options.subjects = true; },
+            hover_tip: explicitListHover_tip,
+        };
+
+        wkof.ItemData.registry.sources.wk_items.filters[explicitListFilterName] = $.extend(true, {}, registration);
+        wkof.ItemData.registry.sources.wk_items.filters[explicitListFilterName].alternate_sources = ['trad_rad'];
+        wkof.ItemData.registry.sources.trad_rad.filters[explicitListFilterName] = $.extend(true, {}, registration);
+        wkof.ItemData.registry.sources.trad_rad.filters[explicitListFilterName].main_source = 'wk_items';
+
     };
+
+    let explicitList_defaults = {explicitList_radical: '',
+                                 explicitList_kanji: '',
+                                 explicitList_vocabulary: '',
+                                 explicitList_kana_vocabulary: '',
+                                 explicitList_trad_rad: '',
+                      };
+
+    function explicitListDialog(name, config, on_change){
+        let $originalDialog = $('#wkof_ds').find('[role="dialog"]');
+        let scriptId = config.script_id || $originalDialog.attr("aria-describedby").slice(6);
+        let path;
+        if (config.path){
+            path = config.path.replaceAll('@', 'wkof.settings["'+scriptId+'"].');
+        } else if (scriptId === 'ss_quiz') {
+
+            // Self Study Quiz doesn't define the path but we know what it is provided we find the source
+            let row = $(this.delegateTarget);
+            let panel = row.closest('[role="tabpanel"]');
+            let source = panel.attr('id').match(/^ss_quiz_pg_(.*)$/)[1];
+            path = 'wkof.settings.ss_quiz.ipresets[wkof.settings.ss_quiz.active_ipreset].content.'+source+'.filters.advSearchFilters_explicitList.value'
+
+            // initialize in case it is not already initialized
+            let v = $.extend(true, {}, get_value(path));
+            set_value(path, v)
+        } else {
+            throw 'config.path is not defined';
+        };
+
+        let value = $.extend(true, {}, explicitList_defaults, get_value(path));
+        set_value(path, value);
+        wkof.settings[settingsScriptId] = wkof.settings[settingsScriptId] || {};
+        wkof.settings[settingsScriptId].explicitList = $.extend(true, {}, explicitList_defaults, get_value(path));
+
+        // The width styling attribute must be in-line in textareas otherwise the dialog box won't be positionned properly
+        // at the center of the screen. In that case the save button will be outsie the visible area forcing the user to
+        // manually replace the dialog to access this button.
+        let areaIdRadical = settingsScriptId+'_radical';
+        let html_radical = '<textarea id="'+areaIdRadical+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
+        let areaIdKanji = settingsScriptId+'_kanji';
+        let html_kanji = '<textarea id="'+areaIdKanji+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
+        let areaIdVocabulary = settingsScriptId+'_vocabulary';
+        let html_vocabulary = '<textarea id="'+areaIdVocabulary+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
+        let areaIdKana_Vocabulary = settingsScriptId+'_kana_vocabulary';
+        let html_kana_vocabulary = '<textarea id="'+areaIdKana_Vocabulary+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
+        let areaIdTrad_rad = settingsScriptId+'_trad_rad';
+        let html_trad_rad = '<textarea id="'+areaIdTrad_rad+'" rows="2" style="width: calc(100% - 5px)"></textarea>';
+        let downloadText = '<button><a download="Filter Item List.txt" id="'+settingsScriptId+'_itemList_link" style="text-decoration:none;color:#000000;">Download Configured Items</a></button>';
+        let inputFile = '<input id="'+settingsScriptId+'_inputFile" type="file" title="Select a file for uploading items with the button above.">';
+
+        let dialogConfig = {
+            script_id: 'advSearchFilters',
+            title: 'Explicit List',
+            on_save: on_save,
+            on_cancel: on_cancel,
+            on_close: on_close,
+            no_bkgd: true,
+            settings: {explicitList_radical:{type: "html", html: html_radical, label: 'Radicals',},
+                       explicitList_kanji:{type: "html", html: html_kanji, label: 'Kanji',},
+                       explicitList_vocabulary:{type: "html", html: html_vocabulary, label: 'Vocabulary',},
+                       explicitList_kana_vocabulary:{type: "html", html: html_kana_vocabulary, label: 'Kana Only Vocabulary',},
+                       explicitList_trad_rad:{type: "html", html: html_trad_rad, label: 'Traditional Radicals',},
+                       explicitList_divider:{type: 'divider'},
+                       explicitList_download:{type: "html", label: ' ', html: downloadText,},
+                       explicitList_divider2:{type: 'divider'},
+                       explicitList_upload:{type: "button", label: 'Set Items From Selected File', on_click: uploadFile,
+                                            hover_tip: 'Upload your items from a previously downloaded file.',},
+                       explicitList_input:{type: 'html', html: inputFile,},
+                      },
+        };
+
+        let dialog = new wkof.Settings(dialogConfig);
+        dialog.open();
+
+        // ui issue: do not let the calling dialog be visible
+        let originalDisplay = $originalDialog.css('display');
+        $originalDialog.css('display', 'none');
+
+        // work around some framework limitations regarding html types
+        let $explicitList_radical = $('#'+areaIdRadical);
+        $explicitList_radical.val(wkof.settings[settingsScriptId].explicitList.explicitList_radical);
+        $explicitList_radical.change(radicalChanged);
+        let $label = $explicitList_radical.prev();
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        let radicalHovertip = 'List your items separated by commas\nYour search terms must match the characters for the item exactly.\nEnglish name of radicals are accepted.';
+        $label.attr('title', radicalHovertip);
+
+        let $explicitList_kanji = $('#'+areaIdKanji);
+        $explicitList_kanji.val(wkof.settings[settingsScriptId].explicitList.explicitList_kanji);
+        $explicitList_kanji.change(kanjiChanged);
+        $label = $explicitList_kanji.prev();
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        let itemlHovertip = 'List your items separated by commas.\nYour search terms must match the characters for the item exactly.';
+        $label.attr('title', itemlHovertip);
+
+        let $explicitList_vocabulary = $('#'+areaIdVocabulary);
+        $explicitList_vocabulary.val(wkof.settings[settingsScriptId].explicitList.explicitList_vocabulary);
+        $explicitList_vocabulary.change(vocabularyChanged);
+        $label = $explicitList_vocabulary.prev();
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        $label.attr('title', itemlHovertip);
+
+        let $explicitList_kana_vocabulary = $('#'+areaIdKana_Vocabulary);
+        $explicitList_kana_vocabulary.val(wkof.settings[settingsScriptId].explicitList.explicitList_kana_vocabulary);
+        $explicitList_kana_vocabulary.change(kana_vocabularyChanged);
+        $label = $explicitList_kana_vocabulary.prev();
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        $label.attr('title', itemlHovertip);
+
+        let $explicitList_trad_rad = $('#'+areaIdTrad_rad);
+        $explicitList_trad_rad.val(wkof.settings[settingsScriptId].explicitList.explicitList_trad_rad);
+        $explicitList_trad_rad.change(trad_radChanged);
+        $label = $explicitList_trad_rad.prev();
+        $label.css('width', 'calc(100% - 5px)');
+        $label.children('label').css('text-align', 'left');
+        $label.attr('title', radicalHovertip);
+
+        let $download = $('#advSearchFilters_itemList_link');
+        $download.attr('title', 'Download Your Configured Items In a File');
+        setDownloadLink();
+
+        function on_close(){
+            $originalDialog.css('display', originalDisplay);
+            if (typeof config.on_close === 'function') config.on_close();
+        };
+
+        function on_save(){
+            set_value(path, get_value('wkof.settings.'+settingsScriptId+'.explicitList'));
+            if (typeof config.on_save === 'function') config.on_save();
+        };
+
+        function on_cancel(){
+            if (typeof config.on_cancel === 'function') config.on_cancel();
+        };
+
+        function radicalChanged(e){
+            wkof.settings[settingsScriptId].explicitList.explicitList_radical = $explicitList_radical.val();
+            setDownloadLink()
+        };
+
+        function kanjiChanged(e){
+            wkof.settings[settingsScriptId].explicitList.explicitList_kanji = $explicitList_kanji.val();
+            setDownloadLink()
+        };
+
+        function vocabularyChanged(e){
+            wkof.settings[settingsScriptId].explicitList.explicitList_vocabulary = $explicitList_vocabulary.val();
+            setDownloadLink()
+        };
+
+        function kana_vocabularyChanged(e){
+            wkof.settings[settingsScriptId].explicitList.explicitList_kana_vocabulary = $explicitList_kana_vocabulary.val();
+            setDownloadLink()
+        };
+
+        function trad_radChanged(e){
+            wkof.settings[settingsScriptId].explicitList.explicitList_trad_rad = $explicitList_trad_rad.val();
+            setDownloadLink()
+        };
+    };
+
+    function setDownloadLink(){
+        let radicalElem = $('#'+settingsScriptId+'_radical');
+        let kanjiElem = $('#'+settingsScriptId+'_kanji');
+        let vocabularyElem = $('#'+settingsScriptId+'_vocabulary');
+        let kana_vocabularyElem = $('#'+settingsScriptId+'_kana_vocabulary');
+        let trad_radElem = $('#'+settingsScriptId+'_trad_rad');
+        let radicals = radicalElem.val();
+        let kanji = kanjiElem.val();
+        let vocabulary = vocabularyElem.val();
+        let kana_vocabulary = kana_vocabularyElem.val();
+        let trad_rad = trad_radElem.val();
+        let encoded = makeEncode(radicals, kanji, vocabulary, kana_vocabulary, trad_rad);
+        let downloadElem = $('#'+settingsScriptId+'_itemList_link');
+        downloadElem.attr("href", "data:text/plain; charset=utf-8,"+encoded);
+    };
+
+    function makeEncode(radicals, kanji, vocabulary, kana_vocabulary, trad_rad){
+        let list = [];
+        list.push('radicals');
+        list.push(radicals);
+        list.push('kanji');
+        list.push(kanji);
+        list.push('vocabulary');
+        list.push(vocabulary);
+        list.push('kana_vocabulary');
+        list.push(kana_vocabulary);
+        list.push('traditional radicals');
+        list.push(trad_rad);
+        let text = list.join('\n');
+        return encodeURI("\uFEFF"+text);
+    };
+
+    function uploadFile(name, config, on_change){
+        let buttons = $(this.target).closest('.right');
+        buttons.find('.note').remove();
+        let fileElem = $("#advSearchFilters_inputFile");
+        let filenames = fileElem.prop('files');
+        if (filenames.length === 0){
+            buttons.append('<div class="note error">Plese select a file</div>');
+            return;
+        };
+        let filename = filenames[0];
+        let reader = new FileReader();
+        reader.onload = validateReception;
+        reader.readAsText(filename);
+
+        function validateReception(event){
+            let result = receiveText(event);
+            if (typeof result === 'string'){
+                buttons.find('.note').remove();
+                buttons.append('<div class="note error">'+result+'</div>');
+            };
+        };
+
+        function receiveText(event){
+            let text = event.target.result;
+            let radicals, kanji, vocabulary, kana_vocabulary, trad_rad;
+            let errorMsg = 'Invalid file content';
+            text = text.replaceAll('\n','');
+
+            let start = text.indexOf('radicals');
+            if (start !== 0) return errorMsg;
+            start = start + 'radicals'.length;
+            let end = text.indexOf('kanji');
+            if (end < start) return errorMsg+' radicals';
+            radicals = text.slice(start, end);
+
+            start = end + 'kanji'.length;
+            end = text.indexOf('vocabulary');
+            if (end < start) return errorMsg+' kanji';
+            kanji = text.slice(start, end);
+
+            start = end + 'vocabulary'.length;
+            // to support old versions from befroe the introduction of the kana_vocabulary object type
+            end =  text.indexOf('kana_vocabulary') === -1 ? text.indexOf('traditional radicals') : text.indexOf('kana_vocabulary');
+            if (end < start) return errorMsg+' vocabulary';
+            vocabulary = text.slice(start, end);
+
+            start = end + 'kana_vocabulary'.length;
+            end = text.indexOf('traditional radicals');
+            // to support old versions from befroe the introduction of the kana_vocabulary object type
+            if (start < end) {kana_vocabulary = text.slice(start, end)} else {kana_vocabulary = ''};
+
+            start = end + 'traditional radicals'.length;
+            trad_rad = text.slice(start);
+
+            let elem = $('#'+settingsScriptId+'_radical');
+            elem.val(radicals);
+            elem.change();
+            elem = $('#'+settingsScriptId+'_kanji');
+            elem.val(kanji);
+            elem.change();
+            elem = $('#'+settingsScriptId+'_vocabulary');
+            elem.val(vocabulary);
+            elem.change();
+            elem = $('#'+settingsScriptId+'_kana_vocabulary');
+            elem.val(kana_vocabulary);
+            elem.change();
+            elem = $('#'+settingsScriptId+'_trad_rad');
+            elem.val(trad_rad);
+            elem.change();
+            return true;
+        };
+    };
+
+    function prepareValueExplicitList(filterValue){
+        let renamed = {};
+        renamed.radical = split_list(filterValue.explicitList_radical).map((str) => str.replace(/ /g, '-'));
+        renamed.kanji = split_list(filterValue.explicitList_kanji);
+        renamed.vocabulary = split_list(filterValue.explicitList_vocabulary);
+        renamed.kana_vocabulary = split_list(filterValue.explicitList_kana_vocabulary);
+        renamed.trad_rad = split_list(filterValue.explicitList_trad_rad);
+        return renamed;
+    };
+
+    function explicitListFilter(filterValue, item) {
+        let type = item.object;
+        if (type === 'radical') if (filterValue.radical.indexOf(item.data.slug.toLowerCase()) >= 0) return true;
+        if (type === 'radical') if (item.data.characters === null) return false;
+        if (type === 'trad_rad'){
+            for (let mm of item.data.meanings){
+                if (filterValue.trad_rad.indexOf(mm.meaning.toLowerCase()) >= 0) return true;
+            };
+        };
+        return filterValue[type].indexOf(item.data.characters) >= 0;
+    };
+
+    // END Explicit List
 
     // BEGIN Extensive Search
     let extensiveSearchHover_tip = 'Search for terms in meanings, readings and kanji.\nKanjidic2 meaning and readings are searched.\nYou may use latin, kana and kanji.';
@@ -11725,6 +12390,10 @@
         wkof.ItemData.registry.sources.wk_items.filters[extensiveSearchFilterName].alternate_sources = ['trad_rad'];
         wkof.ItemData.registry.sources.trad_rad.filters[extensiveSearchFilterName] = $.extend({}, registration);
         wkof.ItemData.registry.sources.trad_rad.filters[extensiveSearchFilterName].main_source = 'wk_items';
+    };
+
+    function reportExtensiveSearchResult(item, match, place){
+        item.report = 'Search term '+match+' matches at '+place;
     };
 
     function prepareKanjidic2(filterValue){
@@ -12647,6 +13316,7 @@
             script_id: 'advSearchFilters',
             title: 'Related Search',
             on_save: on_save,
+            on_cancel: on_cancel,
             on_close: on_close,
             no_bkgd: true,
             settings: {returns: {type: 'list', multi: true, label: 'Items Returned By The Search', size: 4, path: '@relSearch.returns',
@@ -13029,13 +13699,18 @@
     // -----------------------------------------------------------
     // END Kanjidic2 and Traditional radicals
 
+    // -----------------------------------------------------------
     // BEGIN Search
 
     function registerSearchFilters(){
         waitForItemDataRegistry()
             .then(registerSearchFilter)
+            .then(registerExactSearchFilter)
             .then(function(){return Promise.resolve()})
     }
+
+    // -----------------------------------------------------------
+    // BEGIN Global Search
 
 	function registerSearchFilter() {
         var filterNamePrefixSearch = 'searchFilters_';
@@ -13066,16 +13741,65 @@
             for (var meaning of item.data.meanings){
                 if (meaning.accepted_answer && meaning.meaning.toLowerCase().indexOf(searchTerm) >= 0){return true};
             };
-            if (item.object === 'kanji' || item.object === 'vocabulary'){
-                for (var reading of item.data.readings){
-                    if (reading.accepted_answer && reading.reading.indexOf(searchTerm) >= 0){return true};
+            if (item.object !== 'radical' && item.object !== 'kana_vocabulary'){
+                for (let reading of item.data.readings){
+                    if (reading.reading.indexOf(searchTerm) >= 0) {return true;};
                 };
             };
         };
 		return false;
 
-	}
+	};
 
+    // END Global Search
+
+    // BEGIN Exact Search
+
+    var exactSearchFilterName = 'searchFilters_exactSearch';
+    let exactSearchHover_tip = 'Enter a search term for meaning, reading or kanji.\nReturns only exact matches.\nYou may use latin, kana and kanji.\nMultiple terms separated by commas are allowed.';
+
+	function registerExactSearchFilter() {
+		wkof.ItemData.registry.sources.wk_items.filters[exactSearchFilterName] = {
+			type: 'text',
+			label: 'Exact Search',
+			default: '',
+            placeholder: 'gambler, 力士',
+			filter_func: exactSearchFilter,
+            filter_value_map: split_list,
+			set_options: function(options) { options.subjects = true; },
+			hover_tip: exactSearchHover_tip,
+		};
+	};
+
+	function exactSearchFilter(filterValue, item) {
+		if (item.data === undefined) {
+			return false;
+		};
+        for (var searchTerm of filterValue){
+            if (item.data.characters !== null) if (searchTerm === item.data.characters) {return true};
+            if (searchTerm.replace(' ', '-') === item.data.slug){return true};
+            for (var meaning of item.data.meanings){
+                if (!meaning.accepted_answer) break;
+                let term = meaning.meaning.trim().toLowerCase();
+                if (searchTerm === term){return true};
+                let words = term.split(' ').filter(function(name) {return (name.length > 0);})
+                for (var word of words) {
+                    if (searchTerm === word){return true};
+                }
+            };
+            if (item.object !== 'radical' && item.object !== 'kana_vocabulary'){
+                for (let reading of item.data.readings){
+                    if (searchTerm === reading.reading) {return true;};
+                };
+            };
+        };
+		return false;
+	};
+
+
+    // END Exact Search
+
+    // -----------------------------------------------------------
     // END Search
 
     // BEGIN JLPT
@@ -13084,7 +13808,7 @@
         waitForItemDataRegistry()
             .then(registerJLPTFilter)
             .then(function(){return Promise.resolve()})
-    }
+    };
 
 	function registerJLPTFilter() {
         var JLPTFilterName = 'jlpt_level_vocab';
@@ -13117,9 +13841,9 @@
             jlpt_level = 0;
         } else {
             jlpt_level = jlpt_level_data.jlpt_level || 0;
-        }
+        };
         return (filter_value[jlpt_level] === true);
-    }
+    };
 
     function accept_jlpt_kanji_vocab(filter_value, item) {
         var characters = item.data.characters;
@@ -13177,14 +13901,14 @@
 			set_options: function(options) { options.assignments = true; },
 			hover_tip: hadPassedGuruFilterHover_tip,
 		};
-	}
+	};
 
 	function hadPassedGuruFilter(filterValue, item) {
 		if (item.assignments === undefined) {
 			return !filterValue;
 		}
 		return filterValue ? (item.assignments.passed_at !== null) : (item.assignments.passed_at === null);
-	}
+	};
 
     // END Date
 
@@ -13194,7 +13918,7 @@
             .then(registerMinCurStrGteqFilter)
             .then(registerMinCurStrLteqFilter)
             .then(function(){return Promise.resolve()})
-    }
+    };
 
     //======================================================
     // Streak Filters
@@ -13222,19 +13946,19 @@
 			set_options: function(options) { options.review_statistics = true; },
 			hover_tip: minCurStrGteqFilterHover_tip,
 		};
-	}
+	};
 
 	function minCurStrGteqFilter(filterValue, item) {
         let review_statistics = item.review_statistics;
 		if (review_statistics === undefined) {
 			return false;
-		}
+		};
         if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return review_statistics.meaning_current_streak >= filterValue;
         } else {
 		    return review_statistics.meaning_current_streak >= filterValue && review_statistics.reading_current_streak >= filterValue;
         };
-	}
+	};
 
 	function registerMinCurStrLteqFilter() {
         var filterNamePrefix = 'statsFilters_';
@@ -13250,19 +13974,19 @@
 			set_options: function(options) { options.review_statistics = true; },
 			hover_tip: minCurStrLteqFilterHover_tip,
 		};
-	}
+	};
 
 	function minCurStrLteqFilter(filterValue, item) {
         let review_statistics = item.review_statistics;
 		if (review_statistics === undefined) {
 			return false;
-		}
+		};
         if (item.object === 'radical' || item.object === 'kana_vocabulary'){
 	    	return review_statistics.meaning_current_streak <= filterValue;
         } else {
 	    	return review_statistics.meaning_current_streak <= filterValue || review_statistics.reading_current_streak <= filterValue;
-        }
-	}
+        };
+	};
 
 	// END Statistics
 
@@ -13272,7 +13996,7 @@
         waitForItemDataRegistry()
             .then(registerSvgRadicalsFilter)
             .then(function(){return Promise.resolve()})
-    }
+    };
 
 	function registerSvgRadicalsFilter() {
         var filterNamePrefixDebug = 'debugFilters_';
@@ -13287,11 +14011,11 @@
 			set_options: function(options) { return },
 			hover_tip: SvgRadicalsFilterHover_tip,
 		};
-	}
+	};
 
 	function SvgRadicalsFilter(filterValue, item) {
 		return filterValue === (item.object === 'radical'&& item.data.characters === null) ;
-	}
+	};
 
     // END Debug
 
@@ -13311,7 +14035,7 @@
 
     function waitForItemDataRegistry() {
         return wkof.wait_state('wkof.ItemData.registry', 'ready');
-	}
+	};
 
 	function registerItemInspectorFilter() {
         waitForItemDataRegistry()
@@ -13328,13 +14052,13 @@
                     no_ui: true,
                 };
                 return Promise.resolve();
-             })
-	}
+             });
+	};
 
     var quizzedItems = {};
 	function itemInspectorFilter(filterValue, item) {
 		return (quizzedItems[item.id] === true);
-	}
+	};
 	// END Item Inspector wkof Filter
 
     var dataReady = false;
@@ -13386,7 +14110,7 @@
             title: 'Item Inspector',
             on_click: open_quiz_settings
         });
-    }
+    };
 
     //-----------------------------------
     // Top bar and widgets
@@ -13558,7 +14282,7 @@
         } else {
             $('.WkitTitle').css('display', 'none');
         };
-    }
+    };
 
     function populateDropdown(){
         // Populate the dropdown with the configured tables
@@ -13606,7 +14330,6 @@
         $("#WkitBackwardButton").click(clickedBackward);
         $("#WkitForwardButton").click(clickedForward);
         $("#WkitLastButton").click(clickedLast);
-        $('#WkitTableSelector').change(selectTable);
         $('#WkitToogleDisplay').click(toggleDisplay);
         $('#WkitToogleLanguage').click(toggleLanguage);
         $('#WkitToogleAudio').click(toggleAudio);
@@ -13623,12 +14346,14 @@
         // handy little trick to permit to select more than once in a row the same option on a dropdown
 
         var $select = $('#WkitFilterSelector'); // configured for the temporary filter selector
+        var $selectMain = $('#WkitTableSelector'); // configured for the table selector
 
         // work around for MacOS users
         // MacOS doesn't deliver events click, mouseup and mousedown on a Select element
         // therefore the trick cannot be implemented for those users
         if (quiz.settings.clickMissedSafariMac) {
             $select.on("change", selectTemporaryFilter)
+            $select.on("change", selectTable)
             return;
         }
 
@@ -13668,7 +14393,45 @@
                 $select.removeClass('open');
             }
         });
-        // end of selecting twice the same dropdown option
+        // end of selecting twice the same dropdown option for temporary filter
+
+        if (quiz.settings.clickTwiceFirefoxMac){
+            // Works around a bug that affects Firefox on Mac where the click handler is intermitent.
+            // The workaround doesn't work on Chrome because On Chrome the mousedown handler is intermittent.
+            // I don't test for browser/OS because I can't test this kind of code, no access to the devices required
+            //
+            // NOTE: this workaround may be obsolete with newer versions of Firefox.
+            $selectMain.mousedown(function(){
+                var $this = $(this);
+                if ($this.hasClass('open')) {
+                    selectTable();
+                    $this.removeClass('open');
+                } else {
+                    $this.addClass('open');
+                };
+            });
+        } else {
+            $selectMain.click(function(){
+                var $this = $(this);
+                if ($this.hasClass('open')) {
+                    selectTable();
+                    $this.removeClass('open');
+                } else {
+                    $this.addClass('open');
+                };
+            });
+        };
+
+        $selectMain.blur(function(){
+            $(this).removeClass('open');
+        });
+
+        $(document).click(function(e){
+            if (!$selectMain.is(e.target)){
+                $selectMain.removeClass('open');
+            }
+        });
+        // end of selecting twice the same dropdown option for table selector
     };
 
     // ====================================================================================
@@ -13811,14 +14574,14 @@
             if (settings.optionalFilters === undefined || !settings.optionalFilters.joyoJpltFrequency) promiseList.push(registerJLPTFilters());
             promiseList.push(registerDebugFilters());
             promiseList.push(registerItemInspectorFilter());
-            promiseList.push(registerKanjiPickerFilters());
+            promiseList.push(registerItemInspectorNativeFilters());
 
             return Promise.all(promiseList)
         };
 
         function forceCacheDeleteIfNeeded(){
             // increment currentQuestionNumber to force a deletion of all Item Inspector cached items
-            const currentQuestionNumber = 3;
+            const currentQuestionNumber = 4;
             const asked = wkof.settings[scriptId].cacheDeleteNumber || 0;
             if (asked < currentQuestionNumber) {
                 return deleteFilesFromCache()
@@ -13838,7 +14601,7 @@
         let promiseList = [];
         let ageingTime = 1000*60*60*24*30*2;  // two months
         let now = Date.now();
-        // settings defaults are not initialized when ageCache is called - We need to test for undifined when running for the first time
+        // settings defaults are not initialized when ageCache is called - We need to test for undefined when running for the first time
         if (wkof.settings[scriptId] === undefined) wkof.settings[scriptId] = {};
         if (wkof.settings[scriptId].lastTime === undefined){
             wkof.settings[scriptId].lastTime = now;
@@ -13968,10 +14731,10 @@
         };
 
         // Increment currentQuestionNumber to force a new determination of missing defaults
-        const currentQuestionNumber = 5;
+        const currentQuestionNumber = 6;
         const asked = wkof.settings[scriptId].questionAsked || 0;
         if (asked < currentQuestionNumber && lackDefaults()) {
-            response = confirm(script_name + ' determined you are missing defaults tables and/or temporary filters.\n\n Click "OK" to have these missing features added to your configuration.');
+            response = confirm(script_name + ' determined you are missing defaults tables and/or other features.\n\n Click "OK" to have these missing features added to your configuration.');
             if (response) {
                 restoreMissingDefaults();
             };
