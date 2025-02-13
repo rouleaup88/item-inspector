@@ -3100,8 +3100,6 @@
                                                         path:'@vpresets[@active_vpreset].venlargingTooltip', default: false, },
                                      vshowMarkers: {type: 'checkbox', label:'Show Markers', hover_tip:'Show the markers for the table data in list of icons.',
                                                    path:'@vpresets[@active_vpreset].vshowMarkers', default: true, },
-                                     vshowCountersInMarkers: {type: 'checkbox', label:'Show Counters in Markers', hover_tip:'Show a count of items the marker is applied to.',
-                                                   path:'@vpresets[@active_vpreset].vshowCountersInMarkers', default: false, },
                                      vshowMarkersDate: {type: 'checkbox', label:'Show Markers in Date Selection', hover_tip:'Show the markers for the table data in list of icons when ordered by date.',
                                                    path:'@vpresets[@active_vpreset].vshowMarkersDate', default: false, },
                                      vshowHours: {type: 'checkbox', label:'Show Hours in Markers', hover_tip:'Show the hours and minutes for dates in list of icons markers',
@@ -3663,7 +3661,7 @@
                                   vtooltip5: 'Meaning_Incorrect', vtooltip6: 'Reading_Incorrect', vtooltip7: 'Percentage_Incorrect',
                                   vtooltip8: 'Review_Count', vshowStrokeOrder: false, vshowRendaku: 'Pitch Info',
                                   vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
                                   column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
@@ -3676,7 +3674,7 @@
                                   vtooltip5: 'Burned_Date', vtooltip6: 'Resurrected_Date', vtooltip7: 'Last_Review_Date', vtooltip8: 'Review_Date',
                                   vshowStrokeOrder: false, vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info',
                                   vshowRendaku: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
                                   column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
@@ -3688,7 +3686,7 @@
                                   vtooltip1: 'Components', vtooltip2: 'Vis_Sim_Kanji', vtooltip3: 'Lars_Yencken', vtooltip4: 'Niai',
                                   vtooltip5: 'Used_In', vtooltip6: 'Part_Of_Speech', vtooltip7: 'Allow_List', vtooltip8: 'Block_List',
                                   vshowStrokeOrder: false, vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
                                   column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
@@ -3700,7 +3698,7 @@
                                   vtooltip1: 'Meaning_Full', vtooltip2: 'Reading_Full', vtooltip3: 'Components', vtooltip4: 'Allow_List',
                                   vtooltip5: 'Block_List', vtooltip6: 'Part_Of_Speech', vtooltip7: 'Mnemonics', vtooltip8: 'Notes',
                                   vshowStrokeOrder: false, vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
                                   column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
@@ -3712,7 +3710,7 @@
                                   vtooltip1: 'Meaning_Full', vtooltip2: 'Reading_by_Type', vtooltip3: 'Level', vtooltip4: 'Srs',
                                   vtooltip5: 'Used_In', vtooltip6: 'Vis_Sim_Kanji', vtooltip7: 'Lars_Yencken', vtooltip8: 'Niai',
                                   vshowStrokeOrder: false, vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
                                   column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
@@ -3724,7 +3722,7 @@
                                   vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
                                   vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
                                   vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Leech', rsortOrder1: 'Default',
                                   column1: 'Level', column2: 'Srs', column3: 'Meaning_Current_Streak', column4: 'Reading_Current_Streak',
@@ -3737,7 +3735,7 @@
                                   vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
                                   vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
                                   vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Level', rsortOrder1: 'Default',
                                   column1: 'Leech', column2: 'Srs', column3: 'Meaning_Current_Streak', column4: 'Reading_Current_Streak',
@@ -3750,7 +3748,7 @@
                                   vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
                                   vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: false,
                                   vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
-                                  venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
+                                  venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                                   vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                                   report_key: 'Level', rsortOrder1: 'Default',
                                   column1: 'Srs', column2: 'Review_Count', column3: 'Unlock_Date', column4: 'Lesson_Date',
@@ -3766,7 +3764,7 @@
                             vtooltip1: 'None', vtooltip2: 'None', vtooltip3: 'None', vtooltip4: 'None', vtooltip5: 'None',
                             vtooltip6: 'None', vtooltip7: 'None', vtooltip8: 'None', vshowStrokeOrder: true,
                             vshowRadical: 'Keisei', vshowKanji: 'Keisei', vshowVocabulary: 'Pitch Info', vshowRendaku: 'Pitch Info',
-                            venlargingTooltip: false, vshowMarkers:true, vshowCountersInMarkers: false, vshowMarkersDate:false, vshowHours:false,
+                            venlargingTooltip: false, vshowMarkers:true, vshowMarkersDate:false, vshowHours:false,
                             vvisSimTreshold:0.0, vvisSimTresholdNiai:0.3, vniaiAlternate:false,
                             report_key: 'Leech', rsortOrder1: 'Default',
                             column1: 'None', column2: 'None', column3: 'None', column4: 'None', column5: 'None', column6: 'None', column7: 'None',
@@ -3799,11 +3797,6 @@
         if (settings.vpresets === undefined || !settings.vpresets.length) {
             settings.active_vpreset = 0;
             settings.vpresets = vpresets_defaults;
-        };
-
-        // add the showCountersInMarkers settings to existing tables
-        for (let table of settings.vpresets) {
-            if ((typeof table.vshowCountersInMarkers) === 'undefined' ) table.vshowCountersInMarkers = false;
         };
 
          for (var idx in settings.ipresets) {
@@ -6420,8 +6413,9 @@
         if (MM.length < 2) MM = '0' + MM;
         if (DD.length < 2) DD = '0' + DD;
         let s = YY+'-'+MM+'-'+DD;
-        if (quiz.settings.tablePresets[quiz.settings.active_ipreset].showHours){
-            if (quiz.settings.hoursFormat === '24hours') {
+        let settings = quiz.settings
+        if (settings.tablePresets[settings.active_ipreset].showHours || settings.vpresets[settings.active_vpreset].vshowHours){
+            if (settings.hoursFormat === '24hours') {
                 s += ' '+('0'+hh).slice(-2)+':'+('0'+mm).slice(-2);
             } else {
                 s += ' '+(((hh+11)%12)+1)+':'+('0'+mm).slice(-2)+['am','pm'][Math.floor(date.getHours()/12)];
@@ -10561,18 +10555,19 @@
         let itemsLength = items.length;
         let selected_table = quiz.settings.active_ipreset;
         let presets = quiz.settings.tablePresets[selected_table]
-        let meaningMode = presets.displayMeaning;
-        let showMarkers = presets.showMarkers;
-        if (presets.selection === 'Random' || presets.selection === 'LeechTraining' ) showMarkers = false;
-        if (presets.selection === 'Date') showMarkers = presets.showMarkersDate;
-        let dateSelection = (presets.selection === 'Date');
-        let dateSelected = presets.navigationDate;
-        let get_table_data = metadata[presets.table_data].tableEntryMarker;
-        if (dateSelection) get_table_data = metadata[dateSelected].tableEntryMarker;
         let active_vpreset = quiz.settings.active_vpreset;
         let vpreset = quiz.settings.vpresets[active_vpreset];
+        let meaningMode = presets.displayMeaning;
+        let showMarkers = presets.showMarkers ||(active_vpreset !== 0 && vpreset.vshowMarkers);
+        let dateSelection = (presets.selection === 'Date');
+        let dateSelected = presets.navigationDate;
+        if (presets.selection === 'Random' || presets.selection === 'LeechTraining' ) showMarkers = false;
+        if (dateSelection) {showMarkers = (presets.showMarkersDate)};
+        if (dateSelection && active_vpreset !==0) {showMarkers = (vpreset.vshowMarkersDate)};
+        let get_table_data = metadata[presets.table_data].tableEntryMarker;
         if (active_vpreset !== 0 && vpreset.vtable_data !== 'Same') get_table_data = metadata[vpreset.vtable_data].tableEntryMarker;
-        let showCountInMarkers = presets.showCountersInMarkers || vpreset.vshowCountersInMarkers;
+        if (dateSelection) get_table_data = metadata[dateSelected].tableEntryMarker;
+        let showCountInMarkers = presets.showCountersInMarkers;
         audioCounter = 0;
         initTooltipGlobals();
 
