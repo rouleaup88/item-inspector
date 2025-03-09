@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.30.0
+// @version       1.31.0
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -2108,13 +2108,18 @@
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical {
                 display: inline-block;
                 padding: 3px;
-                line-height: 1.2em;
-                /*border-color: black;*/
+                padding-top: 14px;
                 border-style: solid;
-                min-width: 1.5em;
-                font-size: 25px;
+                min-width: 2.5em;
+                font-size: 30px;
                 text-align: center;
                 text-shadow: none;
+            }
+
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical .WkitPickerLabel {
+                font-size: 14px;
+                padding: 2px;
+                line-height: 1.2em;
             }
 
             #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical { color: var(--wkit-text-color-light); }
@@ -2130,7 +2135,10 @@
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitTraditional { background-color: var(--Wkit-base-trad-color); }
 
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical svg {
-                width: 1em;
+                margin-top: -10px;
+                margin-bottom: -2px;
+                height: 1em;
+                line-height: 1em;
                 fill: none;
                 stroke: currentColor;
                 stroke-width: 70;
@@ -3123,7 +3131,7 @@
                                                        },
                                      vniaiAlternate: {type:'checkbox', label:'Use Niai Alternate Sources',
                                                       hover_tip:'Add alternate sources to Niai visually similar\ndata to the main sources.\nThis will return more similar kanji.',
-                                                    path:'@vpresets[@active_vpreset].vniaiAlternate', //default:false,
+                                                    path:'@vpresets[@active_vpreset].vniaiAlternate', default:false,
                                                    },
                                  },
                                 };
@@ -4262,6 +4270,7 @@
 
                               additionalFilters_recentLessons: {group: 'review', order: 40, suborder: 10}, additionalFilters_timeUntilReview: {group: 'review', order: 40, suborder: 20},
                               itemInspectorSucceededLastReview: {group: 'review', order: 40, suborder: 25}, additionalFilters_failedLastReview: {group: 'review', order: 40, suborder: 30},
+                              itemInspectorForecastLevelUp: {group: 'review', order: 40, suborder: 40},
 
                               dateFilters_hadLastReviewScheduled: {group: 'date', order: 50, suborder: 4},
                               dateFilters_lastReviewAfter: {group: 'date', order: 50, suborder: 6}, dateFilters_lastReviewBefore: {group: 'date', order: 50, suborder: 8},
@@ -4443,16 +4452,26 @@
                     hover_tip:flt.hover_tip
                 }
                 break;
+            case 'list':
             case 'multi':
                 var dflt = flt.default;
                 if (typeof flt.filter_value_map === 'function') dflt = flt.filter_value_map(dflt);
                 flt_content = {
                     type:'list',
-                    multi:true,
+                    multi:flt.type === 'multi',
                     size:Math.min(4,Object.keys(flt.content).length),
                     label:flt.label,
                     content:flt.content,
                     default:dflt,
+                    hover_tip:flt.hover_tip
+                }
+                break;
+               case 'dropdown':
+                flt_content = {
+                    type:'dropdown',
+                    label:flt.label,
+                    content:flt.content,
+                    default:flt.default,
                     hover_tip:flt.hover_tip
                 }
                 break;
@@ -4683,7 +4702,7 @@
     };
 
     function makeIndexes(items){
-         // publish data to advSearchFilters script
+         // publish data to advSearchFilters script in case a user has loaded it
         if (typeof advSearchFilters === 'object'){
             advSearchFilters.allItems = items;
         };
@@ -4708,6 +4727,7 @@
             };
         };
         wkof.set_state('Wkit_makeIndexes', 'ready');
+        return Promise.resolve()
     };
 
     // ----------------------------------------------------------------------
@@ -11546,6 +11566,7 @@
             .then(wkof.wait_state('Wkit_trad_rad', 'ready'))
             .then(function(){registerPickerFilter()})
             .then(registerSuccededLastReviewFilter)
+            .then(registerTForecastLevelUpFilter)
             .then(function(){return Promise.resolve()})
     };
 
@@ -11826,8 +11847,12 @@
         let radKeys = Object.keys(rads);
         settings.strokeCount[count] = false;
         if (settings.radType === 'wanikani') {
+            let itemList = [];
             for (let idx in radKeys){
-                let item = subjectIndexRad[radKeys[idx]];
+                itemList.push(subjectIndexRad[radKeys[idx]]);
+            };
+            itemList.sort(sortWanikaniRadicals);
+            for (let item of itemList){
                 let char = (item.data.characters === null ? svgForRadicals[item.id] : item.data.characters);
                 stringList.push('<div class="WkitPickableRadical WkitWanikani');
                 if (!settings.picking[count][item.id]) {
@@ -11836,27 +11861,40 @@
                     settings.strokeCount[count] = true;
                 };
                 stringList.push('" radicalid="');
-                stringList.push(radKeys[idx]);
+                stringList.push(item.id);
                 stringList.push('">');
                 stringList.push(char);
+                stringList.push('<br class="WkitPickerLabel">');
+                stringList.push('<span class="WkitPickerLabel radical">');
+                stringList.push(item.data.slug);
+                stringList.push('</span>');
                 stringList.push('<div class="WkitPickerPopupContent radical">');
                 makePopupForIcon(item.id, stringList)
                 stringList.push('</div>');
                 stringList.push('</div>');
             };
         } else {
+            let itemList = [];
             for (let idx in radKeys){
-                let item = subjectIndex[radKeys[idx]];
+                itemList.push(subjectIndex[radKeys[idx]]);
+            };
+            itemList.sort(sortTraditionalRadicals);
+            for (let item of itemList){
+                let meaning = item.data.meanings.length ? item.data.meanings[0].meaning : '';
                 stringList.push('<div class="WkitPickableRadical WkitTraditional');
-                if (!settings.picking[count][radKeys[idx]]) {
+                if (!settings.picking[count][item.id]) {
                     stringList.push(' WkitNotPicked');
                 } else {
                     settings.strokeCount[count] = true;
                 };
                 stringList.push('" radicalid="');
-                stringList.push(radKeys[idx]);
+                stringList.push(item.id);
                 stringList.push('">');
                 stringList.push(item.data.characters);
+                stringList.push('<br class="WkitPickerLabel">');
+                stringList.push('<span class="WkitPickerLabel radical">');
+                stringList.push(meaning);
+                stringList.push('</span>');
                 stringList.push('<div class="WkitPickerPopupContent radical">');
                 makePopupForIcon(item.id, stringList)
                 stringList.push('</div>');
@@ -11866,6 +11904,34 @@
         let html = stringList.join('');
         $('#WkitKanjiPicker_picking').html(html);
         $('.WkitPickableRadical').on('click', radicalSelected);
+
+        function sortWanikaniRadicals(item_a, item_b){
+            if (item_a.data.slug < item_b.data.slug)
+            {
+                return -1;
+            } else if (item_a.data.slug > item_b.data.slug)
+            {
+                return 1;
+            } else {
+                return 0;
+            };
+        };
+
+        function sortTraditionalRadicals(item_a, item_b){
+            let a_meaning = item_a.data.meanings.length ? item_a.data.meanings[0].meaning : 'zzzzzzzz';
+            let b_meaning = item_b.data.meanings.length ? item_b.data.meanings[0].meaning : 'zzzzzzzz';
+            if (a_meaning <b_meaning)
+            {
+                return -1;
+            } else if (a_meaning > b_meaning)
+            {
+                return 1;
+            } else {
+                return 0;
+            };
+        };
+
+
     };
 
     function setPickerWithKanji(kanjiList) {
@@ -11975,6 +12041,82 @@
 	}
 
     // END Succeeded Last Review
+
+	// BEGIN Forecast Level Up Unlock
+
+    const forecastLevelUpHoverTipSummary = 'Forecast which items will unlock on the next level up';
+    const forecastLevelUpHoverTipSummary2 = forecastLevelUpHoverTipSummary + '\n\nSelect the SRS stage a prerequisite item must have reached';
+    const forecastLevelUpHoverTip = forecastLevelUpHoverTipSummary2 + '\nto forecast that it will have reached guru on next level up';
+    var forecastLevelUpFileterName = 'itemInspectorForecastLevelUp'
+	function registerTForecastLevelUpFilter() {
+		wkof.ItemData.registry.sources.wk_items.filters[forecastLevelUpFileterName] = {
+			type: 'dropdown',
+			label: 'Forecast Unlocked items',
+			default: '5',
+            content: {'5': 'Has passed Guru',
+                      '4': 'Apprentice !V',
+                      '3': 'Apprentice III',
+                      '2': 'Apprentice II',
+                      '1': 'Apprentice 1',
+                      '0': 'Ready For Lesson'
+                     },
+			prepare: forecastLevelUpPrepare,
+			filter_value_map: function (string) {return Number(string)},
+			filter_func: forecastLevelupFilter,
+			set_options: function(options) { options.assignments = true; options.subject = true; },
+			hover_tip: forecastLevelUpHoverTip
+		};
+	};
+
+    var targetLevel;
+	async function forecastLevelUpPrepare() {
+        let userData = await wkof.Apiv2.get_endpoint('user');
+        targetLevel = userData.level + 1;
+    };
+
+
+	function forecastLevelupFilter(filterValue, item) {
+		if (item.assignments === undefined) {
+			return false;
+		};
+
+        if (item.data.level !== targetLevel){
+            return false
+        };
+
+        switch (item.object) {
+            case 'vocabulary':
+                return calculateForecast(subjectIndexKan, filterValue, item);
+            case 'kanji':
+                return calculateForecast(subjectIndexRad, filterValue, item);
+            case 'radical':
+            case 'kana_vocabulary':
+                return true;
+        };
+
+        function calculateForecast(index, filterValue, item){
+            let accumulator = true;
+            for (let idx of item.data.component_subject_ids) {
+                let prerequisite = index[idx];
+                let hasPassedGuru = prerequisite.assignments.passed_at !== null;
+                if (filterValue === 5) {
+                    accumulator = accumulator && hasPassedGuru;
+                } else {
+                    // Conceptually we should have included if (hasPassedGuru) accumulator = accumulator && hasPassedGuru;
+                    // but this is a null operation because hasPassedGuru is always true when this test is passed.
+                    if (prerequisite.assignments.unlocked_at === null){
+                        accumulator = false
+                    } else {
+                        if (!hasPassedGuru) accumulator = accumulator && prerequisite.assignments.srs_stage >= filterValue;
+                    }
+                };
+            };
+            return accumulator;
+        };
+
+	};
+
+	// END Forecast Level Up Unlock
 
     // -----------------------------------------------------------
     // BEGIN Kanjidic2 and Traditional radicals
@@ -14381,7 +14523,7 @@
         // therefore the trick cannot be implemented for those users
         if (quiz.settings.clickMissedSafariMac) {
             $select.on("change", selectTemporaryFilter)
-            $select.on("change", selectTable)
+            $selectMain.on("change", selectTable)
             return;
         }
 
@@ -14798,7 +14940,8 @@
         addEventListener("turbo:load", (e) => {
 
             // Turbo events are fired too early, leaving work in the event queue
-            // scheduled to be executed after the turbo event lister runs
+            // scheduled to be executed after the turbo event lister runs that
+            // should be run before the turbo event listener.
 
             setTimeout(delayedExecution, 0); // delay execution to the end of the event queue
         });
@@ -14833,14 +14976,14 @@
         };
     };
 
-    wkof.include('ItemData, Menu, Settings, Jquery');
+    wkof.include('ItemData, Menu, Settings, Apiv2, Jquery');
 
     // parallelism to reduce startup latency, especially if network transfer are involved
     // There is not much to gain because this is mostly disk access on the same disk
     // but every little gain counts.
     Promise.all([loadPrerequisiteScripts(),
                  wkof.ready('Settings').then(function(){return wkof.Settings.load(scriptId)}),
-                 wkof.ready('ItemData, Menu, Jquery'),
+                 wkof.ready('ItemData, Menu, Apiv2, Jquery'),
                 ])
         .then(loadItemsFiltersAndDb) // must be after prerequisite scripts, ItemData, and loaded settings
         .then(initSequence)
