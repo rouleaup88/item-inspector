@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.31.0
+// @version       1.31.1
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -12076,10 +12076,6 @@
 
 
 	function forecastLevelupFilter(filterValue, item) {
-		if (item.assignments === undefined) {
-			return false;
-		};
-
         if (item.data.level !== targetLevel){
             return false
         };
@@ -12098,6 +12094,7 @@
             let accumulator = true;
             for (let idx of item.data.component_subject_ids) {
                 let prerequisite = index[idx];
+                if (prerequisite.assignments === undefined) return false;
                 let hasPassedGuru = prerequisite.assignments.passed_at !== null;
                 if (filterValue === 5) {
                     accumulator = accumulator && hasPassedGuru;
