@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.31.1
+// @version       1.31.2
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -12069,9 +12069,14 @@
 	};
 
     var targetLevel;
-	async function forecastLevelUpPrepare() {
-        let userData = await wkof.Apiv2.get_endpoint('user');
-        targetLevel = userData.level + 1;
+	function forecastLevelUpPrepare() {
+        let levels = [10000];
+        for (let i=1; i<=61; i++) levels.push(0);
+        for (let item of quiz.allItems){
+            if (item.assignments !== undefined && item.assignments.unlocked_at !== null) levels[item.data.level]++;
+        };
+        for (var level=1; level<levels.length; level++) if (levels[level] <= 10) break;
+        targetLevel = level;
     };
 
 
