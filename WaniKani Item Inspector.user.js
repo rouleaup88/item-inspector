@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.31.2
+// @version       1.31.3
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -4695,10 +4695,10 @@
     //
     // function to be invoked in the startup sequence
     //------------------------------------------------------------------------
-    function fetch_all_items() {
+    function fetch_all_items(global_options) {
         let configIndex = {wk_items: {filters:{},
                                       options:{'subjects': true, 'assignments': true, 'review_statistics': true, 'study_materials': true}}};
-        return wkof.ItemData.get_items(configIndex).then(function(items){quiz.allItems = items; makeIndexes(items);})
+        return wkof.ItemData.get_items(configIndex, global_options).then(function(items){quiz.allItems = items; makeIndexes(items);})
     };
 
     function makeIndexes(items){
@@ -14725,7 +14725,7 @@
             let promiseList = [];
             let settings = wkof.settings[scriptId];
 
-            if (document.querySelector('.dashboard') !== null) promiseList.push(fetch_all_items());
+            if (document.querySelector('.dashboard') !== null) promiseList.push(fetch_all_items({}));
             promiseList.push(loadSvgForRadicals());
             promiseList.push(initLastSelectionRecorded());
 
@@ -14934,6 +14934,8 @@
 
     // the Turbo event listener
     //
+    var old_time = 0;
+    var current_time = Date.now()
     function addTurboEventListener(){
 
         // turbo:load is the event that is fired only once per load. Othee turbo events such as
@@ -14949,11 +14951,15 @@
         });
 
         function delayedExecution(){
-             if (document.querySelector('.dashboard') !== null) {
-                 let elem = document.getElementById('WkitTopBar');
-                 if (elem !== null) elem.remove();
-                 fetch_all_items().then(displayItemInspector); //must fetch items because they may be modified by reviews or lessons in a previous page.
-             };
+            old_time = current_time;
+            current_time = Date.now();
+            let global_options = {};
+            if (current_time - old_time <= 120*1000) global_options = {force_update: true};
+            if (document.querySelector('.dashboard') !== null) {
+                let elem = document.getElementById('WkitTopBar');
+                if (elem !== null) elem.remove();
+                fetch_all_items(global_options).then(displayItemInspector); //must fetch items because they may be modified by reviews or lessons in a previous page.
+            };
         };
     };
 
