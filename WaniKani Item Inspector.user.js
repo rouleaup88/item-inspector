@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.31.3
+// @version       1.31.4
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -114,9 +114,6 @@
                              partOfSpeech: 'https://greasyfork.org/scripts/376095-wanikani-part-of-speech-filter/code/Wanikani%20Part-of-Speech%20Filter.user.js',
                              visSim: 'https://greasyfork.org/scripts/377971-wanikani-open-framework-visually-similar-kanji-filter/code/Wanikani%20Open%20Framework:%20Visually%20similar%20kanji%20filter.user.js',
                              joyoJpltFrequency: 'https://greasyfork.org/scripts/377613-wanikani-open-framework-jlpt-joyo-and-frequency-filters/code/Wanikani%20Open%20Framework%20JLPT,%20Joyo,%20and%20Frequency%20filters.user.js',
-                             // test versions of some fo the previous files
-                             //kanjidic2_trad_rad: 'http://127.0.0.1:8887/WaniKani%20Open%20Framework%20Kanjidic2%20and%20Traditional%20Radicals%20Filters.user.js',
-                             //dateFilters: 'http://127.0.0.1:8887/WaniKani%20Open%20Framework%20Statistics%20Filters.user.js',
                             };
 
 
@@ -199,8 +196,13 @@
         let elem = document.getElementById('WkitTopBar');
         if (elem === null){
             // Turbo has changed page, the observer must be stopped
-            if (themeWatcher !== null) {
-                themeWatcher.disconnect();
+            if (themeWatcher !== null && themeWatcher !== undefined) {
+                try {
+                    themeWatcher.disconnect();
+                } catch({name, message}) {
+                    console.log(name);
+                    console.log(message);
+                };
                 themeWatcher = null;
             };
         } else if (!is_dark){
@@ -1100,7 +1102,7 @@
 
             #WkitTopBar .WkitTooltip .WkitTooltipContent {
                 background-color: black;
-                max-width: 650px;
+                max-width: 590px;
                 min-width: 350px;
                 z-index: 20000;
             }
@@ -3197,8 +3199,8 @@
         var settingsTabConfig ={type:'page',label:'Settings',
                                 content:{
                                     sect_tbl_cnts:{type:'section',label:'Interface Configuration'},
-                                    position: {type: 'dropdown', label: 'Position', default: 2, hover_tip: 'Where on the dashboard to install Item Inspector',
-                                               content: {0: "Top", 1: "Below forecast", 2: "Below SRS", 3: "Below panels", 4: "Bottom"},
+                                    position: {type: 'dropdown', label: 'Position', default: 1, hover_tip: 'Where on the dashboard to install Item Inspector',
+                                               content: {0: "Top", 1: "Bottom"},
                                               },
                                     hoursFormat: {type:'dropdown',label:'Hours Format',hover_tip:'Choose the format for displaying hours',content:{'12hours':'12h', '24hours':'24h',},
                                                   default: '24h',},
@@ -4023,7 +4025,8 @@
     //------------------------------------------------------------------------
     var old_position;
     function open_quiz_settings() {
-        document.getElementById("WkitSettings").blur();
+        let $settings = document.getElementById("WkitSettings");
+        if ($settings) $settings.blur();
         old_position = quiz.settings.position;
         if (quiz.settings_dialog === undefined || quiz.settings_dialog === null){setup_quiz_settings();};
         wkof.wait_state(Wkit_navigation, 'Ready')
@@ -4256,7 +4259,7 @@
                               item: {label: 'Items and Information'}, item_trad_rad: {label: 'Items and Information'},
                               item_trad_rad: {label: 'Items and Information'},
                               stats: {label: 'Statistics', section: 'Statistics Filters Are Applicable Only to Wanikani Items',},
-                              debug: {label: 'debugging tool', section: 'Tools to display useful debugging information'},
+                              debug: {label: 'Debugging Tool', section: 'Tools to display useful debugging information'},
                               other: {label: 'Uncategorized Filters', section: 'Uncategorised Filters May or May Not Use Traditional Radicals',}};
         const flt_ordering = {item_type: {group: 'basics', order: 10, suborder: 10}, level: {group: 'basics', order: 10, suborder: 20},
                               srs: {group: 'basics', order: 10, suborder: 30},
@@ -10818,7 +10821,7 @@
             elem.addClass(position.top < 180 ? "WkitFirstItem" : "WkitLaterItem");
             if (position.top > 350) elem.addClass("WkitLatestItem");
             elem.addClass(position.left < 280 ? "WkitLeftItem" : position.left < 840 ? "WkitCenterItem" : "WkitRightItem");
-            elem.addClass(position.left < 560 ? "WkitLeftSide" : "WkitRightSide");
+            elem.addClass(position.left < 553 ? "WkitLeftSide" : "WkitRightSide");
         };
     };
 
@@ -11999,26 +12002,30 @@
 		// review_statistics is undefined for new lessons.
 		if (item.assignments === undefined || item.review_statistics === undefined) {
 			return false;
-		}
+		};
 
 		var assignments = item.assignments;
 		var srsStage = assignments.srs_stage;
 
 		if (srsStage === 0) {
 			return false;
-		}
-
-		if (srsStage === 9) {
-			return false;
-		}
+		};
 
 		if (!succeededLastReview(item.review_statistics)) {
 			return false;
-		}
+		};
 
-		var srsInvervalInHours = getSrsIntervalInHours(srsStage, item.data.level);
-		var lastReviewTimeInMs = getLastReviewTimeInMs(srsInvervalInHours, assignments.available_at);
-		var hoursSinceLastReview = (nowForSucceededLastReview - lastReviewTimeInMs) / msPerHour;
+        var lastReviewTimeInMs;
+        if (srsStage === 9) {
+            // assignments.available_at is adusted to hour boundary by Wanikani.
+            // For consistency we adjust assignment.burn_at to hour boundary as well
+            lastReviewTimeInMs = Math.floor(Date.parse(assignments.burned_at) / msPerHour) * msPerHour;
+        } else {
+            var srsInvervalInHours = getSrsIntervalInHours(srsStage, item.data.level);
+            var reviewTime = assignments.available_at;
+		    lastReviewTimeInMs = getLastReviewTimeInMs(srsInvervalInHours, reviewTime);
+        };
+		var hoursSinceLastReview = (nowForSucceededLastReview - lastReviewTimeInMs) / msPerHour
 
 		return hoursSinceLastReview <= filterValue;
 	};
@@ -12034,7 +12041,7 @@
 		return ((current_streak >= 2) || (current_streak === 1 && total_incorrect === 0))
 	};
 
-	function getLastReviewTimeInMs(srsInvervalInHours, reviewAvailableAt) {
+	function getLastReviewTimeInMs(srsInvervalInHours, reviewAvailableAt, srsStage) {
 		var srsIntervalInMs = srsInvervalInHours * msPerHour;
 
 		return Date.parse(reviewAvailableAt) - srsIntervalInMs;
@@ -14417,9 +14424,10 @@
             '<div id="WkitDialogContainer" class="WkitDialogContainer">Text here for testing</div>' +
             '<div id="leech_table">'+waitMessage+'</div>';
 
-        if (quiz.settings.position === undefined) {quiz.settings.position = 2};
-        let position = ['.dashboard__content', '.srs-progress', '.srs-progress', '.community-banner', '.dashboard__content'][quiz.settings.position];
-        if (quiz.settings.position == 0 || quiz.settings.position == 1 || quiz.settings.position == 3){
+        if (quiz.settings.position === undefined) {quiz.settings.position = 1};
+        if (quiz.settings.position > 1) {quiz.settings.position = 1}
+        let position = '.dashboard__content';
+        if (quiz.settings.position == 0){
             $(position).before(sectionContainer);
         } else {
             $(position).after(sectionContainer);
@@ -14938,7 +14946,7 @@
     var current_time = Date.now()
     function addTurboEventListener(){
 
-        // turbo:load is the event that is fired only once per load. Othee turbo events such as
+        // turbo:load is the event that is fired only once per load. Other turbo events such as
         // turbo:render are fired once for the cache and once for the real page causing problems.
 
         addEventListener("turbo:load", (e) => {
@@ -14984,14 +14992,14 @@
         };
     };
 
-    wkof.include('ItemData, Menu, Settings, Apiv2, Jquery');
+    wkof.include('ItemData, Menu, Settings, Jquery');
 
     // parallelism to reduce startup latency, especially if network transfer are involved
     // There is not much to gain because this is mostly disk access on the same disk
     // but every little gain counts.
     Promise.all([loadPrerequisiteScripts(),
                  wkof.ready('Settings').then(function(){return wkof.Settings.load(scriptId)}),
-                 wkof.ready('ItemData, Menu, Apiv2, Jquery'),
+                 wkof.ready('ItemData, Menu, Jquery'),
                 ])
         .then(loadItemsFiltersAndDb) // must be after prerequisite scripts, ItemData, and loaded settings
         .then(initSequence)
