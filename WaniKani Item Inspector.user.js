@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.31.4
+// @version       1.33.0
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -3200,7 +3200,9 @@
                                 content:{
                                     sect_tbl_cnts:{type:'section',label:'Interface Configuration'},
                                     position: {type: 'dropdown', label: 'Position', default: 1, hover_tip: 'Where on the dashboard to install Item Inspector',
-                                               content: {0: "Top", 1: "Bottom"},
+                                               content: {0: "Top", 1: "Bottom", 2: 'After 1st widget row', 3: 'After 2nd widget row',
+                                                         4: 'After 3rd widget row', 5: 'After 4th widget row', 6: 'After 5th widget row',
+                                                         7: 'After 6th widget row', 8: 'After 7th widget row', 9: 'After 8th widget row',},
                                               },
                                     hoursFormat: {type:'dropdown',label:'Hours Format',hover_tip:'Choose the format for displaying hours',content:{'12hours':'12h', '24hours':'24h',},
                                                   default: '24h',},
@@ -4046,9 +4048,9 @@
             if (document.getElementById("WkitTopBar")){
                 $('#WkitTopBar').empty();
                 $('#WkitTopBar').remove();
-                insertContainer();
-                eventHandlers();
             };
+            insertContainer();
+            eventHandlers();
         };
         setThemeClasses(null, null);
         initCurrentItem();
@@ -6820,6 +6822,7 @@
                         '素人': 'しろうと: exception',
                         '為替': 'かわせ: exception',
                         '親父': 'おや: kun, じ: exception',
+                        '芝生': 'しば: kun ふ: exception',
                        };
 
     // Readings that may morph into something with a little っ
@@ -10629,7 +10632,7 @@
 
         // These variables control how many items will be on the screen so they don't overflow it
         // The numbers have been found by trial and error
-        // Priotity no 1 - never force people to scroll to see the last item
+        // Priority no 1 - never force people to scroll to see the last item
         // As long as people never scroll fill the screen with as many icons as possible
         // Test on as a wide data set as possible and tweak the numbers until a good result is achieved
         // The tests must include all use cases
@@ -10644,7 +10647,12 @@
         // Any change to the size of the icons requires to redo this tuning
 
         let firstLineLimit = meaningMode ? 120.0 : 70.0; // insert class to left justify when fewer characters than this
-        let maxCharCount = meaningMode ? 550.0 : 333.0; // maximum characters in a screen - stop filling the screen when exceeded
+        let maxCharCount; // maximum characters in a screen - stop filling the screen when exceeded
+        if (quiz.settings.numberOfLines < 11) {
+            maxCharCount = meaningMode ? 445.0 : 287.0;
+        } else {
+            maxCharCount = meaningMode ? 550.0 : 333.0;
+        };
         let overheadVocab = 0.9; // overhead for space between icons - for vocab
         let overheadOther = 0.8; // overhead for space between icons - for kanji and radicals
         let markerFactor = 0.37; // factor for smaller size of markers characters
@@ -14425,12 +14433,23 @@
             '<div id="leech_table">'+waitMessage+'</div>';
 
         if (quiz.settings.position === undefined) {quiz.settings.position = 1};
-        if (quiz.settings.position > 1) {quiz.settings.position = 1}
         let position = '.dashboard__content';
         if (quiz.settings.position == 0){
             $(position).before(sectionContainer);
-        } else {
+        } else if (quiz.settings.position == 1){
             $(position).after(sectionContainer);
+        } else {
+            let maxSettingPosition = Number(quiz.settings.position) - 2;
+            let cssPosition =  '.dashboard__content > *:first-child';
+            for (let n = 1; n <= maxSettingPosition; n++){
+                cssPosition += ' + *';
+            };
+            let $cssPosition = $(cssPosition);
+            if ($cssPosition.length > 0) {
+                $cssPosition.after(sectionContainer);
+            } else {
+                $(position).after(sectionContainer);
+            };
         };
         // insert the top block - must be separate from the sectionContainer to work around a bug
         $('#WkitTopBar').append(topBlock);  // must be appended - someone else may be there due to the bug
@@ -14943,7 +14962,8 @@
     // the Turbo event listener
     //
     var old_time = 0;
-    var current_time = Date.now()
+    var current_time = Date.now();
+    var inTurboEventProcessing = false;
     function addTurboEventListener(){
 
         // turbo:load is the event that is fired only once per load. Other turbo events such as
@@ -14959,6 +14979,8 @@
         });
 
         function delayedExecution(){
+            if (inTurboEventProcessing) {return;};
+            inTurboEventProcessing = true;
             old_time = current_time;
             current_time = Date.now();
             let global_options = {};
@@ -14966,7 +14988,11 @@
             if (document.querySelector('.dashboard') !== null) {
                 let elem = document.getElementById('WkitTopBar');
                 if (elem !== null) elem.remove();
-                fetch_all_items(global_options).then(displayItemInspector); //must fetch items because they may be modified by reviews or lessons in a previous page.
+                //must fetch items because they may be modified by reviews or lessons in a previous page.
+                fetch_all_items(global_options).then(function(){displayItemInspector();
+                                                               inTurboEventProcessing = false;});
+            } else {
+                inTurboEventProcessing = false;
             };
         };
     };
