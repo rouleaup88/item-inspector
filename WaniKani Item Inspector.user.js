@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.33.0
+// @version       1.35.0
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -170,7 +170,6 @@
     //------------------------------
 
     // Handy little function that rfindley wrote. Checks whether the theme is dark.
-    // must be MIT license
     function is_dark_theme() {
         // Grab the <html> background color, average the RGB.  If less than 50% bright, it's dark theme.
         return $('body').css('background-color').match(/\((.*)\)/)[1].split(',').slice(0,3).map(str => Number(str)).reduce((a, i) => a+i)/(255*3) < 0.5;
@@ -188,9 +187,7 @@
 
     function setThemeClasses(mutations, caller){
         const BreezeDarkBackground = 'rgb(49, 54, 59)';
-        const BreezeDarkcolor = 'rgb(188, 188, 188)';
-        const DarkAzureBackground = 'rgb(67, 72, 88)';
-        const DarkAzureColor = 'rgb(0, 170, 255)';
+        const ElementaryBackground = 'rgb(244, 244, 244)';
 
         let is_dark = is_dark_theme();
         let elem = document.getElementById('WkitTopBar');
@@ -205,29 +202,29 @@
                 };
                 themeWatcher = null;
             };
-        } else if (!is_dark){
-            elem.classList.remove('WkitDark', 'WkitAzure', 'WkitBreeze', 'WkitBreezeColors', 'WkitColorBlind');
-            elem.classList.add('WkitLight', 'WkitVanillaColors');
         } else {
-            let backgroundColor = $('body').css('background-color');
-            let fontColor = $('body').css('color');
-            if (backgroundColor === BreezeDarkBackground && fontColor === BreezeDarkcolor ){
-                if (quiz.settings.themeColor === 'Breeze_Dark') {
-                    elem.classList.remove('WkitLight', 'WkitAzure', 'WkitVanillaColors', 'WkitColorBlind');
-                    elem.classList.add('WkitDark', 'WkitBreeze', 'WkitBreezeColors');
-                } else if (quiz.settings.themeColor === 'Color_Blind') {
-                    elem.classList.remove('WkitLight', 'WkitAzure', 'WkitVanillaColors', 'WkitBreezeColors');
-                    elem.classList.add('WkitDark', 'WkitBreeze', 'WkitColorBlind');
-                } else {
-                    elem.classList.remove('WkitLight', 'WkitAzure', 'WkitBreezeColors');
-                    elem.classList.add('WkitDark', 'WkitBreeze', 'WkitVanillaColors');
-                };
-            } else if (backgroundColor === DarkAzureBackground && fontColor === DarkAzureColor){
-                elem.classList.remove('WkitLight', 'WkitBreeze', 'WkitBreezeColors', 'WkitColorBlind');
-                elem.classList.add('WkitDark', 'WkitAzure', 'WkitVanillaColors');
+            let is_container_dark = window.getComputedStyle(elem).backgroundColor
+                                              .toString().match(/\((.*)\)/)[1].split(',').slice(0,3).map(str => Number(str)).reduce((a, i) => a+i)/(255*3) < 0.5;
+            if (!is_dark && !is_container_dark){
+                elem.classList.remove('WkitDark', 'WkitElementary', 'WkitBreeze', 'WkitBreezeColors');
+                elem.classList.add('WkitLight', 'WkitVanillaColors');
             } else {
-                elem.classList.remove('WkitLight', 'WkitAzure', 'WkitBreeze', 'WkitBreezeColors', 'WkitColorBlind');
-                elem.classList.add('WkitDark', 'WkitVanillaColors');
+                let backgroundColor = $('body').css('background-color');
+                if (backgroundColor === BreezeDarkBackground ){
+                    if (quiz.settings.themeColor === 'Breeze_Dark') {
+                        elem.classList.remove('WkitLight', 'WkitElementary', 'WkitVanillaColors');
+                        elem.classList.add('WkitDark', 'WkitBreeze', 'WkitBreezeColors');
+                    } else {
+                        elem.classList.remove('WkitLight', 'WkitElementary', 'WkitBreezeColors');
+                        elem.classList.add('WkitDark', 'WkitBreeze', 'WkitVanillaColors');
+                    };
+                } else if (backgroundColor === ElementaryBackground){
+                    elem.classList.remove('WkitLight', 'WkitElementary', 'WkitBreeze', 'WkitVanillaColors', 'WkitBreezeColors');
+                    elem.classList.add('WkitDark', 'WkitElementary');
+                } else {
+                    elem.classList.remove('WkitLight', 'WkitElementary', 'WkitBreeze', 'WkitBreezeColors', 'WkitVanillaColors');
+                    elem.classList.add('WkitDark');
+                };
             };
         };
     };
@@ -246,28 +243,80 @@
                 margin-left: -27px;
                 margin-bottom: 30px;
                 padding: 3px;
+                border-radius: 12px;
+                background-color: var(--color-widget-background);
                 --Wkit-grad-rad-color1: var(--color-radical, #0af);
                 --Wkit-grad-rad-color2: var(--color-radical-dark, #0093dd);
+                --Wkit-vanilla-rad-color: #0af;
                 --Wkit-grad-kan-color1: var(--color-kanji, #f0a);
                 --Wkit-grad-kan-color2: var(--color-kanji-dark, #dd0093);
+                --Wkit-vanilla-kan-color: #f0a;;
                 --Wkit-grad-voc-color1: var(--color-vocabulary, #a0f);
                 --Wkit-grad-voc-color2: var(--color-vocabulary-dark, #9300dd);
-                --Wkit-baseBD-trad-color: #bbda18;
+                --Wkit-vanilla-voc-color: #a0f;
                 --Wkit-base-trad-color: #00a800;
                 --Wkit-grad-trad-color1: #0eaf0e;
                 --Wkit-grad-trad-color2: #0d9c0d;
-                --wkit-text-color-light: white;
-                --wkit-text-color-dark: black;
-                --wkit-text-color-item: var(--color-character-text, ${is_dark_theme() ? 'black' : 'white'});
-                --wkit-text-color-dark-theme: rgb(188, 188, 188);
-                --wkit-kanji-text-color-dark: hsl(0 0% 18% / 1);
-                --wkit-text-sec-color-light: gainsboro;
-                --wkit-text-sec-color-dark: #212020;
-                --wkit-backgound-widgets-dark: rgb(30, 33, 35);
-                --wkit-backgound-dark: #000000;
-                --wkit-backgound-explain: #5f1616;
+                --Wkit-text-color-dark: black;
+                --Wkit-text-color-dark-theme: rgb(188, 188, 188);
+                --Wkit-background-widgets-dark: #393939;
+                --Wkit-background-widgets-light: #efefef;
+                --Wkit-background-button-active-light: #00b300;
+                --Wkit-background-button-active-dark: green;
+                --Wkit-border-button: #010101;
+                --Wkit-border-selector: black;
+                --Wkit-background-explain: #5f1616;
+                --Wkit-table-border: black;
+                --Wkit-popup-border-light: black;
+                --Wkit-popup-border-dark: white;
+                --Wkit-export-background: black;
+                --Wkit-report-background-dark: black;
+                --Wkit-report-header-light: #d5d3d3;
+                --Wkit-report-header-dark: #494848;
+                --Wkit-report-container-background: #0000001a;
+                --Wkit-header-background-light: #d5d5d5;
+                --Wkit-hearder-text-color: #555;
+                --Wkit-border-SmallCapList: #000000;
+                --Wkit-itemCount-background-light: #cccccc;
+                --Wkit-itemCount-fontColor-light: #241f42;
+                --Wkit-itemCount-background-dark: #1c1e21;
+                --Wkit-itemCount-fontColor-dark: #bcbcbc;
+                --Wkit-marker-gradient-light1: #c1cdc5;
+                --Wkit-marker-gradient-light2: #b0bfb5;
+                --Wkit-marker-background-light: #c1cdc5;
+                --Wkit-marker-background-dark: #393939;
+                --Wkit-tooltipContent-background: black;
+                --Wkit-iconTooltipContent-background-light: #5f1616;
+                --Wkit-iconTooltipContent-background-dark: #421010;
+                --Wkit-keiseiphon-background-light-grad1: #48af1b;
+                --Wkit-keiseiphon-background-light-grad2: #348613;
+                --Wkit-keiseiphon-background-light: #2bef35;
+                --Wkit-keiseiphon-background-dark: #a7c21a;
+                --Wkit-keiseinonphon-background-light-grad1: #f51212;
+                --Wkit-keiseinonphon-background-light-grad2: #d41010;
+                --Wkit-keiseinonphon-background-light: #d6171b;
+                --Wkit-keiseinonphon-background-dark: #d6171b;
+                --Wkit-keisei-badge-high: #092;
+                --Wkit-keisei-badge-low: #f04;
+                --Wkit-PitchInfo-background-light-grad1: #48af1b;
+                --Wkit-PitchInfo-background-light-grad2: #348613;
+                --Wkit-PitchInfo-background-light: #2bef35;
+                --Wkit-PitchInfo-background-dark: #2cab33;
+                --Wkit-StrokeOrderImage: #dedede;
+                --Wkit-StrokeOrderPopup: black;
+                --Wkit-andMore-background: #463838;
+                --Wkit-mnemonic-background: #463838;
+                --Wkit-mnemonic-popup-background: #5f1616;
+                --Wkit-mnemonic-popup-arrow: grey;
+                --Wkit-empty-message-background-light: Azure;
+                --Wkit-empty-message-background-dark: black;
+                --Wkit-script-header-light: #5c6c705c;
+                --Wkit-script-header-dark: #232629;
             }
 
+            #WkitTopBar.WkitBreeze {
+                margin-bottom: 30px;
+            }
 
             /* ----------------------- */
             /* Control Bar and widgets */
@@ -285,8 +334,8 @@
                 margin-left: -2px;
             }
 
-            #WkitTopBar.WkitLight .WkitHeader { background-color: #5c6c705c; }
-            #WkitTopBar.WkitDark .WkitHeader { background-color: #232629; }
+            #WkitTopBar.WkitLight .WkitHeader { background-color: val(--Wkit-script-header-light); }
+            #WkitTopBar.WkitDark .WkitHeader { background-color: var(--Wkit-script-header-dark); }
 
             /* Left container for widgets */
             #WkitTopBar .WkitControlLeft {
@@ -323,7 +372,7 @@
                 z-index: 1;
                 right: 12px;
                 top: 63px;
-                width: 156px;
+                width: 166px;
                 height: auto;
                 padding: 5px;
                 overflow: auto;
@@ -331,7 +380,7 @@
                 border-width: 1px;
             }
 
-            #WkitTopBar .WkitDialogContainer { background-color: rgb(0,0,0); }
+            #WkitTopBar .WkitDialogContainer { background-color: var(--Wkit-export-background); }
 
             /* Buttons in the dialog for export */
             #WkitTopBar .WkitExportButton{
@@ -346,8 +395,8 @@
                 text-decoration: none;
             }
 
-            #WkitTopBar.WkitLight .WkitExportButton { background-color: #efefef; color: var(--wkit-text-color-dark); }
-            #WkitTopBar.WkitDark .WkitExportButton { background-color: var(--wkit-backgound-widgets-dark); color: var(--wkit-text-color-dark-theme); }
+            #WkitTopBar.WkitLight .WkitExportButton { background-color: var(--Wkit-background-widgets-light); color: var(--Wkit-text-color-dark); }
+            #WkitTopBar.WkitDark .WkitExportButton { background-color: var(--Wkit-background-widgets-dark); color: var(--Wkit-text-color-dark-theme); }
 
             /* Top bar widgets */
 
@@ -360,8 +409,8 @@
                 flex: 4;
             }
 
-            #WkitTopBar.WkitDark .WkitTitle { color: var(--wkit-text-color-dark-theme); }
-            #WkitTopBar.WkitDark.WkitBreeze .WkitTitle { color: var(--text-color, --wkit-text-color-dark-theme); }
+            #WkitTopBar.WkitDark .WkitTitle { color: var(--Wkit-text-color-dark-theme); }
+            #WkitTopBar.WkitDark.WkitBreeze .WkitTitle { color: var(--text-color, --Wkit-text-color-dark-theme); }
 
             #WkitTopBar .WkitButton {
                 display: inline-block;
@@ -369,7 +418,7 @@
                 vertical-align: middle;
                 border-width: 1px;
                 border-radius: 3px;
-                border-color: #010101; /* original: rgb(118, 118, 118); changed to match dropdowns */
+                border-color: var(--Wkit-border-button);
                 text-align: center;
                 font-size: 20px;
                 min-width: 30px;
@@ -383,16 +432,16 @@
                 padding-inline-start: 1px;
             }
 
-            #WkitTopBar.WkitLight .WkitButton:not(.WkitActive) { background-color: #efefef; }
-            #WkitTopBar.WkitDark .WkitButton:not(.WkitActive) { background-color: var(--wkit-backgound-widgets-dark); color: var(--wkit-text-color-dark-theme); }
+            #WkitTopBar.WkitLight .WkitButton:not(.WkitActive) { background-color: var(--Wkit-background-widgets-light); }
+            #WkitTopBar.WkitDark .WkitButton:not(.WkitActive) { background-color: var(--Wkit-background-widgets-dark); color: var(--Wkit-text-color-dark-theme); }
 
-            #WkitTopBar.WkitLight .WkitButton.WkitActive { background-color: #00b300 !important; }
-            #WkitTopBar.WkitDark .WkitButton.WkitActive { background-color: green !important; color: var(--wkit-text-color-dark-theme); }
+            #WkitTopBar.WkitLight .WkitButton.WkitActive { background-color: var(--Wkit-background-button-active-light); }
+            #WkitTopBar.WkitDark .WkitButton.WkitActive { background-color: var(--Wkit-background-button-active-dark); color: var(--Wkit-text-color-dark-theme); }
 
             /* Anchors disguised as a button must look like a button */
             #WkitTopBar button a { text-decoration: none; }
-            #WkitTopBar.WkitLight button a { color: var(--wkit-text-color-dark); }
-            #WkitTopBar.WkitDark button a { color: var(--wkit-text-color-dark-theme); }
+            #WkitTopBar.WkitLight button a { color: var(--Wkit-text-color-dark); }
+            #WkitTopBar.WkitDark button a { color: var(--Wkit-text-color-dark-theme); }
 
 
             #WkitTopBar .WkitButtonLeft { float: left; }
@@ -410,14 +459,14 @@
                 margin-top: 5px;
                 margin-bottom: 5px;
                 border-width: 1px;
-                border-color: Black;
+                border-color: var(--Wkit-border-selector);
                 border-radius: 3px;
                 width: 160px;
                 height: 31px;
             }
 
-            #WkitTopBar.WkitLight .WkitSelector {background-color: #efefef; color: var(--wkit-text-color-dark); }
-            #WkitTopBar.WkitDark .WkitSelector { background-color: var(--wkit-backgound-widgets-dark); color: var(--wkit-text-color-dark-theme); }
+            #WkitTopBar.WkitLight .WkitSelector {background-color: var(--Wkit-background-widgets-light); color: var(--Wkit-text-color-dark); }
+            #WkitTopBar.WkitDark .WkitSelector { background-color: var(--Wkit-background-widgets-dark); color: var(--Wkit-text-color-dark-theme); }
 
             #WkitTopBar #WkitFilterSelector { width: 178px; }
 
@@ -435,25 +484,28 @@
                 width: 98%;
                 height: 477px;
                 overflow-y: scroll;
-                background-color: #0000001a;
+                background-color: var(--Wkit-report-container-background);
             }
 
-            #WkitTopBar.WkitDark .WkitReportContainer { color: var(--wkit-text-color-dark-theme); }
-            #WkitTopBar.WkitDark.WkitBreeze .WkitReportContainer { background-color: #0000001a; color: var(--wkit-text-color-dark-theme); }
+            #WkitTopBar.WkitDark .WkitReportContainer { color: var(--Wkit-text-color-dark-theme); }
+            #WkitTopBar.WkitDark.WkitBreeze .WkitReportContainer { background-color:var( --Wkit-report-background-dark);
+                                                                   color: var(--Wkit-text-color-dark-theme); }
 
-            #WkitTopBar.WkitLight .WkitStickyHeader { background-color: #d5d3d3; }
-            #WkitTopBar.WkitDark .WkitStickyHeader { background-color: #242323; }
-            #WkitTopBar.WkitDark.WkitBreeze .WkitStickyHeader { background-color: #242323; }
+            #WkitTopBar.WkitLight .WkitStickyHeader { background-color: var(--Wkit-report-header-light); }
+            #WkitTopBar.WkitDark .WkitStickyHeader { background-color: var(--Wkit-report-header-dark); }
 
             #WkitTopBar .WkitStickyHeader {
                 position: sticky;
                 top: 0;
                 z-index: 1;
+                height: 25px;
+                padding: 5px;
             }
 
             #WkitTopBar .WkitReportCellFormat {
                 padding-left: 8px;
                 text-align: center;
+                font-size: 15px;
             }
 
             /* -------------- */
@@ -470,41 +522,27 @@
                 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
                 margin: 0px;
                 padding: 7.5px 30px;
-                background-color: #d5d5d5;
+                background-color: var(--Wkit-header-background-light);
                 text-align: center;
                 border-radius: 5px 5px 0 0;
                 font-size: 11px;
                 font-weight: bold;
                 letter-spacing: 0;
                 line-height: 20px;
-                color: #555;
+                color: var(--Wkit-hearder-text-color);
                 text-transform: uppercase;
                 text-shadow: 0 1px 0 #fff;
             }
 
             #WkitTopBar.WkitDark .WkitSmallCaps {
-                background-color: var(--wkit-backgound-dark);
+                background-color: var(--Wkit-backgound-dark);
                 box-shadow: 0 1px 1px rgba(0, 0, 0, 0.7), 0 2px 2px rgba(0, 0, 0, 0.7);
-                color: var(--wkit-text-color-dark-theme);
+                color: var(--Wkit-text-color-dark-theme);
                 margin-bottom: 0px;
                 max-height: 60px;
                 padding-bottom: 3px;
                 padding-top: 3px;
                 text-align: center;
-            }
-
-            #WkitTopBar.WkitDark.WkitBreeze .WkitSmallCaps {
-                align-items: center;
-                background-color: var(--section-background);
-                box-shadow: 0 1px 1px rgba(0, 0, 0, 0.7), 0 2px 2px rgba(0, 0, 0, 0.7);
-                color: var(--text-color);
-                display: flex;
-                margin-bottom: 0px;
-                max-height: 60px;
-                padding-bottom: 3px;
-                padding-top: 3px;
-                text-align: left;
-                text-shadow: unset;
             }
 
             /* The tables */
@@ -537,17 +575,8 @@
                 text-decoration: none;
             }
 
-            #WkitTopBar.WkitLight .WkitTableList .WkitItem { color: var(--wkit-text-color-light); }
-            #WkitTopBar.WkitDark .WkitTableList .WkitItem { color: var(--wkit-kanji-text-color-dark); }
-            #WkitTopBar.WkitDark.WkitBreeze.WkitVanillaColors .WkitTableList .WkitItem { color: var(--wkit-kanji-text-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitBreeze.WkitBreezeColors .WkitTableList .WkitItem { color: var(--inverted-text-color) !important; }
-            #WkitTopBar.WkitDark.WkitBreeze.WkitColorBlind .WkitTableList .WkitItem { color: var(--wkit-kanji-text-color-dark) !important; }
-
-            #WkitTopBar.WkitLight .WkitTableList .WkitTableEntry { color: var(--wkit-text-sec-color-light); }
-            #WkitTopBar.WkitDark .WkitTableList .WkitTableEntry { color: var(--wkit-text-sec-color-dark); }
-            #WkitTopBar.WkitDark.WkitBreeze.WkitVanillaColors .WkitTableEntry { color: var(--wkit-text-sec-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitBreeze.WkitBreezeColors .WkitTableEntry { color: var(--inverted-text-color) !important; }
-            #WkitTopBar.WkitDark.WkitBreeze.WkitColorBlind .WkitTableEntry { color: var(--wkit-text-sec-color-dark) !important; }
+            #WkitTopBar .WkitTableList .WkitItem,
+            #WkitTopBar .WkitTableList .WkitItem { color: var(--color-character-text); }
 
             #WkitTopBar .WkitTableList table tr {
                 border-top: 0;
@@ -564,125 +593,66 @@
             #WkitTopBar.WkitLight .WkitTableList table tr[class=kana_vocabulary],
             #WkitTopBar.WkitLight .WkitTableList table tr[class=vocabulary] {
                 background-color: var(--color-vocabulary);
-                background-image: linear-gradient(to bottom, var(--Wkit-grad-voc-color1), #9300dd); /* using hex instead of --Wkit-grad-voc-color2 due to error of wanikani setting --color-vocabulary-dark to the same value as --color-vocabulary */
+                background-image: linear-gradient(to bottom, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
                 background-repeat: repeat-x;
-                color: var(--wkit-text-color-item);
             }
 
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=kana_vocabulary],
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=vocabulary] {
+                background-color: var(--Wkit-vanilla-voc-color);
+            }
+
+            #WkitTopBar.WkitDark .WkitTableList table tr[class=kana_vocabulary],
+            #WkitTopBar.WkitDark .WkitTableList table tr[class=vocabulary] {
                 background-color: var(--color-vocabulary);
-                background-image: linear-gradient(to bottom, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
-                background-repeat: repeat-x;
-                color: var(--wkit-text-color-item);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=kana_vocabulary],
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=vocabulary] {
-                color: var(--inverted-text-color);
-                background-color: var(--vocabulary-color) !important;
-                border: var(--page-background);
-                border-width: 1px;
-                border-style: solid;
-            }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=kana_vocabulary],
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=vocabulary] {
-                color: var(--wkit-text-color-dark);
-                background-color: var(--vocabulary-color) !important;
-                border: var(--page-background);
-                border-width: 1px;
-                border-style: solid;
             }
 
             #WkitTopBar.WkitLight .WkitTableList table tr[class=kanji] {
                 background-color: var(--color-kanji);
                 background-image: linear-gradient(to bottom, var(--Wkit-grad-kan-color1), #dd0093); /* using hex instead of --Wkit-grad-kan-color2 due to error of wanikani setting --color-kanji-dark to the same value as --color-kanji */
                 background-repeat: repeat-x;
-                color: var(--wkit-text-color-item);
             }
 
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=kanji] {
+                background-color: var(--Wkit-vanilla-kan-color);
+            }
+
+            #WkitTopBar.WkitDark .WkitTableList table tr[class=kanji] {
                 background-color: var(--color-kanji);
-                background-image: linear-gradient(to bottom, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                background-repeat: repeat-x;
-                color: var(--wkit-text-color-item);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=kanji] {
-                color: var(--inverted-text-color);
-                background-color: var(--kanji-color) !important;
-                border: var(--page-background);
-                border-width: 1px;
-                border-style: solid;
-            }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=kanji] {
-                color: var(--wkit-text-color-dark);
-                background-color: var(--kanji-color) !important;
-                border: var(--page-background);
-                border-width: 1px;
-                border-style: solid;
             }
 
             #WkitTopBar.WkitLight .WkitTableList table tr[class=radical] {
                 background-color: var(--color-radical);
                 background-image: linear-gradient(to bottom, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
                 background-repeat: repeat-x;
-                color: var(--wkit-text-color-item);
             }
 
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=radical] {
+                background-color: var(--Wkit-vanilla-rad-color);
+            }
+
+            #WkitTopBar.WkitDark .WkitTableList table tr[class=radical] {
                 background-color: var(--color-radical);
-                background-image: linear-gradient(to bottom, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
-                background-repeat: repeat-x;
-                color: var(--wkit-text-color-item);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=radical] {
-                color: var(--inverted-text-color) !important;
-                background-color: var(--radical-color) !important;
-                border: var(--page-background);
-                border-width: 1px;
-                border-style: solid;
-            }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=radical] {
-                color: var(--wkit-text-color-dark) !important;
-                background-color: var(--radical-color) !important;
-                border: var(--page-background);
-                border-width: 1px;
-                border-style: solid;
             }
 
             #WkitTopBar.WkitLight .WkitTableList table tr[class=trad_rad] {
                 background-color: var(--Wkit-base-trad-color);
                 background-image: linear-gradient(to bottom, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
                 background-repeat: repeat-x;
-                color: var(--wkit-text-color-item);
             }
 
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTableList table tr[class=trad_rad] {
+            #WkitTopBar.WkitDark .WkitTableList table tr[class=trad_rad] {
                 background-color: var(--Wkit-base-trad-color);
-                background-image: linear-gradient(to bottom, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
-                background-repeat: repeat-x;
-                color: var(--wkit-text-color-item);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=trad_rad] {
-                color: var(--inverted-text-color) !important;
-                background-color: var(--Wkit-baseBD-trad-color) !important;
-                border: var(--page-background);
+            #WkitTopBar.WkitDark .WkitTableList table tr {
+                border-color: var(--Wkit-table-border);
                 border-width: 1px;
                 border-style: solid;
             }
 
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=trad_rad] {
-                color: var(--wkit-text-color-dark) !important;
-                background-color: var(--Wkit-baseBD-trad-color) !important;
-                border: var(--page-background);
-                border-width: 1px;
-                border-style: solid;
+            #WkitTopBar .WkitTableList table tr {
+                color: var(--color-character-text);
             }
 
             /* Popups in table mode */
@@ -707,8 +677,10 @@
 
             #WkitTopBar .WkitTableList .WkitTooltip.WkitLeftItem .WkitTooltipContent::after { left: 1em; }
             #WkitTopBar .WkitTableList .WkitTooltip.WkitRightItem .WkitTooltipContent::after { right: 1em; }
-            #WkitTopBar .WkitTableList .WkitTooltip.WkitFirstItem .WkitTooltipContent::after { bottom: 100%; border-color: transparent transparent black transparent; }
-            #WkitTopBar .WkitTableList .WkitTooltip.WkitLaterItem .WkitTooltipContent::after { top: 100%; border-color: black transparent transparent transparent; }
+            #WkitTopBar .WkitTableList .WkitTooltip.WkitFirstItem .WkitTooltipContent::after { bottom: 100%;
+                                                                              border-color: transparent transparent Var(--Wkit-popup-border-light) transparent; }
+            #WkitTopBar .WkitTableList .WkitTooltip.WkitLaterItem .WkitTooltipContent::after { top: 100%;
+                                                                              border-color: var(--Wkit-popup-border-light) transparent transparent transparent; }
 
             /* Enlarging popup */
 
@@ -722,7 +694,7 @@
             #WkitTopBar .WkitTooltip2 .WkitEnlargedTooltip {
                 display: none;
                 visibility: hidden;
-                background-color: black;
+                background-color: var(--Wkit-tooltipContent-background);
                 font-size: 100%;
                 width: max-content;
                 border-radius: 3px;
@@ -733,10 +705,8 @@
                 z-index: 20001;
             }
 
-            #WkitTopBar.WkitLight .WkitTooltip2 .WkitEnlargedTooltip { color: var(--wkit-text-color-light); }
-            #WkitTopBar.WkitDark .WkitTooltip2 .WkitEnlargedTooltip { color: var(--wkit-text-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .WkitEnlargedTooltip { color: var(--inverted-text-color); }
-            #WkitTopBar.WkitDark.WkitColorblind .WkitTooltip2 .WkitEnlargedTooltip { color: var(--wkit-text-color-dark); }
+            #WkitTopBar.WkitLight .WkitTooltip2 .WkitEnlargedTooltip { color: var(--color-character-text); }
+            #WkitTopBar.WkitDark .WkitTooltip2 .WkitEnlargedTooltip { color:var(--color-character-text); }
 
             #WkitTopBar .WkitTooltip2:hover div.WkitEnlargedTooltip {
                 visibility: visible;
@@ -751,32 +721,20 @@
                 left: 1em;
                 border-width: 5px;
                 border-style: solid;
-                border-color: black transparent transparent transparent;
+                border-color: var(--Wkit-tooltipContent-background) transparent transparent transparent;
             }
 
-            #WkitTopBar.WkitLight .WkitTooltip2 .radical { padding: 5px; background: var(--color-radical); }
-            #WkitTopBar.WkitLight .WkitTooltip2 .kanji { padding: 5px; background: var(--color-kanji); }
-            #WkitTopBar.WkitLight .WkitTooltip2 .vocabulary { padding: 5px; background: var(--color-vocabulary); }
-            #WkitTopBar.WkitLight .WkitTooltip2 .kana_vocabulary { padding: 5px; background: var(--color-vocabulary); }
-            #WkitTopBar.WkitLight .WkitTooltip2 .trad_rad { padding: 5px; background: var(--Wkit-base-trad-color); }
+            #WkitTopBar .WkitTooltip2 .radical { padding: 5px; background-color: var(--color-radical); }
+            #WkitTopBar .WkitTooltip2 .kanji { padding: 5px; background-color: var(--color-kanji); }
+            #WkitTopBar .WkitTooltip2 .vocabulary { padding: 5px; background-color: var(--color-vocabulary); }
+            #WkitTopBar .WkitTooltip2 .kana_vocabulary { padding: 5px; background-color: var(--color-vocabulary); }
 
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .radical { padding: 5px; background: var(--color-radical); }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .kanji { padding: 5px; background: var(--color-kanji); }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .vocabulary { padding: 5px; background: var(--color-vocabulary); }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .kana_vocabulary { padding: 5px; background: var(--color-vocabulary); }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .trad_rad { padding: 5px; background: var(--Wkit-base-trad-color); }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .radical { padding: 5px; background-color: var(--Wkit-vanilla-rad-color); }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .kanji { padding: 5px; background-color: var(--Wkit-vanilla-kan-color); }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .vocabulary { padding: 5px; background-color: var(--Wkit-vanilla-voc-color); }
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip2 .kana_vocabulary { padding: 5px; background-color: var(--Wkit-vanilla-voc-color); }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .radical { padding: 5px; background: var(--radical-color); }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .kanji { padding: 5px; background: var(--kanji-color); }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .vocabulary { padding: 5px; background: var(--vocabulary-color); }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .kana_vocabulary { padding: 5px; background: var(--vocabulary-color); }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip2 .trad_rad { padding: 5px; background: var(--Wkit-baseBD-trad-color); }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .radical { padding: 5px; background: var(--radical-color); }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .kanji { padding: 5px; background: var(--kanji-color); }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .vocabulary { padding: 5px; background: var(--vocabulary-color); }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .kana_vocabulary { padding: 5px; background: var(--vocabulary-color); }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip2 .trad_rad { padding: 5px; background: var(--Wkit-baseBD-trad-color); }
+            #WkitTopBar .WkitTooltip2 .trad_rad { padding: 5px; background-color: var(--Wkit-base-trad-color); }
 
             #WkitTopBar .WkitEnlargedTooltip span {
                 font-size: 60px;
@@ -795,7 +753,6 @@
             #WkitTopBar .WkitItemList {
                 visibility: visible;
                 position: relative;
-                background-color: #0000001a;
                 display: -webkit-flex;
                 display: flex;
                 flex-direction: row;
@@ -823,7 +780,7 @@
                 letter-spacing: 0;
                 text-transform: uppercase;
                 border-radius: 5px;
-                border-color: #000000;
+                border-color: var(--Wkit-border-SmallCapList);
                 border-width: 1px;
                 border-style: solid;
             }
@@ -837,8 +794,10 @@
                 padding-top: 3px;
             }
 
-            #WkitTopBar.WkitLight .WkitSmallCapsList { background-color: #cccccc; color: #241f42; text-align: center; }
-            #WkitTopBar.WkitDark .WkitSmallCapsList { background-color: #1c1e21; color: #bcbcbc; text-align: left; }
+            #WkitTopBar.WkitLight .WkitSmallCapsList { background-color: var(--Wkit-itemCount-background-light); color: var(--Wkit-itemCount-fontColor-light);
+                                                       text-align: center; }
+            #WkitTopBar.WkitDark .WkitSmallCapsList { background-color: var(--Wkit-itemCount-background-dark); color: var(--Wkit-itemCount-fontColor-dark);
+                                                      text-align: left; }
 
 
             #WkitTopBar .WkitSmallCapsList.WkitReading {
@@ -886,43 +845,17 @@
             #WkitTopBar.WkitLight .WkitMarkerMeaning span,
             #WkitTopBar.WkitLight .WkitMarker span {
                 box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
-                background-image: linear-gradient(0deg, #c1cdc5, #b0bfb5);
-                background-color: #c1cdc5;
-                color: var(--wkit-text-color-dark);
+                background-image: linear-gradient(0deg, var(--Wkit-marker-gradient-light1), var(--Wkit-marker-gradient-light2));
+                background-color: var(--Wkit-marker-background-light);
+                color: var(--Wkit-text-color-dark);
             }
 
-            #WkitTopBar.WkitDark.WkitAzure .WkitMarkerMeaning span,
-            #WkitTopBar.WkitDark.WkitAzure .WkitMarker span {
+            #WkitTopBar.WkitDark .WkitMarkerMeaning span,
+            #WkitTopBar.WkitDark .WkitMarker span {
                 box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
-                background-image: linear-gradient(0deg, hsl(140 11% 14% / 1), hsl(140 10% 8% / 1));
-                background-color: hsl(140 11% 13% / 1);
-            }
-
-            #WkitTopBar.WkitDark:not(.WkitAzure) .WkitMarkerMeaning span,
-            #WkitTopBar.WkitDark:not(.WkitAzure) .WkitMarker span {
-                box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
-                background-image: unset; /* original: linear-gradient(0deg, hsl(140 11% 14% / 1), hsl(140 10% 8% / 1)) */
-                background-color: hsl(140 11% 13% / 1);
-                color: var(--wkit-text-color-dark-theme);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMarkerMeaning span,
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMarker span {
                 background-image: unset;
-                box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
-                background-color: hsl(140 11% 10% / 1);
-            }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitMarkerMeaning span,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitMarker span {
-                background-image: unset;
-                box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
-                background-color: hsl(140 11% 10% / 1);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreeze .WkitMarkerMeaning span,
-            #WkitTopBar.WkitDark.WkitBreeze .WkitMarker span {
-                color: var(--text-color);
+                background-color: var(--Wkit-marker-background-dark);
+                color: var(--Wkit-text-color-dark-theme);
             }
 
             /* The items and their icons */
@@ -945,10 +878,7 @@
                 box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
             }
 
-            #WkitTopBar.WkitLight .WkitItemListed span { color: var(--wkit-text-color-light); }
-            #WkitTopBar.WkitDark .WkitItemListed span { color: var(--wkit-text-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span { color: var(--inverted-text-color) !important; }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span { color: var(--wkit-text-color-dark) !important; }
+            #WkitTopBar .WkitItemListed span { color: var(--color-character-text); }
 
 
             #WkitTopBar .WkitItemListed a { text-decoration-line: none; }
@@ -961,14 +891,12 @@
                 background-color: var(--color-radical);
             }
 
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.radical {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+            #WkitTopBar.WkitDark .WkitItemListed span.radical {
                 background-color: var(--color-radical);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.radical,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.radical {
-                background-color: var(--radical-color);
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.radical {
+                background-color: var(--Wkit-vanilla-rad-color);
             }
 
             #WkitTopBar.WkitLight .WkitItemListed span.kanji {
@@ -976,14 +904,12 @@
                 background-color: var(--color-kanji);
             }
 
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.kanji {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
+            #WkitTopBar.WkitDark .WkitItemListed span.kanji {
                 background-color: var(--color-kanji);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.kanji,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.kanji {
-                background-color: var(--kanji-color);
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.kanji {
+                background-color: var(--Wkit-vanilla-kan-color);
             }
 
             #WkitTopBar.WkitLight .WkitItemListed span.kana_vocabulary,
@@ -992,17 +918,14 @@
                 background-color: var(--color-vocabulary);
             }
 
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.kana_vocabulary,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.vocabulary {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
+            #WkitTopBar.WkitDark .WkitItemListed span.kana_vocabulary,
+            #WkitTopBar.WkitDark .WkitItemListed span.vocabulary {
                 background-color: var(--color-vocabulary);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.kana_vocabulary,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.kana_vocabulary,
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.vocabulary,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.vocabulary {
-                background-color: var(--vocabulary-color);
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.kana_vocabulary,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.vocabulary {
+                background-color: var(--Wkit-vanilla-voc-color);
             }
 
             #WkitTopBar.WkitLight .WkitItemListed span.trad_rad {
@@ -1010,14 +933,8 @@
                 background-color: var(--Wkit-base-trad-color);
             }
 
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitItemListed span.trad_rad {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+            #WkitTopBar.WkitDark .WkitItemListed span.trad_rad {
                 background-color: var(--Wkit-base-trad-color);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitItemListed span.trad_rad,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitItemListed span.trad_rad {
-                background-color: var(--Wkit-baseBD-trad-color);
             }
 
             /* Popups for icon list mode */
@@ -1057,35 +974,35 @@
             #WkitTopBar .WkitItemList .WkitTooltip.WkitLaterItem.WkitRightSide .WkitTooltipContent::after { left: 100%; bottom: 1em; }
 
             #WkitTopBar.WkitLight .WkitItemList .WkitTooltip.WkitFirstItem.WkitLeftSide .WkitTooltipContent::after {
-                border-color: transparent black transparent transparent;
+                border-color: transparent var(--Wkit-popup-border-light) transparent transparent;
             }
 
             #WkitTopBar.WkitLight .WkitItemList .WkitTooltip.WkitFirstItem.WkitRightSide .WkitTooltipContent::after {
-                border-color: transparent transparent transparent black;
+                border-color: transparent transparent transparent var(--Wkit-popup-border-light);
             }
 
             #WkitTopBar.WkitLight .WkitItemList .WkitTooltip.WkitLaterItem.WkitLeftSide .WkitTooltipContent::after {
-                border-color: transparent black transparent transparent;
+                border-color: transparent var(--Wkit-popup-border-light) transparent transparent;
             }
 
             #WkitTopBar.WkitLight .WkitItemList .WkitTooltip.WkitLaterItem.WkitRightSide .WkitTooltipContent::after {
-                border-color: transparent transparent transparent black;
+                border-color: transparent transparent transparent var(--Wkit-popup-border-light);
             }
 
             #WkitTopBar.WkitDark .WkitItemList .WkitTooltip.WkitFirstItem.WkitLeftSide .WkitTooltipContent::after {
-                border-color: transparent white transparent transparent;
+                border-color: transparent var(--Wkit-popup-border-dark) transparent transparent;
             }
 
             #WkitTopBar.WkitDark .WkitItemList .WkitTooltip.WkitFirstItem.WkitRightSide .WkitTooltipContent::after {
-                border-color: transparent transparent transparent white;
+                border-color: transparent transparent transparent var(--Wkit-popup-border-dark);
             }
 
             #WkitTopBar.WkitDark .WkitItemList .WkitTooltip.WkitLaterItem.WkitLeftSide .WkitTooltipContent::after {
-                border-color: transparent white transparent transparent;
+                border-color: transparent var(--Wkit-popup-border-dark) transparent transparent;
             }
 
             #WkitTopBar.WkitDark .WkitItemList .WkitTooltip.WkitLaterItem.WkitRightSide .WkitTooltipContent::after {
-                border-color: transparent transparent transparent white;
+                border-color: transparent transparent transparent var(--Wkit-popup-border-dark);
             }
 
             /* ------------------------------------ */
@@ -1101,7 +1018,7 @@
             }
 
             #WkitTopBar .WkitTooltip .WkitTooltipContent {
-                background-color: black;
+                background-color: var(--Wkit-tooltipContent-background);
                 max-width: 590px;
                 min-width: 350px;
                 z-index: 20000;
@@ -1121,21 +1038,19 @@
                 transition-delay: 0.15s;
             }
 
-            #WkitTopBar.WkitLight .WkitTooltip .WkitIconTooltipContent,
-            #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent { color: var(--wkit-text-color-light); }
-            #WkitTopBar.WkitDark .WkitTooltip .WkitIconTooltipContent,
-            #WkitTopBar.WkitDark .WkitTooltip .WkitTooltipContent { color: var(--wkit-text-color-dark-theme); }
+            #WkitTopBar .WkitTooltip .WkitIconTooltipContent,
+            #WkitTopBar .WkitTooltip .WkitTooltipContent { color: var(--color-character-text); }
 
             #WkitTopBar .WkitTooltip .WkitIconTooltipContent { max-width: 235px; z-index: 20000; }
-            #WkitTopBar.WkitLight .WkitTooltip .WkitIconTooltipContent { background-color: #5f1616; }
-            #WkitTopBar.WkitDark .WkitTooltip .WkitIconTooltipContent { background-color: #421010; }
+
+            #WkitTopBar.WkitLight .WkitTooltip .WkitIconTooltipContent { background-color: var(--Wkit-iconTooltipContent-background-light); }
+            #WkitTopBar.WkitDark .WkitTooltip .WkitIconTooltipContent { background-color: var(--Wkit-iconTooltipContent-background-dark); }
 
             /* The html table in the popups */
 
             #WkitTopBar .WkitTableList table {
                 width: 100%;
                 max-width: 100%;
-                background-color: transparent;
                 border-collapse: collapse;
                 border-spacing: 0;
             }
@@ -1146,29 +1061,14 @@
                 line-height: 1em;
             }
 
-            #WkitTopBar.WkitLight .WkitTableList table,
-            #WkitTopBar.WkitLight .right table {
-                color: var(--wkit-text-color-light);
+            #WkitTopBar .WkitTableList table,
+            #WkitTopBar .right table {
+                color: var(--color-character-text);
             }
 
-            #WkitTopBar.WkitDark .WkitTableList table,
-            #WkitTopBar.WkitDark .right table {
-                color: var(--wkit-text-color-dark-theme);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table,
-            #WkitTopBar.WkitDark.WkitBreezeColors .right table,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table,
-            #WkitTopBar.WkitDark.WkitColorBlind .right table {
-                color: var(--text-color);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreeze .WkitTableList table,
-            #WkitTopBar.WkitDark.WkitBreeze .right table {
-                width: 100%;
-                line-height: 1em;
-		color: var(--text-color) !important;
-                border-collapse: collapse !important;
+            #WkitTopBar.WkitDark.WkitBreeze .WkitTableList table tr,
+            #WkitTopBar.WkitDark.WkitBreeze .right table tr {
+                color: var(--color-text);
             }
 
             #WkitTopBar .left span {
@@ -1214,12 +1114,7 @@
                 border-spacing: 7px;
             }
 
-            #WkitTopBar.WkitLight .WkitTooltipContent .WkitVisualDataContainer { color: var(--wkit-text-color-light); }
-            #WkitTopBar.WkitDark:not(.WkitBreeze) .WkitTooltipContent .WkitVisualDataContainer { color: var(--wkit-text-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltipContent .WkitVisualDataContainer span{ color: var(--inverted-text-color) !important; }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltipContent .WkitVisualDataContainer span{ color: var(--wkit-text-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTableList table tr[class=radical] p.WkitKeiseiMsg { color: var(--text-color) !important; }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTableList table tr[class=radical] p.WkitKeiseiMsg { color: var(--text-color) !important; }
+            #WkitTopBar .WkitTooltipContent .WkitVisualDataContainer { color: var(--color-character-text); }
 
             #WkitTopBar .WkitBaseDataList {
                 display: table;
@@ -1235,81 +1130,38 @@
 
             /* Styling of elements containing only characters */
 
-            #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left { color: var(--wkit-text-color-light); }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left { color: var(--wkit-text-color-dark); }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left span.radical { color: var(--wkit-text-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left span.kanji { color: var(--wkit-text-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left span.vocabulary { color: var(--wkit-text-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left span.kana_vocabulary { color: var(--wkit-text-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left p.WkitKeiseiMsg { color: var(--wkit-text-color-dark-theme) !important; }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left { color: var(--inverted-text-color) !important; }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.radical { color: var(--inverted-text-color) !important; }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.kanji { color: var(--inverted-text-color) !important; }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.vocabulary { color: var(--inverted-text-color) !important; }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left span.kana_vocabulary { color: var(--inverted-text-color) !important; }
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left p.WkitKeiseiMsg { color: var(--inverted-text-color) !important; }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left { color: var(--wkit-text-color-dark); }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left span.radical { color: var(--wkit-text-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left span.kanji { color: var(--wkit-text-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left span.vocabulary { color: var(--wkit-text-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left span.kana_vocabulary { color: var(--wkit-text-color-dark) !important; }
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left p.WkitKeiseiMsg { color: var(--wkit-text-color-dark-theme) !important; }
+            #WkitTopBar .WkitTooltip .WkitTooltipContent .left { color: var(--color-character-text); }
+            #WkitTopBar.WkitDark .WkitTooltip .WkitTooltipContent .left span.radical { color: var(--color-character-text); }
+            #WkitTopBar.WkitDark .WkitTooltip .WkitTooltipContent .left span.kanji { color: var--color-character-text); }
+            #WkitTopBar.WkitDark .WkitTooltip .WkitTooltipContent .left span.vocabulary { color: var(--color-character-text); }
+            #WkitTopBar.WkitDark .WkitTooltip .WkitTooltipContent .left span.kana_vocabulary { color: var(--color-character-text); }
+            #WkitTopBar.WkitDark .WkitTooltip .WkitTooltipContent .left p.WkitKeiseiMsg { color: var(--Wkit-text-color-dark-theme); }
 
-            #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .radical,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .radical {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
-                background-color: var(--color-radical);
-            }
+            #WkitTopBar .WkitTooltip .WkitTooltipContent .left .radical {background-color: var(--color-radical);}
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .radical {background-color: var(--Wkit-vanilla-rad-color);}
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .radical,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .radical {
-                background-color: var(--radical-color);
-            }
+            #WkitTopBar .WkitTooltip .WkitTooltipContent .left .kanji {background-color: var(--color-kanji);}
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .kanji {background-color: var(--Wkit-vanilla-kan-color);}
 
-            #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .kanji,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .kanji {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                background-color: var(--color-kanji);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .kanji,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .kanji {
-                background-color: var(--kanji-color);
-            }
-
-            #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
-            #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .vocabulary,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .vocabulary {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
+            #WkitTopBar .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
+            #WkitTopBar .WkitTooltip .WkitTooltipContent .left .vocabulary {
                 background-color: var(--color-vocabulary);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .vocabulary,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .vocabulary {
-                background-color: var(--vocabulary-color);
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .kana_vocabulary,
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .vocabulary {
+                background-color: var(--Wkit-vanilla-voc-color);
             }
 
-            #WkitTopBar.WkitLight .WkitTooltip .WkitTooltipContent .left .trad_rad,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitTooltip .WkitTooltipContent .left .trad_rad {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
-                background-color: var(--Wkit-base-trad-color);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitTooltip .WkitTooltipContent .left .trad_rad,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitTooltip .WkitTooltipContent .left .trad_rad {
-                background-color: var(--Wkit-baseBD-trad-color);
-            }
+            #WkitTopBar .WkitTooltip .WkitTooltipContent .left .trad_rad {background-color: var(--Wkit-base-trad-color);}
 
             #WkitTopBar .WkitMessage,
-            #WkitTopBar .WkitCharacters {
+            #WkitTopBar .WkitKeiseiLettrine {
                 display: table-cell;
                 vertical-align: middle;
             }
 
-            #WkitTopBar .WkitCharacters { border-radius: 5px; }
+            #WkitTopBar .WkitKeiseiLettrine { border-radius: 5px; }
 
             #WkitTopBar .WkitMessage p,
             #WkitTopBar .WkitMessage span {
@@ -1319,70 +1171,45 @@
                 padding-right: 8px;
             }
 
-            #WkitTopBar.WkitLight .WkitCharacters.radical {
+            #WkitTopBar.WkitLight .WkitKeiseiLettrine.radical {
                 background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
                 background-color: var(--color-radical);
-                color: var(--wkit-text-color-light);
             }
 
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitCharacters.radical {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+            #WkitTopBar.WkitDark .WkitKeiseiLettrine.radical {
                 background-color: var(--color-radical);
-                color: var(--wkit-text-color-dark);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitCharacters.radical {
-                background-color: var(--radical-color);
-                color: var(--inverted-text-color) !important;
+            #WkitTopBar.WkitBreeze.WkitVanillaColors .WkitKeiseiLettrine.radical {
+                background-color: var(--Wkit-vanilla-rad-color);
             }
 
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitCharacters.radical {
-                background-color: var(--radical-color);
-                color: var(--wkit-text-color-dark) !important;
-            }
-
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitCharacters.radical span.radical {
-                color: var(--wkit-text-color-dark) !important;
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitCharacters.radical span.radical {
-                color: var(--inverted-text-color) !important;
-            }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitCharacters.radical span.radical {
-                color: var(--wkit-text-color-dark) !important;
-            }
-
-            #WkitTopBar.WkitLight .WkitCharacters.kanji {
+            #WkitTopBar.WkitLight .WkitKeiseiLettrine.kanji {
                 background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
                 background-color: var(--color-kanji);
-                color: var(--wkit-text-color-light);
             }
 
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitCharacters.kanji {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
+            #WkitTopBar.WkitDark .WkitKeiseiLettrine.kanji {
                 background-color: var(--color-kanji);
-                color: var(--wkit-text-color-dark);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitCharacters.kanji {
-                background-color: var(--kanji-color);
-                color: var(--inverted-text-color);
+            #WkitTopBar.WkitBreeze.WkitVanillaColors .WkitKeiseiLettrine.kanji {
+                background-color: var(--Wkit-vanilla-kan-color);
             }
 
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitCharacters.kanji {
-                background-color: var(--kanji-color);
-                color: var(--wkit-text-color-dark);
+           #WkitTopBar .WkitKeiseiLettrine span {
+                color: var(--color-character-text) ;
             }
 
-            #WkitTopBar .left .WkitCharacters span.kanji,
-            #WkitTopBar .left .WkitCharacters span.radical {
+
+            #WkitTopBar .left .WkitKeiseiLettrine span.kanji,
+            #WkitTopBar .left .WkitKeiseiLettrine span.radical {
                 padding: 5px 12px 5px 12px;
                 margin: 0px;
                 font-size: 35px;
             }
 
-            /*=== Keisei Sematntic-Phonetic Composition ===*/
+            /*=== Keisei Semantic-Phonetic Composition ===*/
 
             /* Messages from Keisei when not a Semantic-Phonetic Composition */
 
@@ -1403,7 +1230,7 @@
                 position: absolute;
                 left: 10px;
                 top: 125px;
-                background-color: var(--wkit-backgound-explain);
+                background-color: var(--Wkit-background-explain);
                 border-radius: 5px;
                 width: calc(100% - 47px);
                 padding: 8px;
@@ -1419,12 +1246,12 @@
 
             #WkitTopBar.WkitLight .WkitVisualDataContainer .keiseiExplanations span,
             #WkitTopBar.WkitLight .WkitVisualDataContainer .keiseiExplanations p {
-                color: var(--wkit-text-color-light) !important;
+                color: var(--color-character-text);
             }
 
             #WkitTopBar.WkitDark .WkitVisualDataContainer .keiseiExplanations span,
             #WkitTopBar.WkitDark .WkitVisualDataContainer .keiseiExplanations p {
-                color: var(--wkit-text-color-dark-theme) !important;
+                color: var(--Wkit-text-color-dark-theme) ;
             }
 
             #WkitTopBar .WkitBaseData:hover .keiseiExplanations,
@@ -1466,91 +1293,57 @@
             }
 
             #WkitTopBar.WkitLight .keiseiPhon {
-                background-image: linear-gradient(0deg, #48af1b, #348613);
-                background-color: #2bef35;
-                color: var(--wkit-text-color-light);
+                background-image: linear-gradient(0deg, var(--Wkit-keiseiphon-background-light-grad1), var(--Wkit-keiseiphon-background-light-grad2) );
+                background-color: var(--Wkit-keiseiphon-background-light);
+                color: var(--color-character-text);
             }
 
-            #WkitTopBar.WkitDark.WkitVanillaColors .keiseiPhon {
-                background-image: linear-gradient(0deg, #48af1b, #348613);
-                background-color: #2bef35;
-                color: var(--wkit-text-color-dark);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .keiseiPhon {
-                background-color: #2bef35;
-                color: var(--inverted-text-color);
-            }
-
-            #WkitTopBar.WkitDark.WkitColorblind .keiseiPhon {
-                background-color: #2bef35;
-                color: var(--wkit-text-color-dark);
+            #WkitTopBar.WkitDark .keiseiPhon {
+                background-color: var(--Wkit-keiseiphon-background-dark);
+                color: var(--color-character-text);
             }
 
             #WkitTopBar.WkitLight .keiseiNonPhon {
-                background-image: linear-gradient(0deg, #f51212, #d41010);
-                background-color: #d6171b;
-                color: var(--wkit-text-color-light);
+                background-image: linear-gradient(0deg, var(--Wkit-keiseinonphon-background-light-grad1), var(--Wkit-keiseinonphon-background-light-grad2));
+                background-color: var(--Wkit-keiseinonphon-background-light);
+                color: var(--color-character-text);
             }
 
-            #WkitTopBar.WkitDark.WkitVanillaColors .keiseiNonPhon {
-                background-image: linear-gradient(0deg, #f51212, #d41010);
-                background-color: #d6171b;
-                color: var(--wkit-text-color-dark);
+            #WkitTopBar.WkitDark .keiseiNonPhon {
+                background-color: var(--Wkit-keiseinonphon-background-dark);
+                color: var(--color-character-text);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .keiseiNonPhon {
-                background-color: #ff4d4f;
-                color: var(--inverted-text-color);
-            }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .keiseiNonPhon {
-                background-color: #ff4d4f;
-                color: var(--wkit-text-color-dark);
-            }
-
-            #WkitTopBar.WkitLight .keiseiRad {
+           #WkitTopBar.WkitLight .keiseiRad {
                 background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
                 background-color: var(--color-radical);
-                color: var(--wkit-text-color-light);
+                color: var(--color-character-text);
+            }
+
+            #WkitTopBar.WkitDark .keiseiRad {
+                background-color: var(--color-radical);
+                color: var(--color-character-text);
             }
 
             #WkitTopBar.WkitDark.WkitVanillaColors .keiseiRad {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
-                background-color: var(--color-radical);
-                color: var(--wkit-text-color-dark);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .keiseiRad {
-                background-color: var(--radical-color);
-                color: var(--inverted-text-color);
-            }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .keiseiRad {
-                background-color: var(--radical-color);
-                color: var(--wkit-text-color-dark);
+                background-color: var(--Wkit-vanilla-rad-color);
+                color: var(--color-character-text);
             }
 
             #WkitTopBar.WkitLight .keiseiKan {
                 background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
                 background-color: var(--color-kanji);
-                color: var(--wkit-text-color-light);
+                color: var(--color-character-text);
+            }
+
+            #WkitTopBar.WkitDark .keiseiKan {
+                background-color: var(--color-kanji);
+                color: var(--color-character-text);
             }
 
             #WkitTopBar.WkitDark.WkitVanillaColors .keiseiKan {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
-                background-color: var(--color-kanji);
-                color: var(--wkit-text-color-dark);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .keiseiKan {
-                background-color: var(--kanji-color);
-                color: var(--inverted-text-color);
-            }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .keiseiKan {
-                background-color: var(--kanji-color);
-                color: var(--wkit-text-color-dark);
+                background-color: var(--Wkit-vanilla-kan-color);
+                color: var(--color-character-text);
             }
 
             /* css rules adapted from acm2010 for Keisei Semantic-phonetic composition */
@@ -1558,22 +1351,22 @@
 
             #WkitTopBar .badge-perfect::before {
                 content: "天";
-                background-color: #092;
+                background-color: var(--Wkit-keisei-badge-high);
             }
 
             #WkitTopBar .badge-high::before {
                 content: "上";
-                background-color: #092;
+                background-color: var(--Wkit-keisei-badge-high);
             }
 
             #WkitTopBar .badge-middle::before {
                 content: "中";
-                background-color: #f04;
+                background-color: var(--Wkit-keisei-badge-low);
             }
 
             #WkitTopBar .badge-low::before {
                 content: "下";
-                background-color: #f04;
+                background-color: var(--Wkit-keisei-badge-low);
             }
 
             #WkitTopBar .WkitBadge::before {
@@ -1589,11 +1382,7 @@
                 line-height: 2.2em;
                 text-align: center;
                 text-shadow:0 2px 0 #99001f;
-                -webkit-box-shadow: 0 -2px 0 rgba(0,0,0,0.2) inset, 0 0 10px rgba(255,255,255,0.5);
-                -moz-box-shadow: 0 -2px 0 rgba(0,0,0,0.2) inset, 0 0 10px rgba(255,255,255,0.5);
                 box-shadow: 0 -2px 0 rgba(0,0,0,0.2) inset, 0 0 10px rgba(255,255,255,0.5);
-                -webkit-border-radius: 50%;
-                -moz-border-radius: 50%;
                 border-radius: 50%;
                 z-index: 20050;
             }
@@ -1618,28 +1407,17 @@
             }
 
             #WkitTopBar.WkitLight .WkitPitchInfo {
-                background-image: linear-gradient(0deg, #48af1b, #348613);
-                background-color: #2bef35;
-                color: var(--wkit-text-color-light);
+                background-image: linear-gradient(0deg, var(--Wkit-PitchInfo-background-light-grad1), var(--Wkit-PitchInfo-background-light-grad1));
+                background-color: var(--Wkit-PitchInfo-background-light);
+                color: var(--color-character-text);
             }
 
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitPitchInfo {
-                background-image: linear-gradient(0deg, #48af1b, #348613);
-                background-color: #2bef35;
-                color: var(--wkit-text-color-dark);
+            #WkitTopBar.WkitDark .WkitPitchInfo {
+                background-color: var(--Wkit-PitchInfo-background-dark);
+                color: var(--color-character-text);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitPitchInfo {
-                background-color: #2bef35;
-                color: var(--inverted-text-color);
-            }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitPitchInfo {
-                background-color: #2bef35;
-                color: var(--wkit-text-color-dark);
-            }
-
-            #WkitTopBar .WkitFirstPitchInfo {
+           #WkitTopBar .WkitFirstPitchInfo {
                 text-align: center;
             }
 
@@ -1658,23 +1436,16 @@
             #WkitTopBar.WkitLight .WkitCharactersPitch {
                 background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1),var(--Wkit-grad-voc-color2));
                 background-color: var(--color-vocabulary);
-                color: var(--wkit-text-color-light);
+                color: var(--color-character-text);
+            }
+
+            #WkitTopBar.WkitDark .WkitCharactersPitch {
+                background-color: var(--color-vocabulary);
+                color: var(--Wkit-text-color-dark-theme);
             }
 
             #WkitTopBar.WkitDark.WkitVanillaColors .WkitCharactersPitch {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-voc-color1), var(--Wkit-grad-voc-color2));
-                background-color: var(--color-vocabulary);
-                color: var(--wkit-text-color-dark);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitCharactersPitch {
-                background-color: var(--vocabulary-color);
-                color: var(--inverted-text-color);
-            }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitCharactersPitch {
-                background-color: var(--vocabulary-color);
-                color: var(--inverted-text-color);
+                background-color: var(--Wkit-vanilla-voc-color);
             }
 
             #WkitTopBar .WkitPitchInfoContainer .WkitCharactersPitch span {
@@ -1697,7 +1468,7 @@
                 position: absolute;
                 left: 10px;
                 top: 75px;
-                background-color: var(--wkit-backgound-explain);
+                background-color: var(--Wkit-background-explain);
                 border-radius: 5px;
                 width: calc(100% - 47px);
                 padding: 8px;
@@ -1719,13 +1490,13 @@
             #WkitTopBar.WkitLight .WkitPitchInfo .WkitRendakuPopup span,
             #WkitTopBar.WkitLight .WkitStrokeOrderHover .WkitRendakuPopup span,
             #WkitTopBar.WkitLight .WkitCharactersPitch .WkitRendakuPopup span {
-                color: var(--wkit-text-color-light) !important;
+                color: var(--color-character-text) ;
             }
 
             #WkitTopBar.WkitDark .WkitPitchInfo .WkitRendakuPopup span,
             #WkitTopBar.WkitDark .WkitStrokeOrderHover .WkitRendakuPopup span,
             #WkitTopBar.WkitDark .WkitCharactersPitch .WkitRendakuPopup span {
-                color: var(--wkit-text-color-dark-theme) !important;
+                color: var(--Wkit-text-color-dark-theme);
             }
 
             #WkitTopBar .WkitCharactersPitch:hover .WkitRendakuPopup,
@@ -1758,7 +1529,7 @@
 
             #WkitTopBar .WkitTooltipContent .WkitStrokeOrderImage {
                 display: table-cell;
-                background-color: #dedede;
+                background-color: var(--Wkit-StrokeOrderImage);
             }
 
             /*=== End of kanji stroke order svg images ===*/
@@ -1772,10 +1543,10 @@
                 left: 0px;
                 width: max-content;
                 border-style: solid;
-                border-color: black;
+                border-color: var(--Wkit-StrokeOrderPopup);
                 border-width: 10px;
                 border-radius: 10px;
-                background-color: black;
+                background-color: var(--Wkit-StrokeOrderPopup);
                 z-index: 20100;
             }
 
@@ -1829,6 +1600,7 @@
             #WkitTopBar .WkitMiniContainer {
                 display: block;
                 position: relative;
+                max-width: 455px;
             }
 
             #WkitTopBar .WkitMiniIcon {
@@ -1846,75 +1618,32 @@
                 text-size-adjust: none;
             }
 
-            #WkitTopBar.WkitLight .WkitMiniIcon.radical,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.radical {
+            #WkitTopBar .WkitMiniIcon.radical {
                 background: var(--color-radical);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.radical,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.radical {
-                background: var(--radical-color);
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.radical {
+                background: var(--Wkit-vanilla-rad-color);
             }
 
-            #WkitTopBar.WkitLight .WkitMiniIcon.kanji,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.kanji {
+            #WkitTopBar .WkitMiniIcon.kanji {
                 background: var(--color-kanji);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.kanji,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.kanji {
-                background: var(--kanji-color);
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.kanji {
+                background: var(--Wkit-vanilla-kan-color);
             }
 
-            #WkitTopBar.WkitLight .WkitMiniIcon.vocabulary,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.vocabulary {
+            #WkitTopBar .WkitMiniIcon.vocabulary {
                 background: var(--color-vocabulary);
             }
 
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.vocabulary,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.vocabulary {
-                background: var(--vocabulary-color);
+            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.vocabulary {
+                background: var(--Wkit-vanilla-voc-color);
             }
 
-            #WkitTopBar.WkitLight .WkitMiniIcon.trad_rad,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.trad_rad {
-                background: var(--Wkit-base-trad-color);
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.trad_rad,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.trad_rad {
-                background: var(--Wkit-baseBD-trad-color);
-            }
-
-            #WkitTopBar.WkitLight .WkitMiniIcon.radical a,
-            #WkitTopBar.WkitLight .WkitMiniIcon.kanji a,
-            #WkitTopBar.WkitLight .WkitMiniIcon.vocabulary a,
-            #WkitTopBar.WkitLight .WkitMiniIcon.trad_rad a {
-                color: var(--wkit-text-color-light) !important;
-                text-decoration: none;
-            }
-
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.radical a,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.kanji a,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.vocabulary a,
-            #WkitTopBar.WkitDark.WkitVanillaColors .WkitMiniIcon.trad_rad a {
-                color: var(--wkit-text-color-dark) !important;
-                text-decoration: none;
-            }
-
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.radical a,
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.kanji a,
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.vocabulary a,
-            #WkitTopBar.WkitDark.WkitBreezeColors .WkitMiniIcon.trad_rad a {
-                color: var(--inverted-text-color) !important;
-                text-decoration: none;
-            }
-
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.radical a,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.kanji a,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.vocabulary a,
-            #WkitTopBar.WkitDark.WkitColorBlind .WkitMiniIcon.trad_rad a {
-                color: var(--wkit-text-color-dark) !important;
+            #WkitTopBar .WkitMiniIcon a {
+                color: var(--color-character-text) ;
                 text-decoration: none;
             }
 
@@ -1942,7 +1671,7 @@
                 top: 50%;
                 border-style: solid;
                 border-width: 5px;
-                border-color: transparent transparent transparent #fff;
+                border-color: transparent transparent transparent var(--Wkit-popup-border-dark);
             }
 
             /*=== The popups for the "And More" notice ===*/
@@ -1965,9 +1694,9 @@
                 display: block;
                 visibility: hidden;
                 position: absolute;
-                right: 20%;
+                right: -550%;
                 transform: translateY(-50%);
-                width: 456px;
+                width: 425px;
                 transition-delay: 0.1s;
                 z-index: 20150;
             }
@@ -1975,7 +1704,7 @@
             #WkitTopBar .WkitAndMoreInnerIcons {
                 display: block;
                 right: 0%;
-                background-color: #463838;
+                background-color: var(--Wkit-andMore-background);
                 border-radius: 5px;
                 padding: 5px;
                 width: 100%;
@@ -1986,12 +1715,6 @@
 
             #WkitTopBar .WkitAndMore:hover .WkitAndMorePopup{
                 visibility: visible;
-            }
-
-            #WkitTopBar .WkitAndMore .WkitAndMorePopup::after {
-                left: 100%;
-                top: 50%;
-                border-color: tranparent #463838 transparent transparent;
             }
 
             /* --------------------------- */
@@ -2010,7 +1733,7 @@
 
             #WkitTopBar .WkitMnemonic {
                 display: inline-block;
-                background-color: #463838;
+                background-color: var(--Wkit-mnemonic-background);
                 border-radius: 3px;
                 padding: 2px;
                 margin: 0px 2px;
@@ -2021,7 +1744,7 @@
                 position: absolute;
                 bottom: 100%;
                 left: 0%;
-                background-color: #5f1616;
+                background-color: var(--Wkit-mnemonic-popup-background);
                 border-radius: 5px;
                 max-height: 205px;
                 overflow: auto;
@@ -2035,13 +1758,6 @@
                 transition-delay: 0.2s;
             }
 
-            #WkitTopBar .WkitMnemonic .WkitMnemonicPopup::after {
-                top: 100%;
-                border-style: solid;
-                border-width: 3px;
-                border-color: transparent transparent grey transparent;
-            }
-
             /* ------------------------------------------------------------------------------ */
             /* End of popups for mnemonics, hints, context sentences, notes and user synonyms */
 
@@ -2050,15 +1766,20 @@
 
             #wkofs_WkitKanjiPicker {
                 --Wkit-base-trad-color: #00a800;
-                --Wkit-grad-trad-color1: #0eaf0e;
-                --Wkit-grad-trad-color2: #0d9c0d;
-                --wkit-text-color-light: white;
-                --wkit-text-color-dark: black;
-                --wkit-background-light-theme: #e6e6e6;
-                --wkit-background-dark-theme: #4e4d4d;
-                --wkit-selected-light-theme: #000000;
-                --wkit-unselected-all-themes: #000000;
-                --wkit-selected-dark-theme: red;
+                --Wkit-text-color-light: white;
+                --Wkit-background-light-theme: #e6e6e6;
+                --Wkit-background-dark-theme: #4e4d4d;
+                --Wkit-selected-light-theme: #000000;
+                --Wkit-unselected-all-themes: #000000;
+                --Wkit-selected-dark-theme: red;
+                --Wkit-vanilla-rad-color: #0af;
+                --Wkit-vanilla-kan-color: #f0a;
+                --Wkit-item-panel-border: black;
+                --Wkit-stroke-count-text-color: black;
+                --Wkit-stroke-count-selected-color: #c1bee2;
+                --Wkit-stroke-count-unselected-color: #dedcf5;
+                --Wkit-kanji-picked-border-color: black;
+                --Wkit-picker-popup-content-background: #5f1616;
             }
 
 
@@ -2069,15 +1790,27 @@
                 overflow-y: auto;
             }
 
-            #wkofs_WkitKanjiPicker.WkitLight .WkitKanjiPicker { background-color:var(--wkit-background-light-theme); }
-            #wkofs_WkitKanjiPicker.WkitDark .WkitKanjiPicker { background-color:var(--wkit-background-dark-theme); }
+            #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_picking {
+                border-color: var(--Wkit-item-panel-border);
+                border-width: 3px;
+                border-style: solid;
+            }
+
+             #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_picked {
+                border-color: var(--Wkit-item-panel-border);
+                border-width: 3px;
+                border-style: solid;
+            }
+
+            #wkofs_WkitKanjiPicker.WkitLight .WkitKanjiPicker { background-color: var(--Wkit-background-light-theme); }
+            #wkofs_WkitKanjiPicker.WkitDark .WkitKanjiPicker { background-color: var(--Wkit-background-dark-theme); }
 
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount {
                 height: 70px;
             }
 
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked {
-                height: 90px;
+                height: 50px;
             }
 
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount {
@@ -2087,23 +1820,24 @@
                 min-width: 1.5em;
                 text-align: center;
                 text-shadow: none;
-                color: black;
+                color: var(--Wkit-stroke-count-text-color);
             }
 
-            #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_strokeCount .WkitStrokeCount { border-color: var(--wkit-selected-light-theme); }
-            #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_strokeCount .WkitStrokeCount { border-color: var(--wkit-selected-dark-theme); }
+            #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_strokeCount .WkitStrokeCount { border-color: var(--Wkit-selected-light-theme); }
+            #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_strokeCount .WkitStrokeCount { border-color: var(--Wkit-selected-dark-theme); }
 
-            #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount.WkitSelected { font-weight: bold; background-color: #c1bee2; }
-            #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount:not(.WkitSelected) { font-weight: normal; background-color: #dedcf5; }
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount.WkitSelected { font-weight: bold;
+                                                                                                background-color: var(--Wkit-stroke-count-selected-color); }
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount:not(.WkitSelected) { font-weight: normal
+                                                                                                    background-color: var(--Wkit-stroke-count-unselected-color); }
 
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount:not(.WkitNotPicked) { border-width: 3px; margin: 1px; }
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount.WkitNotPicked { border-width: 1px; margin: 3px; }
 
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking {
                 display: inline-block;
-                height: 176px;
+                height: 140px;
                 width: 100%;
-                /*background-color: #e6e6e6;*/
                 overflow-y: auto;
             }
 
@@ -2124,15 +1858,11 @@
                 line-height: 1.2em;
             }
 
-            #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical { color: var(--wkit-text-color-light); }
-            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors #WkitKanjiPicker_picking .WkitPickableRadical { color: var(--wkit-text-color-dark); }
-            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors #WkitKanjiPicker_picking .WkitPickableRadical { color: var(--inverted-text-color); }
-            #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind #WkitKanjiPicker_picking .WkitPickableRadical { color: var(--wkit-text-color-dark); }
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical { color: var(--color-character-text); }
 
-            #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani { background-color: var(--color-radical); }
-            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani { background-color: var(--color-radical); }
-            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani { background-color: var(--radical-color); }
-            #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani { background-color: var(--radical-color); }
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani { background-color: var(--color-radical); }
+            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors #WkitKanjiPicker_picking .WkitPickableRadical.WkitWanikani {
+                                                                                                              background-color: var(--Wkit-vanilla-rad-color); }
 
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitTraditional { background-color: var(--Wkit-base-trad-color); }
 
@@ -2152,9 +1882,9 @@
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNotPicked) { border-width: 3px; margin: 1px; }
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitNotPicked { border-width: 1px; margin: 3px; }
 
-            #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNoyPicked) { border-color: var(--wkit-selected-light-theme); }
-            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitNotPicked { border-color: var(--wkit-unselected-all-themes); }
-            #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNotPicked) { border-color: var(--wkit-selected-dark-theme); }
+            #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNotPicked) { border-color: var(--Wkit-selected-light-theme); }
+            #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_picking .WkitPickableRadical:not(.WkitNotPicked) { border-color: var(--Wkit-selected-dark-theme); }
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picking .WkitPickableRadical.WkitNotPicked { border-color: var(--Wkit-unselected-all-themes); }
 
 
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked .WkitKanjiPicked {
@@ -2164,31 +1894,21 @@
                 line-height: 1.2em;
                 border-style: solid;
                 border-width: 1px;
-                border-color: black;
+                border-color: var(--Wkit-kanji-picked-border-color);
                 min-width: 1.5em;
                 font-size: 25px;
                 text-align: center;
                 text-shadow: none;
             }
 
-            #wkofs_WkitKanjiPicker.WkitLight #WkitKanjiPicker_picked .WkitKanjiPicked {
+            #wkofs_WkitKanjiPicker #WkitKanjiPicker_picked .WkitKanjiPicked {
                 background-color: var(--color-kanji);
-                color: var(--wkit-text-color-light);
+                color: var(--color-character-text);
             }
 
             #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors #WkitKanjiPicker_picked .WkitKanjiPicked {
-                background-color: var(--color-kanji);
-                color: var(--wkit-text-color-dark);
-            }
-
-            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors #WkitKanjiPicker_picked .WkitKanjiPicked {
-                background-color: var(--kanji-color);
-                color: var(-inverted-text-color);
-            }
-
-            #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind #WkitKanjiPicker_picked .WkitKanjiPicked {
-                background-color: var(--kanji-color);
-                color: var(--wkit-text-color-dark);
+                background-color: var(--Wkit-vanilla-kan-color);
+                color: var(--color-character-text);
             }
 
 
@@ -2205,11 +1925,10 @@
                 width: max-content;
                 text-align: left;
                 padding: 2px;
-                /*transform: translateY(calc(-50% - 5px));*/
                 transition-property: visibility;
                 transition-delay: 0.15s;
                 max-width: 235px;
-                background-color: #5f1616;
+                background-color: var(--Wkit-picker-popup-content-background);
             }
 
 
@@ -2229,28 +1948,27 @@
             #wkofs_WkitKanjiPicker table {
                 width: 100%;
                 max-width: 100%;
-                background-color: transparent;
                 border-collapse: collapse;
                 border-spacing: 0;
+            }
+
+            #wkofs_WkitKanjiPicker.WkitDark .WkitPickerPopupContent .left,
+            #wkofs_WkitKanjiPicker.WkitDark .WkitPickerPopupContent .right {
+                background-color: var(--Wkit-picker-popup-content-background);
             }
 
             #wkofs_WkitKanjiPicker .right table {
                 width: 100%;
                 line-height: 1em;
-                color: var(--wkit-text-color-light);
-                border-collapse: collapse !important;
+                border-collapse: collapse;
             }
 
             #wkofs_WkitKanjiPicker.WkitLight .right table {
-                color: var(--wkit-text-color-light);
+                color: var(--color-character-text);
             }
 
-            #wkofs_WkitKanjiPicker.WkitDark:not(.WkitBreeze) .right table {
-                color: var(--wkit-text-color-dark-theme);
-            }
-
-            #wkofs_WkitKanjiPicker.WkitDark.WkitBreeze .right table {
-                color: var(--text-color) !important;
+            #wkofs_WkitKanjiPicker.WkitDark .right table {
+                color: var(--Wkit-text-color-light);
             }
 
             #wkofs_WkitKanjiPicker .WkitPickerPopupContent .left {
@@ -2269,47 +1987,28 @@
                 padding: 5px;
             }
 
-            #wkofs_WkitKanjiPicker.WkitLight .left span.radical,
-            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.radical {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-rad-color1), var(--Wkit-grad-rad-color2));
+            #wkofs_WkitKanjiPicker .left span.radical {
                 background-color: var(--color-radical);
             }
 
-            #wkofs_WkitKanjiPicker.WkitLight .left span.kanji,
-            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.kanji {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-kan-color1), var(--Wkit-grad-kan-color2));
+            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.radical {
+                background-color: var(--Wkit-vanilla-rad-color);
+            }
+
+            #wkofs_WkitKanjiPicker .left span.kanji {
                 background-color: var(--color-kanji);
             }
 
-            #wkofs_WkitKanjiPicker.WkitLight .left span.trad_rad,
-            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.trad_rad {
-                background-image: linear-gradient(0deg, var(--Wkit-grad-trad-color1), var(--Wkit-grad-trad-color2));
+            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span.kanji {
+                background-color: var(--Wkit-vanilla-kan-color);
+            }
+
+            #wkofs_WkitKanjiPicker .left span.trad_rad {
                 background-color: var(--Wkit-base-trad-color);
             }
 
-            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span.radical {
-                background-color: var(--radical-color);
-            }
-
-            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span.kanji {
-                background-color: var(--kanji-color);
-            }
-
-            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span.trad_rad {
-                background-color: var(--Wkit-baseBD-trad-color);
-            }
-
-            #wkofs_WkitKanjiPicker.WkitLight .left span {
-                color: var(--wkit-text-color-light);
-            }
-
-            #wkofs_WkitKanjiPicker.WkitDark.WkitVanillaColors .left span,
-            #wkofs_WkitKanjiPicker.WkitDark.WkitColorBlind .left span {
-                color: var(--wkit-text-color-dark);
-            }
-
-            #wkofs_WkitKanjiPicker.WkitDark.WkitBreezeColors .left span {
-                color: var(--inverted-text-color) !important;
+            #wkofs_WkitKanjiPicker .left span {
+                color: var(--color-character-text);
             }
 
             #wkofs_WkitKanjiPicker .WkitPickerPopupContent .right {
@@ -2343,8 +2042,14 @@
 
             /* Settings dialog alteration      */
             /* to make warning message visible */
-            #wkof_ds .note:not(.error) {
-                background-color: yellow;
+            #wkof_ds {
+                --Wkit-setting-warning-background: yellow;
+                --Wkit-setting-warning-text-color: black;
+            }
+
+            #wkof_ds #wkofs_Item_Inspector .note:not(.error) {
+                background-color: var(--Wkit-setting-warning-background);
+                color: var(--Wkit-setting-warning-text-color);
                 font-weight: bold;
             }
 
@@ -2375,11 +2080,17 @@
                 padding: 5px;
                 padding-left: 15px;
                 padding-top: 10px;
-                background-color: Azure;
+                background-color: var(--Wkit-empty-message-background-light);
                 border-radius: 8px;
                 font-size: 16px;
                 font-weight: bold;
             }
+
+            #WkitTopBar.WkitDark .emptyMessage {
+                background-color: var(--Wkit-empty-message-background-dark);
+            }
+
+            /* Settings and filters styling */
 
             textarea#advSearchFilters_advSearch {
                 width : 100%;
@@ -2389,10 +2100,16 @@
                 width : 100%;
             }
 
+            #wkof_ds #wkofs_Item_Inspector,
+            #wkof_ds #wkofs_advSearchFilters {
+                --Wkit-search-filters-or-setting-button: #d0d0d0;
+                --Wkit-search-filters-or-setting-border-button: black;
+            }
+
             #wkof_ds #wkofs_Item_Inspector :not(.pre_list_btn_grp) > button,
             #wkof_ds #wkofs_advSearchFilters button {
-                background-color: #d0d0d0;
-                border-color: black;
+                background-color: var(--Wkit-search-filters-or-setting-button);
+                border-color: var(--Wkit-search-filters-or-setting-border-button);
                 border-width: 1px;
                 border-radius: 3px;
                 padding-left: 5px;
@@ -3199,11 +2916,15 @@
         var settingsTabConfig ={type:'page',label:'Settings',
                                 content:{
                                     sect_tbl_cnts:{type:'section',label:'Interface Configuration'},
-                                    position: {type: 'dropdown', label: 'Position', default: 1, hover_tip: 'Where on the dashboard to install Item Inspector',
-                                               content: {0: "Top", 1: "Bottom", 2: 'After 1st widget row', 3: 'After 2nd widget row',
-                                                         4: 'After 3rd widget row', 5: 'After 4th widget row', 6: 'After 5th widget row',
-                                                         7: 'After 6th widget row', 8: 'After 7th widget row', 9: 'After 8th widget row',},
+                                    position:{type: 'dropdown', label: 'Position', default: 1, hover_tip: 'Where on the dashboard to install Item Inspector',
+                                              content: {0: "Top", 1: "Bottom", 2: '1st widget row', 3: '2nd widget row',
+                                                        4: '3rd widget row', 5: '4th widget row', 6: '5th widget row',
+                                                        7: '6th widget row', 8: '7th widget row', 9: '8th widget row',},
                                               },
+                                    afterBefore: {type: 'dropdown', label: 'After/Before the Selected Row', default: 'After',
+                                                  hover_tip: 'Insert Item Inspector after or before the selected row.',
+                                                  content: {After: 'After', Before: 'Before',},
+                                                 },
                                     hoursFormat: {type:'dropdown',label:'Hours Format',hover_tip:'Choose the format for displaying hours',content:{'12hours':'12h', '24hours':'24h',},
                                                   default: '24h',},
                                     listMode: {type: 'checkbox', label:'Display as List', hover_tip:'Display the table as a list of icons',
@@ -3215,9 +2936,8 @@
                                                   content:{'male': 'Male, Kenichi','female': 'Female, Kyoko', 'random': 'Random',},
                                                  },
                                     themeColor: {type:'dropdown',label:'Colors in Breeze Dark Theme',
-                                                 hover_tip:'Whether Breeze Dark colors or\nWanikani vanilla colors are used\nfor items in Breeze Dark theme.\n\nThe Color Blind Option sets a darker font\nwith Breeze Dark native colors.\nThis let the user use custom Breeze Dark\ncolors they can distinguish.\n\nThis setting is ignored when Breeze Dark is not used ',
-                                                 default:'Breeze_Dark', content:{'Breeze_Dark': 'Breeze Dark Colors', 'Vanilla': 'WK Vanilla Colors',
-                                                                                 'Color_Blind': 'Color Blind Option',},
+                                                 hover_tip:'Whether Breeze Dark colors or\nWanikani vanilla colors are used\nfor items in Breeze Dark theme.\nThis setting is ignored when Breeze Dark is not used ',
+                                                 default:'Breeze_Dark', content:{'Breeze_Dark': 'Breeze Dark Colors', 'Vanilla': 'WK Vanilla Colors',}                                                                                 ,
                                                  },
                                     sect_tbl_cnts2:{type:'section',label:'Feature Selection'},
                                     disableStrokeOrderFont: {type: 'button', label: ' ', text: 'Disable Stroke Order Font Alert', on_click: disableStrokeOrderFont,
@@ -3420,7 +3140,8 @@
         prepare_defaults_for_filters();
 
         // Merge some defaults
-        var defaults = {hoursFormat: '24h', position: 2, numberOfLines: 11, listMode: false, audioSource: 'random', audioMode: false, themeColor: 'Breeze_Dark',
+        var defaults = {hoursFormat: '24h', position: 2, afterBefore: 'After', numberOfLines: 11, listMode: false, audioSource: 'random',
+                        audioMode: false, themeColor: 'Breeze_Dark',
                         optionalFilters: {dateFilters: false, searchFilters: false, statsFilters: false, kanjidic2_trad_rad: false,
                                           itemList: false, blockList: false, partOfSpeech: false, visSim: false, joyoJpltFrequency: false,},
                         enableFeatures: {englishMode: true, audioMode: true, leechTraining: true, randomSelection: true, dateOrdering: true,
@@ -4025,11 +3746,12 @@
     //========================================================================
     // open_quiz_settings()
     //------------------------------------------------------------------------
-    var old_position;
+    var old_position, old_afterBefore;
     function open_quiz_settings() {
         let $settings = document.getElementById("WkitSettings");
         if ($settings) $settings.blur();
         old_position = quiz.settings.position;
+        old_afterBefore = quiz.settings.afterBefore;
         if (quiz.settings_dialog === undefined || quiz.settings_dialog === null){setup_quiz_settings();};
         wkof.wait_state(Wkit_navigation, 'Ready')
             .then(function(){quiz.settings_dialog.open();});
@@ -4044,7 +3766,7 @@
         populate_presets($('#Item_Inspector_source'), settings.ipresets, settings.active_ipreset);
 
         setTableDefault();
-        if (old_position != quiz.settings.position){
+        if (old_position != quiz.settings.position || old_afterBefore != quiz.settings.afterBefore){
             if (document.getElementById("WkitTopBar")){
                 $('#WkitTopBar').empty();
                 $('#WkitTopBar').remove();
@@ -4578,6 +4300,8 @@
             //--[ Settings dialog ]-------------------------------------------
             '#wkof_ds div[role="dialog"][aria-describedby="wkofs_Item_Inspector"] {z-index:12002;}'+
 
+            '#wkofs_Item_Inspector {--Wkit-row-background: #f7f7f7;}'+
+
             '#wkofs_Item_Inspector.wkof_settings .pre_list_btn_grp {width:60px;float:left;margin-right:2px;}'+
             '#wkofs_Item_Inspector.wkof_settings .pre_list_btn_grp button {width:100%; padding:2px 0;}'+
             '#wkofs_Item_Inspector.wkof_settings .pre_list_btn_grp button:not(:last-child) {margin-bottom:2px;}'+
@@ -4589,7 +4313,7 @@
             '#wkofs_Item_Inspector.wkof_settings .filters .row:not(.checked) {padding-top:0px;padding-bottom:0px;}'+
             '#wkofs_Item_Inspector .filters .row .enable input[type="checkbox"] {margin:0;}'+
             '#wkofs_Item_Inspector.narrow .filters .row.checked .right input[type="checkbox"]:after {content:"⇐yes?";margin-left:28px;line-height:30px;}'+
-            '#wkofs_Item_Inspector .filters .row.checked {background-color:#f7f7f7;}'+
+            '#wkofs_Item_Inspector .filters .row.checked {background-color:var(--Wkit-row-background);}'+
             '#wkofs_Item_Inspector .filters .row:not(.checked) {opacity:0.5;}'+
             '#wkofs_Item_Inspector .filters .row .enable {display:inline; margin:0; float:left;}'+
             '#wkofs_Item_Inspector:not(.narrow) .filters .left {width:170px;}'+
@@ -10204,7 +9928,7 @@
             case 'message':
                 stringList.push('<div class="left">');
                 stringList.push('<div class="WkitMessageContainer">');
-                stringList.push('<div class="WkitCharacters WkitStrokeOrderHover ');
+                stringList.push('<div class="WkitKeiseiLettrine WkitStrokeOrderHover ');
                 stringList.push(item.object);
                 stringList.push('">');
                 if (strokeOrderPopup) pushPopupStrokeOrder();
@@ -10580,11 +10304,9 @@
                     stringList.push('</td>');
                     stringList.push('<td>');
                         stringList.push('<div style="text-align: right">');
-                            stringList.push('<a class="WkitMainElement WkitTableEntry" style="padding-left:0;">');
-                                stringList.push('<span>');
-                                    stringList.push(tableEntry);
-                                stringList.push('</span>');
-                            stringList.push('</a>');
+                            stringList.push('<span class="WkitMainElement WkitTableEntry" style="padding-left:0;">');
+                                stringList.push(tableEntry);
+                            stringList.push('</span>');
                         stringList.push('</div>');
                     stringList.push('</td>');
                 stringList.push('</tr>');
@@ -11692,9 +11414,8 @@
             if ($main.hasClass('WkitDark')) $dialog.addClass('WkitDark');
             if ($main.hasClass('WkitVanillaColors')) $dialog.addClass('WkitVanillaColors');
             if ($main.hasClass('WkitBreezeColors')) $dialog.addClass('WkitBreezeColors');
-            if ($main.hasClass('WkitAzure')) $dialog.addClass('WkitAzure');
             if ($main.hasClass('WkitBreeze')) $dialog.addClass('WkitBreeze');
-            if ($main.hasClass('WkitColorBlind')) $dialog.addClass('WkitColorBlind');
+            if ($main.hasClass('WkitElementary')) $dialog.addClass('WkitElementary');
         };
 
         function on_close(){
@@ -14391,16 +14112,16 @@
                      SVGforButtonIcons.last +
             '</button>' +
             '<select id="WkitTableSelector" class="WkitSelector" title="Choose the table you want to display"></select>'+
-            '<button id="WkitToogleDisplay" type="button" class="WkitButton WkitButtonleft title="Toggles between Tables and Lists of icons">'+
+            '<button id="WkitToogleDisplay" type="button" class="WkitButton WkitButtonleft" title="Toggles between Tables and Lists of icons">'+
                      SVGforButtonIcons.target +
             '</button>' +
             '<button id="WkitToogleLanguage" type="button" class="WkitButton WkitButtonleft" title="Toggles the current page between English and Japanese\nPages other than the current one are unaffected." style="font-size:18px; font-weight: 500;"　lang="JP"></button>' +
             '<button id="WkitToogleAudio" type="button" class="WkitButton WkitButtonleft" title="Turns on/off clicking on vocabulary items to play audio.\nAudio is automalically turned off when you click on a button that may change the screen." style="font-size:15px; font-weight: bold; padding-bottom: 1px"></button>' +
             '<div class="WkitSpacer"><span>x</span></div>'+
-            '<button id="WkitLeechTraining" type="button" class="WkitButton WkitButtonleft title="Leech Training Emulation.\nPermits quizzes similar to those provided by the Leech Trainer script.\n\nSelects items randomly.\nItems are selected at most once before next review.\nAt most three visually similar items are added with each random item.">' +
+            '<button id="WkitLeechTraining" type="button" class="WkitButton WkitButtonleft" title="Leech Training Emulation.\nPermits quizzes similar to those provided by the Leech Trainer script.\n\nSelects items randomly.\nItems are selected at most once before next review.\nAt most three visually similar items are added with each random item.">' +
                      SVGforButtonIcons.fork +
             '</button>' +
-            '<button id="WkitRandomSelection" type="button" class="WkitButton WkitButtonleft title="Fill the screen with randomly chosen items.\nPermits to be quized on randomly picked items.\nClick again to return to whole table.">' +
+            '<button id="WkitRandomSelection" type="button" class="WkitButton WkitButtonleft" title="Fill the screen with randomly chosen items.\nPermits to be quized on randomly picked items.\nClick again to return to whole table.">' +
                      SVGforButtonIcons.random +
             '</button>' +
             '<button id="WkitDateOrdering" type="button" class="WkitButton WkitButtonleft" title="Toggles the ordering of items by date and time.\nEnables navigation over time ranges.\nPermits to be quized on items selected by date.\nClick again to return to whole table,">' +
@@ -14435,19 +14156,24 @@
         if (quiz.settings.position === undefined) {quiz.settings.position = 1};
         let position = '.dashboard__content';
         if (quiz.settings.position == 0){
+            // Top
             $(position).before(sectionContainer);
         } else if (quiz.settings.position == 1){
+            // Bottom
             $(position).after(sectionContainer);
         } else {
-            let maxSettingPosition = Number(quiz.settings.position) - 2;
-            let cssPosition =  '.dashboard__content > *:first-child';
-            for (let n = 1; n <= maxSettingPosition; n++){
-                cssPosition += ' + *';
-            };
-            let $cssPosition = $(cssPosition);
+            // Must insert after nth line of widgets
+            let settingPosition = Number(quiz.settings.position) - 2;
+            let cssPosition = '.dashboard__content > .dashboard__row';
+            let $cssPosition = $(cssPosition).eq(settingPosition);
             if ($cssPosition.length > 0) {
-                $cssPosition.after(sectionContainer);
+                if (quiz.settings.afterBefore === 'Before'){
+                    $cssPosition.before(sectionContainer);
+                } else {
+                    $cssPosition.after(sectionContainer);
+                };
             } else {
+                // bottom
                 $(position).after(sectionContainer);
             };
         };
@@ -14970,6 +14696,12 @@
         // turbo:render are fired once for the cache and once for the real page causing problems.
 
         addEventListener("turbo:load", (e) => {
+            if (e.detail.url !== 'https://www.wanikani.com/dashboard' && e.detail.url !== 'https://www.wanikani.com/#' &&
+                e.detail.url !== 'https://www.wanikani.com/'){
+                return;
+            };
+            if (inTurboEventProcessing) {return;};
+            inTurboEventProcessing = true;
 
             // Turbo events are fired too early, leaving work in the event queue
             // scheduled to be executed after the turbo event lister runs that
@@ -14979,21 +14711,23 @@
         });
 
         function delayedExecution(){
-            if (inTurboEventProcessing) {return;};
-            inTurboEventProcessing = true;
-            old_time = current_time;
-            current_time = Date.now();
-            let global_options = {};
-            if (current_time - old_time <= 120*1000) global_options = {force_update: true};
-            if (document.querySelector('.dashboard') !== null) {
+           if (document.querySelector('.dashboard__content') === null) {
+                setTimeout(delayedExecution, 200);
+            } else {
+                old_time = current_time;
+                current_time = Date.now();
+                let global_options;
+                if (current_time - old_time <= 120*1000) {
+                    global_options = {force_update: true};
+                } else {
+                    global_options = {};
+                };
                 let elem = document.getElementById('WkitTopBar');
                 if (elem !== null) elem.remove();
                 //must fetch items because they may be modified by reviews or lessons in a previous page.
                 fetch_all_items(global_options).then(function(){displayItemInspector();
                                                                inTurboEventProcessing = false;});
-            } else {
-                inTurboEventProcessing = false;
-            };
+             };
         };
     };
 
