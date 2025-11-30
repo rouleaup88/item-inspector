@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.35.0
+// @version       1.35.1
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -312,6 +312,7 @@
                 --Wkit-empty-message-background-dark: black;
                 --Wkit-script-header-light: #5c6c705c;
                 --Wkit-script-header-dark: #232629;
+                --Wkit-itemList-background-light: #5c6c7030;
             }
 
             #WkitTopBar.WkitBreeze {
@@ -321,7 +322,7 @@
             /* ----------------------- */
             /* Control Bar and widgets */
 
-            .WkitControlBar { position: relative; margin: 7px 0.6% 7px 2.6%; }
+            #WkitTopBar .WkitControlBar { position: relative; margin: 7px 0.6% 7px 2.6%; }
 
             /* Top bar containers for widgets */
             #WkitTopBar .WkitHeader {
@@ -334,7 +335,7 @@
                 margin-left: -2px;
             }
 
-            #WkitTopBar.WkitLight .WkitHeader { background-color: val(--Wkit-script-header-light); }
+            #WkitTopBar.WkitLight .WkitHeader { background-color: var(--Wkit-script-header-light); }
             #WkitTopBar.WkitDark .WkitHeader { background-color: var(--Wkit-script-header-dark); }
 
             /* Left container for widgets */
@@ -767,6 +768,8 @@
                 padding-left: 3px;
                 border-radius: 5px;
             }
+
+            #WkitTopBar.WkitLight .WkitItemList {background-color: var(--Wkit-itemList-background-light)}
 
             #WkitTopBar .WkitItemList.WkitFlexJustified { justify-content: space-between; }
             #WkitTopBar .WkitItemList.WkitFlexLeft { justify-content: flex-start; }
