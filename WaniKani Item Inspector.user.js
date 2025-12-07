@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.35.1
+// @version       1.35.2
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -6549,7 +6549,10 @@
                         '素人': 'しろうと: exception',
                         '為替': 'かわせ: exception',
                         '親父': 'おや: kun, じ: exception',
-                        '芝生': 'しば: kun ふ: exception',
+                        '芝生': 'しば: kun, ふ: exception',
+                        '直ちに': 'ただ: exception',
+                        '紫外線': 'し: on, がい: on, せん: on',
+                        '紫蘇': 'し:on, そ: on',
                        };
 
     // Readings that may morph into something with a little っ
