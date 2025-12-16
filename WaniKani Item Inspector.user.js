@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.35.2
+// @version       1.35.3
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -1779,6 +1779,7 @@
                 --Wkit-vanilla-kan-color: #f0a;
                 --Wkit-item-panel-border: black;
                 --Wkit-stroke-count-text-color: black;
+                --Wkit-stroke-count-text-color-dark-theme: white;
                 --Wkit-stroke-count-selected-color: #c1bee2;
                 --Wkit-stroke-count-unselected-color: #dedcf5;
                 --Wkit-kanji-picked-border-color: black;
@@ -1830,9 +1831,13 @@
             #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_strokeCount .WkitStrokeCount { border-color: var(--Wkit-selected-dark-theme); }
 
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount.WkitSelected { font-weight: bold;
-                                                                                                background-color: var(--Wkit-stroke-count-selected-color); }
+                                                                                                background-color: var(--Wkit-stroke-count-selected-color);
+                                                                                                }
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount:not(.WkitSelected) { font-weight: normal
                                                                                                     background-color: var(--Wkit-stroke-count-unselected-color); }
+
+            #wkofs_WkitKanjiPicker.wWitDark #WkitKanjiPicker_strokeCount .WkitStrokeCount.WkitSelected {color: var(--Wkit-stroke-count-text-color); }
+            #wkofs_WkitKanjiPicker.WkitDark #WkitKanjiPicker_strokeCount .WkitStrokeCount:not(.WkitSelected) {color: var(--Wkit-stroke-count-text-color-dark-theme); }
 
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount:not(.WkitNotPicked) { border-width: 3px; margin: 1px; }
             #wkofs_WkitKanjiPicker #WkitKanjiPicker_strokeCount .WkitStrokeCount.WkitNotPicked { border-width: 1px; margin: 3px; }
