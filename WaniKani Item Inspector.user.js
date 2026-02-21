@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.35.3
+// @version       1.35.4
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -187,6 +187,7 @@
 
     function setThemeClasses(mutations, caller){
         const BreezeDarkBackground = 'rgb(49, 54, 59)';
+        const ElementaryBackgroundNew = 'rgb(21, 21, 21)';
         const ElementaryBackground = 'rgb(244, 244, 244)';
 
         let is_dark = is_dark_theme();
@@ -218,7 +219,7 @@
                         elem.classList.remove('WkitLight', 'WkitElementary', 'WkitBreezeColors');
                         elem.classList.add('WkitDark', 'WkitBreeze', 'WkitVanillaColors');
                     };
-                } else if (backgroundColor === ElementaryBackground){
+               } else if (backgroundColor === ElementaryBackground || backgroundColor === ElementaryBackgroundNew){
                     elem.classList.remove('WkitLight', 'WkitElementary', 'WkitBreeze', 'WkitVanillaColors', 'WkitBreezeColors');
                     elem.classList.add('WkitDark', 'WkitElementary');
                 } else {
