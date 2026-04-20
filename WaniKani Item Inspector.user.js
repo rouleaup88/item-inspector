@@ -3,7 +3,7 @@
 // @namespace     wk-dashboard-item-inspector
 // @description   Inspect Items in Tabular Format
 // @author        prouleau
-// @version       1.35.4
+// @version       1.35.5
 // @match         https://www.wanikani.com/*
 // @copyright     2020+, Paul Rouleau
 // @license       GPLV3 or later; https://www.gnu.org/licenses/gpl-3.0.en.html and MIT; http://opensource.org/licenses/MIT --- with exceptions described in comments
@@ -14518,7 +14518,7 @@
 
         function forceCacheDeleteIfNeeded(){
             // increment currentQuestionNumber to force a deletion of all Item Inspector cached items
-            const currentQuestionNumber = 4;
+            const currentQuestionNumber = 5;
             const asked = wkof.settings[scriptId].cacheDeleteNumber || 0;
             if (asked < currentQuestionNumber) {
                 return deleteFilesFromCache()
